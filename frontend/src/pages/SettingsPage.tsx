@@ -1,0 +1,499 @@
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  Button,
+  Input,
+  Divider,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  Spinner,
+  Progress,
+} from "@heroui/react";
+import { IoSettingsOutline } from "react-icons/io5";
+import { RxUpdate } from "react-icons/rx";
+import { FaGithub, FaDiscord } from "react-icons/fa";
+import { LuFolderOpen, LuHardDrive } from "react-icons/lu";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import {
+  GetAppVersion,
+  CheckUpdate,
+  Update,
+  GetLanguageNames,
+  GetBaseRoot,
+  SetBaseRoot,
+  ResetBaseRoot,
+  GetInstallerDir,
+  GetVersionsDir,
+  OpenPathDir,
+  CanWriteToDir,
+} from "../../bindings/github.com/liteldev/LeviLauncher/minecraft";
+import { Browser } from "@wailsio/runtime";
+import * as types from "../../bindings/github.com/liteldev/LeviLauncher/internal/types/models";
+import * as minecraft from "../../bindings/github.com/liteldev/LeviLauncher/minecraft";
+
+export const SettingsPage: React.FC = () => {
+  const { t, i18n } = useTranslation();
+  const hasBackend = minecraft !== undefined;
+  const [appVersion, setAppVersion] = useState("");
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
+  const [updating, setUpdating] = useState(false);
+  const [newVersion, setNewVersion] = useState("");
+  const [hasUpdate, setHasUpdate] = useState(false);
+  const [changelog, setChangelog] = useState<string>("");
+  const [langNames, setLangNames] = useState<Array<types.LanguageJson>>([]);
+  const [selectedLang, setSelectedLang] = useState<string>("");
+  const [languageChanged, setLanguageChanged] = useState<boolean>(false);
+  const [baseRoot, setBaseRoot] = useState<string>("");
+  const [installerDir, setInstallerDir] = useState<string>("");
+  const [versionsDir, setVersionsDir] = useState<string>("");
+  const [newBaseRoot, setNewBaseRoot] = useState<string>("");
+  const [savingBaseRoot, setSavingBaseRoot] = useState<boolean>(false);
+  const [baseRootWritable, setBaseRootWritable] = useState<boolean>(true);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    GetAppVersion().then((version) => {
+      setAppVersion(version);
+    });
+    if (hasBackend) {
+      GetLanguageNames().then((res) => setLangNames(res));
+    } else {
+      setLangNames([
+        { language: "English", code: "en_US" } as unknown as types.LanguageJson,
+        {
+          language: "简体中文",
+          code: "zh_CN",
+        } as unknown as types.LanguageJson,
+      ]);
+    }
+    const normalize = (lng: string) => {
+      if (!lng) return "en_US";
+      const lower = lng.toLowerCase();
+      if (lower === "en-us" || lower === "en") return "en_US";
+      if (lower === "zh-cn" || lower === "zh") return "zh_CN";
+      return lng;
+    };
+    setSelectedLang(normalize(i18n.language));
+    setLanguageChanged(false);
+    Promise.resolve()
+      .then(async () => {
+        try {
+          if (hasBackend) {
+            const br = await GetBaseRoot();
+            const pick = (location?.state as any)?.baseRootPickResult;
+            setBaseRoot(String(br || ""));
+            setNewBaseRoot(
+              typeof pick === "string" && pick.length > 0
+                ? String(pick)
+                : String(br || "")
+            );
+            const id = await GetInstallerDir();
+            setInstallerDir(String(id || ""));
+            const vd = await GetVersionsDir();
+            setVersionsDir(String(vd || ""));
+          }
+        } catch {}
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const v: string | undefined = (location?.state as any)?.baseRootPickResult;
+    if (v && typeof v === "string" && v.length > 0) {
+      setNewBaseRoot(v);
+      setTimeout(() => {
+        navigate(location.pathname, { replace: true, state: { ...(location.state as any), baseRootPickResult: undefined } });
+      }, 0);
+    }
+  }, [location?.state]);
+
+  useEffect(() => {
+    const checkWritable = async () => {
+      try {
+        if (!newBaseRoot) {
+          setBaseRootWritable(false);
+          return;
+        }
+        const ok = await CanWriteToDir(newBaseRoot);
+        setBaseRootWritable(Boolean(ok));
+      } catch {
+        setBaseRootWritable(false);
+      }
+    };
+    checkWritable();
+  }, [newBaseRoot]);
+
+  const onCheckUpdate = async () => {
+    setCheckingUpdate(true);
+    try {
+      const res = await CheckUpdate();
+      setHasUpdate(res.isUpdate);
+      setNewVersion(res.version || "");
+      try {
+        const body = (res as any)?.body || "";
+        setChangelog(String(body || ""));
+      } catch {}
+    } finally {
+      setCheckingUpdate(false);
+    }
+  };
+
+  const onUpdate = async () => {
+    setUpdating(true);
+    try {
+      await Update();
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  return (
+    <div className="px-3 sm:px-5 lg:px-8 py-2 sm:py-4 lg:py-6 w-full max-w-none">
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25 }}
+      >
+        <Card className="rounded-3xl shadow-xl p-2 bg-white/60 dark:bg-black/30 backdrop-blur-md border border-white/30">
+          <CardHeader className="flex flex-col items-start px-4 pb-0 pt-4">
+            <div className="flex items-center">
+              <IoSettingsOutline size={24} className="spin-animation" />
+              <p className="text-large ml-2">
+                {t("settingscard.header.title")}
+              </p>
+            </div>
+            <p className="text-small text-default-500">
+              {t("settingscard.header.content")}
+            </p>
+          </CardHeader>
+          <Divider className="my-2 bg-default-200/60 h-px" />
+          <CardBody className="space-y-2">
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, delay: 0.04 }}
+              className="flex items-center justify-between"
+            >
+              <div className="min-w-0">
+                <p className="font-medium">
+                  {t("settingscard.body.paths.title", { defaultValue: "内容路径" })}
+                </p>
+                {newBaseRoot && newBaseRoot !== baseRoot ? (
+                  <p className={`text-tiny mt-1 ${baseRootWritable ? "text-warning-500" : "text-danger-500"} truncate`} title={newBaseRoot}>
+                    {baseRootWritable
+                      ? t("settingscard.body.paths.base_root", { defaultValue: "根目录" }) + ": " + newBaseRoot
+                      : t("settingscard.body.paths.not_writable", { defaultValue: "目录不可写入" })}
+                  </p>
+                ) : null}
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Button
+                  color="primary"
+                  radius="full"
+                  isDisabled={!newBaseRoot || !baseRootWritable}
+                  isLoading={savingBaseRoot}
+                  onPress={async () => {
+                    setSavingBaseRoot(true);
+                    try {
+                      const ok = await CanWriteToDir(newBaseRoot);
+                      if (!ok) {
+                        setBaseRootWritable(false);
+                      } else {
+                        const err = await SetBaseRoot(newBaseRoot);
+                        if (!err) {
+                          const br = await GetBaseRoot();
+                          setBaseRoot(String(br || ""));
+                          const id = await GetInstallerDir();
+                          setInstallerDir(String(id || ""));
+                          const vd = await GetVersionsDir();
+                          setVersionsDir(String(vd || ""));
+                        }
+                      }
+                    } catch {}
+                    setSavingBaseRoot(false);
+                  }}
+                >
+                  {t("settingscard.body.paths.apply", { defaultValue: "应用" })}
+                </Button>
+                <Button
+                  variant="light"
+                  radius="full"
+                  onPress={async () => {
+                    try {
+                      const err = await ResetBaseRoot();
+                      if (!err) {
+                        const br = await GetBaseRoot();
+                        setBaseRoot(String(br || ""));
+                        setNewBaseRoot(String(br || ""));
+                        const id = await GetInstallerDir();
+                        setInstallerDir(String(id || ""));
+                        const vd = await GetVersionsDir();
+                        setVersionsDir(String(vd || ""));
+                        setBaseRootWritable(true);
+                      }
+                    } catch {}
+                  }}
+                >
+                  {t("settingscard.body.paths.reset", { defaultValue: "恢复默认" })}
+                </Button>
+              </div>
+            </motion.div>
+
+            <div className="mt-1">
+              <div className="flex flex-col">
+                <Input
+                  label={t("settingscard.body.paths.base_root", { defaultValue: "根目录" }) as string}
+                  value={newBaseRoot}
+                  onValueChange={setNewBaseRoot}
+                  endContent={
+                    <Button size="sm" variant="flat" onPress={() => {
+                      navigate("/filemanager", { state: { directoryPickMode: true, returnTo: "/settings", returnState: {}, title: t("settingscard.body.paths.title", { defaultValue: "内容路径" }), initialPath: (newBaseRoot || baseRoot) || "" } });
+                    }}>
+                      {t("common.browse", { defaultValue: "选择..." })}
+                    </Button>
+                  }
+                />
+                {!baseRootWritable ? (
+                  <div className="text-tiny text-danger-500 mt-1">
+                    {t("settingscard.body.paths.not_writable", { defaultValue: "目录不可写入" })}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="text-tiny text-default-500">
+                {t("settingscard.body.paths.installer", { defaultValue: "安装器目录" })}: {installerDir || "-"}
+              </div>
+              <div className="text-tiny text-default-500">
+                {t("settingscard.body.paths.versions", { defaultValue: "版本目录" })}: {versionsDir || "-"}
+              </div>
+            </div>
+
+            <Divider className="my-2 bg-default-200/60 h-px" />
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, delay: 0.05 }}
+              className="flex items-center justify-between"
+            >
+              <div>
+                <p>
+                  {t("settingscard.body.language.name", {
+                    defaultValue: t("app.lang"),
+                  })}
+                </p>
+                <p className="text-small text-default-500">
+                  {langNames.find((l) => l.code === selectedLang)?.language ||
+                    selectedLang}
+                </p>
+              </div>
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button radius="full" variant="bordered">
+                    {t("settingscard.body.language.button", {
+                      defaultValue: "更改",
+                    })}
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu
+                  aria-label="Language selection"
+                  variant="flat"
+                  disallowEmptySelection
+                  selectionMode="single"
+                  className="max-h-60 overflow-y-auto"
+                  selectedKeys={new Set([selectedLang])}
+                  onSelectionChange={(keys) => {
+                    const arr = Array.from(keys as unknown as Set<string>);
+                    const next = arr[0];
+                    if (typeof next === "string" && next.length > 0) {
+                      setSelectedLang(next);
+                      Promise.resolve(i18n.changeLanguage(next)).then(() => {
+                        try {
+                          localStorage.setItem("i18nextLng", next);
+                        } catch {}
+                        setLanguageChanged(true);
+                      });
+                    }
+                  }}
+                >
+                  {langNames.map((lang) => (
+                    <DropdownItem key={lang.code} textValue={lang.language}>
+                      {lang.language}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+            </motion.div>
+
+            <Divider className="my-2 bg-default-200/60 h-px" />
+
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, delay: 0.1 }}
+              className="flex items-center justify-between"
+            >
+              <div>
+                <p>{t("settingscard.body.version.name")}</p>
+                <p className="text-small text-default-500">{appVersion}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                {checkingUpdate ? (
+                  <Spinner size="sm" />
+                ) : (
+                  <motion.div
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    <Button
+                      radius="full"
+                      variant="bordered"
+                      onPress={onCheckUpdate}
+                    >
+                      {t("settingscard.body.version.button")}
+                    </Button>
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+            <AnimatePresence>
+              {hasUpdate ? (
+                <motion.div
+                  key="hasUpdate"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 6 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex items-center justify-between"
+                >
+                  <p className="text-small text-danger-500">
+                    {t("settingscard.body.version.hasnew")} {newVersion}
+                  </p>
+                  <motion.div
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    <Button
+                      color="primary"
+                      radius="full"
+                      onPress={onUpdate}
+                      isDisabled={updating}
+                      startContent={<RxUpdate />}
+                    >
+                      {updating
+                        ? t("common.updating", { defaultValue: "更新中" })
+                        : t("settingscard.modal.2.footer.download_button")}
+                    </Button>
+                  </motion.div>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+            {hasUpdate && changelog ? (
+              <div className="mt-2 rounded-md bg-default-100/60 border border-default-200 px-3 py-2">
+                <div className="text-small font-semibold mb-1">
+                  {t("downloadpage.changelog.title", { defaultValue: "最新更新日志" })}
+                </div>
+                <div className="text-small break-words leading-6 max-h-[24vh] sm:max-h-[32vh] overflow-y-auto pr-1">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      h1: ({ children }) => (
+                        <h1 className="text-xl font-semibold mt-2 mb-2">{children}</h1>
+                      ),
+                      h2: ({ children }) => (
+                        <h2 className="text-lg font-semibold mt-2 mb-2">{children}</h2>
+                      ),
+                      h3: ({ children }) => (
+                        <h3 className="text-base font-semibold mt-2 mb-2">{children}</h3>
+                      ),
+                      p: ({ children }) => (
+                        <p className="my-1">{children}</p>
+                      ),
+                      ul: ({ children }) => (
+                        <ul className="list-disc pl-6 my-2">{children}</ul>
+                      ),
+                      ol: ({ children }) => (
+                        <ol className="list-decimal pl-6 my-2">{children}</ol>
+                      ),
+                      li: ({ children }) => <li className="my-1">{children}</li>,
+                      a: ({ href, children }) => (
+                        <a href={href} target="_blank" rel="noreferrer" className="text-primary underline">
+                          {children}
+                        </a>
+                      ),
+                      hr: () => <hr className="my-3 border-default-200" />,
+                    }}
+                  >
+                    {changelog}
+                  </ReactMarkdown>
+                </div>
+              </div>
+            ) : null}
+            {updating ? (
+              <div className="py-2">
+                <Progress
+                  size="md"
+                  radius="sm"
+                  aria-label="Installation Progress"
+                  color="warning"
+                  isIndeterminate={true}
+                />
+              </div>
+            ) : null}
+
+            
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, delay: 0.2 }}
+              className="flex items-center justify-between"
+            >
+              <div>
+                <p>{t("aboutcard.title")}</p>
+                <p className="text-small text-default-500">
+                  {t("aboutcard.description", { name: "LeviMC" })}
+                </p>
+                <p className="text-small text-default-500">
+                  {t("aboutcard.font", { name: "MiSans" })}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }}>
+                  <Button
+                    isIconOnly
+                    variant="light"
+                    onPress={() => {
+                      Browser.OpenURL("https://github.com/liteldev");
+                    }}
+                  >
+                    <FaGithub size={24} />
+                  </Button>
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }}>
+                  <Button
+                    isIconOnly
+                    variant="light"
+                    onPress={() => {
+                      Browser.OpenURL("https://discord.gg/v5R5P4vRZk");
+                    }}
+                  >
+                    <FaDiscord size={24} />
+                  </Button>
+                </motion.div>
+              </div>
+            </motion.div>
+          </CardBody>
+        </Card>
+      </motion.div>
+    </div>
+  );
+};

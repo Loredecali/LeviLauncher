@@ -1,0 +1,100 @@
+package versions
+
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"io"
+	"os"
+	"path/filepath"
+	"reflect"
+	"time"
+
+	"github.com/liteldev/LeviLauncher/internal/utils"
+)
+
+var _ = reflect.TypeOf(VersionMeta{})
+var _ = reflect.TypeOf(metaFileName)
+
+// VersionMeta is stored as version.json inside each version folder
+// and is used by the launcher to display available versions.
+type VersionMeta struct {
+	Name             string    `json:"name"`        // folder name (display name)
+	GameVersion      string    `json:"gameVersion"` // e.g. 1.21.30
+	Type             string    `json:"type"`        // "release" | "preview"
+	EnableIsolation  bool      `json:"enableIsolation"`
+	EnableConsole    bool      `json:"enableConsole"`
+	EnableEditorMode bool      `json:"enableEditorMode"`
+	CreatedAt        time.Time `json:"createdAt"`
+}
+
+const metaFileName = "version.json"
+
+// metaPath returns the full path to version.json for a given version directory.
+func metaPath(versionDir string) string { return filepath.Join(versionDir, metaFileName) }
+
+// WriteMeta writes the VersionMeta into the given version directory.
+func WriteMeta(versionDir string, meta VersionMeta) error {
+	if !utils.DirExists(versionDir) {
+		if err := os.MkdirAll(versionDir, 0755); err != nil {
+			return err
+		}
+	}
+	f, err := os.Create(metaPath(versionDir))
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	enc := json.NewEncoder(f)
+	enc.SetIndent("", "  ")
+	return enc.Encode(meta)
+}
+
+// ReadMeta reads VersionMeta from the given version directory.
+func ReadMeta(versionDir string) (VersionMeta, error) {
+	var m VersionMeta
+	f, err := os.Open(metaPath(versionDir))
+	if err != nil {
+		return m, err
+	}
+	defer f.Close()
+	dec := json.NewDecoder(f)
+	err = dec.Decode(&m)
+	return m, err
+}
+
+// ScanVersions scans the versions root directory and returns all metas found.
+func ScanVersions(versionsRoot string) ([]VersionMeta, error) {
+	entries, err := os.ReadDir(versionsRoot)
+	if err != nil {
+		return nil, err
+	}
+	var out []VersionMeta
+	for _, e := range entries {
+		if !e.IsDir() {
+			continue
+		}
+		dir := filepath.Join(versionsRoot, e.Name())
+		m, err := ReadMeta(dir)
+		if err != nil {
+			continue
+		}
+		out = append(out, m)
+	}
+	return out, nil
+}
+
+// ComputeVCRuntimeHash returns SHA256 hex of vcruntime140_1.dll in given dir if present.
+func ComputeVCRuntimeHash(versionDir string) (string, error) {
+	path := filepath.Join(versionDir, "vcruntime140_1.dll")
+	f, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(h.Sum(nil)), nil
+}

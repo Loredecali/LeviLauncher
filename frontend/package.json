@@ -1,0 +1,45 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build:dev": "vite build --minify false --mode development",
+    "build": "vite build --mode production",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@heroui/react": "2.7.2",
+    "@react-stately/utils": "^3.10.5",
+    "framer-motion": "^11.3.22",
+    "i18next": "^23.12.7",
+    "i18next-browser-languagedetector": "^8.0.0",
+    "i18next-fs-backend": "^2.3.2",
+    "i18next-http-backend": "^2.5.2",
+    "next-themes": "^0.3.0",
+    "path-browserify": "^1.0.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-i18next": "^15.0.1",
+    "react-icons": "^5.2.1",
+    "react-router-dom": "^6.26.0",
+    "react-sage": "^0.3.16",
+    "tailwind-merge": "^3.0.2",
+    "uuid": "^10.0.0",
+    "@wailsio/runtime": "^3.0.0-alpha.39",
+    "react-markdown": "^9.0.0",
+    "remark-gfm": "^4.0.0"
+  },
+  "devDependencies": {
+    "@iconify/react": "^5.0.2",
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.0.6",
+    "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react": "^5.1.1",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.41",
+    "tailwindcss": "^3.4.7",
+    "vite": "^7.2.2"
+  }
+}

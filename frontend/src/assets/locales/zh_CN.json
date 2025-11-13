@@ -1,0 +1,623 @@
+{
+    "app": {
+        "settings": "设置",
+        "lang": "语言",
+        "quit_launcher": "退出启动器"
+    },
+    "nav": { "versions": "版本", "more": "更多" },
+    "launcherpage": {
+        "launch_button": "启动",
+        "content_manage": "内容管理",
+        "quick_actions": "快捷功能",
+        "go_version_settings": "版本设置",
+        "manage_versions": "版本列表",
+        "search_versions": "搜索版本或名称",
+        "delete": {
+            "failed": {
+                "title": "删除失败",
+                "content": "请稍后再试。",
+                "close_button": "关闭"
+            },
+            "complete": {
+                "title": "删除完成",
+                "content": "所选版本已成功删除！",
+                "close_button": "关闭"
+            },
+            "confirm": {
+                "title": "确认删除",
+                "content": "您确定要删除此版本吗？此操作无法撤销。",
+                "delete_button": "删除",
+                "cancel_button": "取消"
+            },
+            "deleting": {
+                "title": "正在删除中..."
+            }
+        },
+        "launch": {
+            "failed": {
+                "title": "启动错误",
+                "content": "您没有选择任何版本，请前往下载页面进行下载！",
+                "download_button": "下载页面",
+                "close_button": "关闭"
+            },
+            "force_run_button": "强制启动"
+        },
+        "deleting": {
+            "title": "正在删除"
+        },
+        "registering": {
+            "title": "正在注册"
+        },
+        "startup": {
+            "title": "启动成功",
+            "content": "所选版本已成功启动！",
+            "close_button": "关闭"
+        },
+        "currentVersion": "当前版本",
+        "vcruntime": {
+            "completing": {
+                "title": "正在补全缺失的 DLL",
+                "body": "正在下载并补全 vcruntime140_1.dll，请稍候…"
+            }
+        },
+        "mclaunch": {
+            "loading": {
+                "title": "正在启动 Minecraft",
+                "body": "正在等待游戏窗口出现，请稍候…"
+            }
+        },
+        "gameinput": {
+            "installing": {
+                "title": "正在安装 GameInput",
+                "body": "正在下载并启动安装程序，请根据系统提示完成安装。",
+                "progress_prefix": "进度：",
+                "preparing": "正在准备下载..."
+            },
+            "missing": {
+                "title": "缺少 GameInput 组件",
+                "body": "运行游戏需要 Microsoft GameInput 组件。是否现在下载安装？",
+                "install_now": "立即安装"
+            }
+        },
+        "gs": {
+            "missing": {
+                "title": "缺少 Microsoft Gaming Services",
+                "body": "未检测到 Microsoft Gaming Services。该组件是 Minecraft 运行所必须的依赖项。",
+                "open_store": "打开商店进行安装"
+            }
+        },
+        "install_confirm": {
+            "title": "是否已完成安装？",
+            "body": "安装完成后请点击“已完成，重新检测”。如果尚未完成，请继续安装。",
+            "continue": "继续安装",
+            "done_and_check": "已完成，重新检测"
+        },
+        "currentVersion_choose_version_aria": "选择版本",
+        "currentVersion_none": "无",
+        "version_select": {
+            "title": "选择版本",
+            "subtitle": "当前可选版本（本地检测）：",
+            "unknown": "未知"
+        },
+        
+        "tip": {
+            "general": "提示：首次启动可能较慢，请耐心等待。",
+            "choose_version_dropdown": "右侧下拉按钮可快速切换当前版本。",
+            "open_version_settings_gear": "点击齿轮打开“版本设置”，可更换图标并启用版本隔离。",
+            "mods_drag": "在 Mods 页面拖拽 .zip/.dll 到卡片即可导入。",
+            "mods_import_button": "点击 Mods 卡片的“导入 .zip/.dll”选择文件。",
+            "mods_open_folder": "在 Mods 卡片点击“打开目录”直接管理插件文件。",
+            "download_versions": "在“下载”页安装 Release/Preview，安装后出现在下拉列表。",
+            "content_counts_card": "主页“内容管理”显示世界、资源包、行为包数量。",
+            "file_manager_pick": "文件管理器支持多选并回传路径到 Mods 导入。"
+        }
+    },
+    "moddedcard": {
+        "title": "模组",
+        "content": {
+            "none": "未找到模组",
+            "found": "找到 {{count}} 个模组"
+        },
+        "manage": "管理模组"
+    },
+    "downloadpage": {
+        "type": {
+            "install": "已安装",
+            "not_install": "未安装"
+        },
+         "changelog": {
+            "title": "最新更新日志",
+            "loading": "加载中..."
+        },
+        "status": {
+            "downloaded": "已下载",
+            "not_downloaded": "未下载",
+            "checking": "检查中…"
+        },
+        "table": {
+            "aria_label": "版本表格",
+            "empty": "暂无数据",
+            "header": {
+                "version": "版本",
+                "type": "类型",
+                "status": "状态",
+                "actions": "操作"
+            },
+            "type": {
+                "release": "正式版",
+                "preview": "预览版"
+            }
+        },
+        "topcontent": {
+            "rowperpage": "每页行数：",
+            "types": "类型",
+            "types_all": "全部",
+            "status": "状态",
+            "status_all": "全部",
+            "status_downloaded": "已下载",
+            "status_not_downloaded": "未下载",
+            "input": {
+                "placeholder": "按版本搜索..."
+            }
+        },
+        "actions": {
+            "delete_installer": "删除下载包"
+        },
+        "bottomcontent": {
+            "total": "共 {{count}} 个版本"
+        },
+        "install_folder": {
+            "confirm_title": "确认安装文件夹",
+            "name_label": "版本名称",
+            "placeholder_name": "请输入版本名称",
+            "suggest_default": "建议使用默认值：",
+            "description": "用于保存复制后的游戏文件",
+            "name_required": "名称不能为空",
+            "enable_isolation": "版本隔离",
+            "enable_isolation_desc": "将游戏数据（如世界、设置、缓存等）重定向到 versions/【名称】/ 目录下，而不是存放在 AppData 中。",
+            "inherit_label": "继承来源",
+            "inherit_hint": "从已隔离版本复制数据，类型需与当前一致",
+            "inherit_none": "不继承",
+            "inherit_gdk": "从 GDK 目录继承"
+        },
+        "mirror": {
+            "title": "选择下载镜像",
+            "target": "下载目标",
+            "testing": "测速中…",
+            "unselected": "未选择",
+            "copy_link": "复制链接",
+            "recommended": "推荐镜像",
+            "auto_testing": "自动测速中…",
+            "no_recommended": "暂无推荐镜像",
+            "others": "其它镜像",
+            "testing_short": "测速中",
+            "failed": "失败",
+            "no_mirrors": "当前版本无可用镜像。",
+            "filename_fallback": "(文件)",
+            "retest": "重新测速",
+            "download_selected": "下载所选镜像",
+            "install_button": "安装",
+            "install_selected": "安装所选镜像"
+        },
+        "progress": {
+            "title": "下载进度",
+            "dest_placeholder": "安装包目录下(msixvc)",
+            "error_prefix": "错误：",
+            "unknown_error": "未知错误"
+        },
+        "download": {
+            "success_title": "下载完成",
+            "success_body": "文件已下载："
+        },
+        "delete": {
+            "title": "确认删除下载包",
+            "body": "将删除安装包：",
+            "warning": "此操作不可恢复。",
+            "confirm": "删除",
+            "success_title": "删除完成",
+            "success_body": "已删除安装包："
+        },
+        "install": {
+            "version_label": "版本",
+            "hint": "请稍候，此过程可能需要较长时间…",
+            "estimated_size": "已写入大小（估算）",
+            "target": "安装目标",
+            "success_title": "安装完成",
+            "success": "版本已成功安装。"
+        },
+        "vcr": {
+            "error_generic": "运行库准备失败，请检查网络后重试"
+        },
+        "customappx": {
+            "button": "自定义",
+            "modal": {
+                "1": {
+                    "header": "版本信息",
+                    "body": {
+                        "select": {
+                            "label": "请选择游戏版本",
+                            "item1": "正式版",
+                            "item2": "预览版"
+                        }
+                    },
+                    "footer": {
+                        "cancel_button": "取消",
+                        "install_button": "安装"
+                    }
+                }
+            }
+        }
+    },
+    "settingscard": {
+        "header": {
+            "title": "设置",
+            "content": "配置启动器常用选项"
+        },
+        "body": {
+            "version": {
+                "name": "当前版本",
+                "hasnew": "有新的版本更新！",
+                "button": "检查更新",
+                "ignore": "屏蔽该版本"
+            },
+            "paths": {
+                "title": "内容路径",
+                "base_root": "根目录",
+                "apply": "应用",
+                "reset": "恢复默认",
+                "open_installers": "打开安装器目录",
+                "open_versions": "打开版本目录",
+                "installer": "安装器目录",
+                "versions": "版本目录",
+                "not_writable": "目录不可写入"
+            },
+            "browse": "选择...",
+            "language": {
+                "name": "语言",
+                "button": "更改"
+            },
+            "defaultdev": {
+                "label": "以 Dev 模式启动",
+                "description": "启用后，启动会以 Dev 模式启动Minecraft。关闭则直接以普通模式启动。"
+            }
+        },
+        "footer": {
+            "cancel_button": "取消",
+            "save_button": "保存"
+        },
+        "modal": {
+            "-2": {
+                "header": {
+                    "title": "您当前已经是最新版本！"
+                },
+                "footer": {
+                    "close_button": "关闭"
+                }
+            },
+            "1": {
+                "header": {
+                    "title": "正在检查更新中..."
+                },
+                "body": {
+                    "content": "正在检查更新..."
+                },
+                "footer": {
+                    "cancel_button": "取消"
+                }
+            },
+            "2": {
+                "header": {
+                    "title": "检测到新版本"
+                },
+                "body": {
+                    "content": "发现新的版本 ({{version}}) 可用！"
+                },
+                "footer": {
+                    "download_button": "更新",
+                    "close_button": "关闭"
+                }
+            },
+            "3": {
+                "header": {
+                    "title": "更新中..."
+                }
+            }
+        }
+    },
+    
+    "downloadmodal": {
+        "download_button": "下载",
+        "information": {
+            "title": "信息确认",
+            "spinner": {
+                "label": "正在尝试获取下载链接..."
+            },
+            "table": {
+                "version": "版本",
+                "type": "类型",
+                "size": "文件大小"
+            },
+            "input": {
+                "label": "版本名称",
+                "placeholder": "输入您的版本名称",
+                "errormessage": "不符合命名规则或已存在！"
+            },
+            "switch": {
+                "label": "启用模组",
+                "description": "这将启用您进行模组化，并自动安装预加载器，以及修改原始文件（Minecraft.Windows.exe）。"
+            },
+            "close_button": "关闭",
+            "download_button": "下载"
+        },
+        "downloading": {
+            "title": "正在下载",
+            "body": {
+                "file_name": " 文件：{{name}}",
+                "estimated_time_remaining": "预计剩余时间："
+            },
+            "footer": {
+                "close_button": "关闭"
+            }
+        },
+        "installing": {
+            "title": "正在安装"
+        },
+        "installcomplete": {
+            "title": "安装完成",
+            "content": "您的安装已成功！",
+            "close_button": "关闭"
+        },
+        "stopdownload": {
+            "title": "确认停止下载",
+            "content": "您确定要停止下载吗？此操作将不可逆！",
+            "cancel_button": "取消",
+            "stop_button": "停止"
+        },
+        "downloadfailed": {
+            "title": "下载失败",
+            "content": "下载文件时发生错误。请稍后再试。",
+            "close_button": "关闭"
+        },
+        "installfailed": {
+            "title": "安装失败",
+            "content": "请稍后再试。",
+            "close_button": "关闭"
+        },
+        "open_folder": "打开目录"
+    },
+    "aboutcard": {
+        "title": "关于",
+        "description": " 2024-2025 {{name}} 保留所有权利",
+        "font": "本软件使用 {{name}} 字体"
+    },
+    
+    "common": {
+        "ok": "确定",
+        "cancel": "取消",
+        "error": "错误",
+        "retry": "重试",
+        "refresh": "刷新",
+        "open": "打开",
+        "preview": "预览版",
+        "release": "正式版",
+        "back": "返回",
+        "loading": "加载中",
+        "yes": "是",
+        "no": "否",
+        "go": "前往",
+        "close": "关闭",
+        "cancel_and_clean": "取消并清理",
+        "quit_launcher": "退出启动器",
+        "confirm": "确定",
+        "delete": "删除",
+        "search": "搜索",
+        "empty": "暂无数据",
+        "browse": "选择..."
+    },
+    "content": {
+        "count": {
+            "worlds": "世界",
+            "resource_packs": "资源包",
+            "behavior_packs": "行为包"
+        }
+    },
+    "contentpage": {
+        "not_ready_title": "页面未完成",
+        "not_ready_body": "该页面尚在开发中，暂不提供访问。请返回主页。",
+        "current_version": "当前版本",
+        "none": "无",
+        "isolation": "版本隔离",
+        "isolation_on": "版本隔离：已开启",
+        "isolation_off": "版本隔离：未开启",
+        "worlds": "世界",
+        "worlds_desc": "每个玩家单独存储在 Users/<玩家>/games/com.mojang/minecraftWorlds",
+        "select_player": "选择玩家",
+        "no_players": "暂无玩家",
+        "no_worlds": "暂无世界",
+        "backup": "备份",
+        "backup_success": "备份成功",
+        "resource_packs": "资源包",
+        "shared_desc": "所有玩家共享：Users/Shared/games/com.mojang/resource_packs",
+        "no_resource_packs": "暂无资源包",
+        "path": "路径",
+        "path_unknown": "路径未知",
+        "not_resolved": "未解析",
+        "behavior_packs": "行为包",
+        "shared_desc_bp": "所有玩家共享：Users/Shared/games/com.mojang/behavior_packs",
+        "no_behavior_packs": "暂无行为包",
+        "count": "数量",
+        "error_resolve_paths": "无法解析内容路径。",
+        "players_aria": "玩家列表"
+    },
+    
+    "versions": {
+        "rename": {
+            "title": "重命名版本",
+            "current": "当前名称",
+            "new_name": "新名称",
+            "placeholder": "输入新名称",
+            "hint": "仅修改文件夹名称，不影响游戏版本与类型。"
+        },
+        "info": {
+            "version": "游戏版本",
+            "name": "名称"
+        },
+        "edit": {
+            "title": "版本设置",
+            "current": "当前名称",
+            "new_name": "新名称",
+            "placeholder": "输入新名称",
+            "hint": "仅修改文件夹名称，不影响游戏版本与类型。",
+            "enable_isolation": "启用版本隔离",
+            "enable_console": "启用控制台",
+            "enable_editor_mode": "启用编辑器模式",
+            "danger_zone_title": "危险操作",
+            "delete_hint": "点击以打开删除确认，避免误触。"
+        },
+        "logo": {
+            "title": "自定义图标（要求正方形）",
+            "change": "点击更换",
+            "clear": "清除",
+            "hint": "将保存到版本文件夹的 LeviLauncher/Logo.png。点击图标更换。"
+        },
+        "delete": {
+            "title": "确认删除版本",
+            "body": "将删除版本文件夹：",
+            "warning": "此操作不可恢复。",
+            "confirm": "删除",
+            "success_title": "删除完成",
+            "success_body": "已删除版本："
+        }
+    },
+    "errors": {
+        "ERR_GAME_ALREADY_RUNNING": "检测到当前版本 Minecraft 已在运行，请先关闭再启动或者切换其他版本",
+        "ERR_TARGET_DIR_NOT_SPECIFIED": "未指定目标目录",
+        "ERR_CREATE_TARGET_DIR": "无法创建目标目录",
+        "ERR_NOT_FOUND_GAME_DIR": "未找到游戏目录",
+        "ERR_NOT_FOUND_EXE": "未找到可执行文件",
+        "ERR_WRITE_TARGET": "写入目标配置失败",
+        "ERR_LAUNCH_GAME": "启动游戏失败",
+        "ERR_GAME_CRASH_DURING_LAUNCH": "启动过程中游戏崩溃",
+        "ERR_WAIT_KERNEL_TIMEOUT": "等待内核准备超时",
+        "ERR_COPY_WALK": "遍历文件失败",
+        "ERR_COPY_FAILED": "复制失败",
+        "ERR_NAME_REQUIRED": "名称不能为空",
+        "ERR_NAME_TOO_LONG": "名称过长",
+        "ERR_NAME_TRAILING_DOT_SPACE": "名称不能以空格或点结尾",
+        "ERR_NAME_INVALID_CHAR": "名称包含非法字符: <>:\"/\\|?*",
+        "ERR_NAME_CONTROL_CHAR": "名称包含控制字符",
+        "ERR_NAME_RESERVED": "名称为 Windows 保留名",
+        "ERR_ICON_DECODE": "图标解析失败",
+        "ERR_ICON_NOT_SQUARE": "图标必须是正方形",
+        "ERR_ACCESS_VERSIONS_DIR": "无法访问版本目录",
+        "ERR_ACCESS_INSTALLERS_DIR": "无法访问安装包目录",
+        "ERR_READ_VERSIONS_DIR": "无法读取版本目录",
+        "ERR_NAME_EXISTS": "名称已存在",
+        "ERR_INVALID_NAME": "无效的名称",
+        "ERR_NOT_FOUND_OLD": "未找到原目录",
+        "ERR_RENAME_FAILED": "重命名失败，可能被占用或无权限",
+        "ERR_MSIXVC_NOT_SPECIFIED": "未指定安装包",
+        "ERR_MSIXVC_NOT_FOUND": "安装包不存在",
+        "ERR_APPX_UNINSTALL_FAILED": "卸载已安装游戏失败",
+        "ERR_APPX_INSTALL_FAILED": "安装失败",
+        "ERR_INHERIT_SOURCE_NOT_FOUND": "未找到继承来源版本",
+        "ERR_INHERIT_TARGET_NOT_FOUND": "未找到目标版本",
+        "ERR_INHERIT_TYPE_MISMATCH": "类型不匹配，无法继承",
+        "ERR_INHERIT_COPY_FAILED": "复制继承数据失败",
+        "ERR_NO_GAME_DATA": "当前来源没有任何游戏数据",
+        "ERR_DELETE_FAILED": "删除失败，可能被占用或无权限"
+    },
+    "filemanager": {
+        "title": "文件管理器",
+        "drives_title": "驱动器",
+        "computer": "此电脑",
+        "quick_access": "快速访问",
+        "pinned": "已固定",
+        "navigation": "导航",
+        "pins_empty": "暂无固定项，使用星标进行固定",
+        "choose_drive": "请选择一个驱动器",
+        "search_placeholder": "搜索文件/文件夹…",
+        "sort": {
+            "name": "名称",
+            "size": "大小",
+            "kind": "类型"
+        },
+        "empty": "这里空空如也",
+        "drive_label": "驱动器",
+        "up": "上一级",
+        "pin_current": "固定当前路径",
+        "refreshing": "正在刷新…",
+        "choose_this_dir": "选择此目录",
+        "dir_not_writable": "该目录不可写入，请选择其他位置"
+    },
+    "file": {
+        "types": {
+            "folder": "文件夹",
+            "executable": "可执行文件",
+            "library": "库文件",
+            "archive": "压缩包",
+            "image": "图片",
+            "text": "文本",
+            "json": "JSON",
+            "jar": "JAR 包",
+            "mcpack": "MCPack",
+            "mcaddon": "MCAddon",
+            "file": "文件"
+        }
+    },
+    "splash": {
+        "preparing": "正在准备启动..."
+    },
+  "mods": {
+        "import_button": "导入 .zip/.dll",
+        "importing_title": "正在导入...",
+        "importing_body": "请稍候，正在处理所选文件。",
+        "summary_title_done": "导入完成",
+        "summary_title_partial": "导入完成（部分失败）",
+        "summary_success": "成功",
+        "summary_failed": "失败",
+        "details_title": "模组详情",
+        "field_name": "名称",
+        "field_version": "版本",
+        "field_type": "类型",
+        "field_entry": "入口",
+        "field_author": "作者",
+        "delete_summary_title_done": "删除完成",
+        "delete_summary_title_failed": "删除失败",
+        "summary_deleted": "已删除",
+        "confirm_delete_title": "确认删除",
+        "confirm_delete_body": "确定要删除此模组吗？此操作不可撤销。",
+        "dll_modal_title": "导入 DLL 插件",
+        "dll_name": "插件名称",
+        "dll_type": "类型",
+        "dll_version": "版本",
+        "err_invalid_name": "无效的版本名或模块名",
+        "err_access_versions_dir": "无法访问版本目录",
+        "err_create_target_dir": "创建目标目录失败",
+        "err_open_zip": "无法打开ZIP文件",
+        "err_manifest_not_found": "未找到 manifest.json",
+        "err_invalid_package": "无效的包结构",
+        "err_duplicate_folder": "同名模块文件夹已存在",
+        "err_read_zip_entry": "读取压缩包条目失败",
+        "err_write_file": "写入文件失败",
+        "err_unknown": "未知错误",
+        "overwrite_modal_title": "检测到重复",
+        "overwrite_modal_body": "同名模块文件夹已存在，是否覆盖（更新）？",
+        "drag_import_unsupported_title": "拖拽导入暂不支持",
+        "drag_import_unsupported_body": "暂不支持，等待 Wails 支持。"
+    },
+    "versionselect": {
+        "unsaved": {
+            "title": "未保存修改",
+            "body": "您更改了选择的版本，但尚未保存。是否保存后离开？",
+            "discard": "不保存离开",
+            "save_and_leave": "保存并离开"
+        }
+    },
+    "terms": {
+        "title": "LeviLauncher 用户协议",
+        "body": "欢迎使用 LeviLauncher\n\n使用本软件即表示您同意：\n• 此为非官方 Minecraft 启动器\n• 您需拥有合法授权的 Minecraft 副本，否则自动进入试玩版\n• 禁止任何形式的盗版或作弊行为\n• 模组/资源包使用风险自负\n• 与 Mojang/Microsoft 无关联\n\n继续使用视为接受条款",
+        "agree": "同意并继续",
+        "decline": "不同意，退出"
+    }
+}

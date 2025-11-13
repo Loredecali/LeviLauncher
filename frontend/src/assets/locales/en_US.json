@@ -1,0 +1,625 @@
+{
+  "app": {
+    "settings": "Settings",
+    "lang": "Language",
+    "quit_launcher": "Quit Launcher"
+  },
+  "nav": { "versions": "Versions", "more": "More" },
+  "launcherpage": {
+    "launch_button": "Launch",
+    "content_manage": "Content Management",
+    "quick_actions": "Quick Actions",
+    "go_version_settings": "Version Settings",
+    "manage_versions": "Versions",
+    "search_versions": "Search versions or names",
+    "delete": {
+      "failed": {
+        "title": "Delete Failed",
+        "content": "Please try again later.",
+        "close_button": "Close"
+      },
+      "complete": {
+        "title": "Delete Complete",
+        "content": "The selected version has been deleted successfully!",
+        "close_button": "Close"
+      },
+      "confirm": {
+        "title": "Confirm Delete",
+        "content": "Are you sure you want to delete this version? This operation cannot be undone.",
+        "delete_button": "Delete",
+        "cancel_button": "Cancel"
+      },
+      "deleting": {
+        "title": "Deleting..."
+      }
+    },
+    "launch": {
+      "failed": {
+        "title": "Launch Error",
+        "content": "You did not select any version, please go to the download page to download it!",
+        "download_button": "Download Page",
+        "close_button": "Close"
+      },
+      "force_run_button": "Force Launch"
+    },
+    "deleting": {
+      "title": "Deleting"
+    },
+    "registering": {
+      "title": "Registering"
+    },
+    "startup": {
+      "title": "Successful startup",
+      "content": "The selected version has been started successfully!",
+      "close_button": "Close"
+    },
+    "currentVersion": "Current Version",
+    "vcruntime": {
+      "completing": {
+        "title": "Completing missing DLL",
+        "body": "Downloading and completing vcruntime140_1.dll, please wait…"
+      }
+    },
+    "mclaunch": {
+      "loading": {
+        "title": "Launching Minecraft",
+        "body": "Waiting for the game window to appear, please wait…"
+      }
+    },
+    "gameinput": {
+      "installing": {
+        "title": "Installing GameInput",
+        "body": "Downloading and starting the installer. Follow system prompts to complete.",
+        "progress_prefix": "Progress: ",
+        "preparing": "Preparing download..."
+      },
+      "missing": {
+        "title": "GameInput Component Missing",
+        "body": "Microsoft GameInput is required to run the game. Install now?",
+        "install_now": "Install Now"
+      }
+    },
+    "gs": {
+      "missing": {
+        "title": "Microsoft Gaming Services Missing",
+        "body": "Microsoft Gaming Services was not detected. This dependency is required for Minecraft.",
+        "open_store": "Open Store to Install"
+      }
+    },
+    "install_confirm": {
+      "title": "Installation Completed?",
+      "body": "After finishing installation, click 'Done, Recheck'. Otherwise continue installing.",
+      "continue": "Continue Installing",
+      "done_and_check": "Done, Recheck"
+    },
+    "currentVersion_choose_version_aria": "Choose Version",
+    "currentVersion_none": "None",
+    "version_select": {
+      "title": "Select Version",
+      "subtitle": "Available local versions:",
+      "unknown": "Unknown"
+    },
+    "tip": {
+      "general": "Tip: First launch may be slow. Please wait.",
+      "choose_version_dropdown": "Use the dropdown on the right to switch versions quickly.",
+      "open_version_settings_gear": "Click the gear to open Version Settings; customize icon and enable isolation.",
+      "mods_drag": "On the Mods page, drag-and-drop .zip/.dll onto the card to import.",
+      "mods_import_button": "Use the “Import .zip/.dll” button on the Mods card to pick files.",
+      "mods_open_folder": "Click “Open Folder” on the Mods card to manage plugin files directly.",
+      "download_versions": "Install Release/Preview on the Download page; it appears in the dropdown afterward.",
+      "content_counts_card": "The Content card shows counts of worlds, resource and behavior packs.",
+      "file_manager_pick": "File Manager supports multi-select and returns paths to Mods import."
+    }
+  },
+  "moddedcard": {
+    "title": "Mods",
+    "content": {
+      "none": "0 mods found",
+      "found": "{{count}} mods found"
+    },
+    "manage": "Manage Mods"
+  },
+  "downloadpage": {
+    "type": {
+      "install": "Install",
+      "not_install": "Not Install"
+    },    
+    "changelog": {
+      "title": "Latest Changelog",
+      "loading": "Loading..."
+    },
+    "status": {
+      "downloaded": "Downloaded",
+      "not_downloaded": "Not downloaded",
+      "checking": "Checking…"
+    },
+    "table": {
+      "aria_label": "Versions Table",
+      "empty": "No data",
+      "header": {
+        "version": "VERSION",
+        "type": "TYPE",
+        "status": "STATUS",
+        "actions": "ACTION"
+      },
+      "type": {
+        "release": "Release",
+        "preview": "Preview"
+      }
+    },
+    "topcontent": {
+      "rowperpage": "Row per page: ",
+      "types": "Types",
+      "types_all": "All",
+      "status": "Status",
+      "status_all": "All",
+      "status_downloaded": "Downloaded",
+      "status_not_downloaded": "Not downloaded",
+      "input": {
+        "placeholder": "Search by verison..."
+      }
+    },
+    "actions": {
+      "delete_installer": "Delete installer"
+    },
+    "bottomcontent": {
+      "total": "Total {{count}} verions"
+    },
+    "install_folder": {
+      "confirm_title": "Confirm Install Folder",
+      "name_label": "Version Name",
+      "placeholder_name": "Please enter version name",
+      "suggest_default": "Suggest use default: ",
+      "description": "Used to store the copied game files",
+      "name_required": "Name is required",
+      "enable_isolation": "Version isolation",
+      "enable_isolation_desc": "Redirect game data (worlds, settings, caches, etc.) to versions/<name>/ instead of storing in AppData.",
+      "inherit_label": "Inherit From",
+      "inherit_hint": "Copy data from an isolated version with matching type",
+      "inherit_none": "No Inheritance",
+      "inherit_gdk": "Inherit from GDK directory"
+    },
+    "mirror": {
+      "title": "Select Download Mirror",
+      "target": "Target",
+      "testing": "Testing…",
+      "unselected": "Unselected",
+      "copy_link": "Copy Link",
+      "recommended": "Recommended Mirror",
+      "auto_testing": "Auto testing…",
+      "no_recommended": "No recommended mirror",
+      "others": "Other Mirrors",
+      "testing_short": "Testing",
+      "failed": "Failed",
+      "no_mirrors": "No mirrors available for this version.",
+      "filename_fallback": "(file)",
+      "retest": "Retest",
+      "download_selected": "Download Selected",
+      "install_button": "Install",
+      "install_selected": "Install Selected"
+    },
+    "progress": {
+      "title": "Download Progress",
+      "dest_placeholder": "In installers directory (msixvc)",
+      "error_prefix": "Error: ",
+      "unknown_error": "Unknown error"
+    },
+    "download": {
+      "success_title": "Download Complete",
+      "success_body": "File downloaded: "
+    },
+    "delete": {
+      "title": "Confirm deletion",
+      "body": "This will delete installer: ",
+      "warning": "This action cannot be undone.",
+      "confirm": "Delete",
+      "success_title": "Deletion Complete",
+      "success_body": "Installer deleted: "
+    },
+    "install": {
+      "version_label": "Version",
+      "hint": "Please wait, this process may take a while…",
+      "estimated_size": "Written size (estimated)",
+      "target": "Install Target",
+      "success_title": "Install Complete",
+      "success": "Installation completed successfully."
+    },
+    "vcr": {
+      "error_generic": "Runtime library preparation failed. Please check network and retry"
+    },
+    "customappx": {
+      "button": "Custom",
+      "modal": {
+        "1": {
+          "header": "Version Information",
+          "body": {
+            "select": {
+              "label": "Select Game Type",
+              "item1": "Release",
+              "item2": "Preview"
+            }
+          },
+          "footer": {
+            "cancel_button": "Cancel",
+            "install_button": "Install"
+          }
+        }
+      }
+    }
+  },
+  "settingscard": {
+    "header": {
+      "title": "Settings",
+      "content": "Configure common launcher options"
+    },
+    "body": {
+      "version": {
+        "name": "Current Version",
+        "hasnew": "New version available!",
+        "button": "Check Update",
+        "ignore": "Ignore this version"
+      },
+      "paths": {
+        "title": "Content Paths",
+        "base_root": "Base Root",
+        "apply": "Apply",
+        "reset": "Reset",
+        "open_installers": "Open Installers",
+        "open_versions": "Open Versions",
+        "installer": "Installers",
+        "versions": "Versions",
+        "not_writable": "Directory not writable"
+      },
+      "browse": "Browse...",
+      "language": {
+        "name": "Language",
+        "button": "Change"
+      },
+      "defaultdev": {
+        "label": "Launch in Dev Mode",
+        "description": "When enabled, Minecraft launches in Dev mode. When disabled, it launches directly in normal mode."
+      }
+    },
+    "footer": {
+      "cancel_button": "Cancel",
+      "save_button": "Save"
+    },
+    "modal": {
+      "-2": {
+        "header": {
+          "title": "You are already on the latest version!"
+        },
+        "footer": {
+          "close_button": "Close"
+        }
+      },
+      "1": {
+        "header": {
+          "title": "Checking for updates..."
+        },
+        "body": {
+          "content": "Checking for updates..."
+        },
+        "footer": {
+          "cancel_button": "Cancel"
+        }
+      },
+      "2": {
+        "header": {
+          "title": "New version detected"
+        },
+        "body": {
+          "content": "A new version ({{version}}) is available!"
+        },
+        "footer": {
+          "download_button": "Update",
+          "close_button": "Close"
+        }
+      },
+      "3": {
+        "header": {
+          "title": "Updating..."
+        }
+      }
+    }
+  },
+  
+  "common": {
+    "browse": "Browse..."
+  },
+  "downloadmodal": {
+    "download_button": "Download",
+    "information": {
+      "title": "Information Confirmation",
+      "spinner": {
+        "label": "Trying to get the download url now.."
+      },
+      "table": {
+        "version": "VERSION",
+        "type": "TYPE",
+        "size": "FILESIZE"
+      },
+      "input": {
+        "label": "Version Name",
+        "placeholder": "Enter your vserion name",
+        "errormessage": "Does not comply with naming rules or already exists!"
+      },
+      "switch": {
+        "label": "Enable Modded",
+        "description": "This will enable you to mod and auto install Preloader, as well as modify the original file(Minecraft.Windows.exe)."
+      },
+      "close_button": "Close",
+      "download_button": "Download"
+    },
+    "downloading": {
+      "title": "Downloading",
+      "body": {
+        "file_name": " File: {{name}}",
+        "estimated_time_remaining": "Estimated time remaining: "
+      },
+      "footer": {
+        "close_button": "Close"
+      }
+    },
+    "installing": {
+      "title": "Installing"
+    },
+    "installcomplete": {
+      "title": "Install Complete",
+      "content": "Your installation was successful!",
+      "close_button": "Close"
+    },
+    "stopdownload": {
+      "title": "Confirmation of stopping download",
+      "content": "Are you going to stop the download? This operation will be irreversible!",
+      "cancel_button": "Cancel",
+      "stop_button": "Stop"
+    },
+    "downloadfailed": {
+      "title": "Download Failed",
+      "content": "An error occurred while trying to download the file. Please try again later.",
+      "close_button": "Close"
+    },
+    "installfailed": {
+      "title": "Install Failed",
+      "content": "Please try again later.",
+      "close_button": "Close"
+    },
+    "open_folder": "Open Folder"
+  },
+  "aboutcard": {
+    "title": "About",
+    "description": " 2024-2025 {{name}} All rights reserved",
+    "font": "This software uses the {{name}} font"
+  },
+  
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "error": "Error",
+    "retry": "Retry",
+    "refresh": "Refresh",
+    "cancel_and_clean": "Cancel and Clean",
+    "quit_launcher": "Quit Launcher",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "search": "Search",
+    "open": "Open",
+    "preview": "Preview",
+    "release": "Release",
+    "back": "Back",
+    "loading": "Loading",
+    "yes": "Yes",
+    "no": "No",
+    "close": "Close",
+    "go": "Go",
+    "empty": "No data",
+    "browse": "Browse..."
+  },
+  "content": {
+    "count": {
+      "worlds": "Worlds",
+      "resource_packs": "Resource Packs",
+      "behavior_packs": "Behavior Packs"
+    }
+  },
+    "contentpage": {
+        "not_ready_title": "Page Not Ready",
+        "not_ready_body": "This page is under development and not accessible yet. Please return to the home page.",
+        "current_version": "Current Version",
+        "none": "None",
+        "isolation": "Isolation",
+        "isolation_on": "Isolation: On",
+        "isolation_off": "Isolation: Off",
+    "worlds": "Worlds",
+    "worlds_desc": "Stored per-player under Users/<player>/games/com.mojang/minecraftWorlds",
+    "select_player": "Select Player",
+    "no_players": "No players",
+    "no_worlds": "No worlds",
+    "backup": "Backup",
+    "backup_success": "Backup succeeded",
+    "resource_packs": "Resource Packs",
+    "shared_desc": "Shared by all players: Users/Shared/games/com.mojang/resource_packs",
+    "no_resource_packs": "No resource packs",
+    "path": "Path",
+    "path_unknown": "Path Unknown",
+    "not_resolved": "Not resolved",
+    "behavior_packs": "Behavior Packs",
+    "shared_desc_bp": "Shared by all players: Users/Shared/games/com.mojang/behavior_packs",
+    "no_behavior_packs": "No behavior packs",
+    "count": "Count",
+    "error_resolve_paths": "Failed to resolve content paths.",
+    "players_aria": "Players"
+  },
+  
+  "versions": {
+    "rename": {
+      "title": "Rename Version",
+      "current": "Current Name",
+      "new_name": "New Name",
+      "placeholder": "Enter new name",
+      "hint": "Only rename the folder. Game version and type are unaffected."
+    },
+    "info": {
+      "version": "Game Version",
+      "name": "Name"
+    },
+    "edit": {
+      "title": "Version Settings",
+      "current": "Current Name",
+      "new_name": "New Name",
+      "placeholder": "Enter new name",
+      "hint": "Only rename the folder. Game version and type are unaffected.",
+      "enable_isolation": "Enable Isolation",
+      "enable_console": "Enable Console",
+      "enable_editor_mode": "Enable Editor Mode",
+      "danger_zone_title": "Danger Zone",
+      "delete_hint": "Click to open delete confirmation to avoid accidental deletion."
+    },
+    "logo": {
+      "title": "Custom Icon (square required)",
+      "change": "Click to change",
+      "clear": "Clear",
+      "hint": "Will be saved to LeviLauncher/Logo.png under the version folder. Click the icon to change."
+    },
+    "delete": {
+      "title": "Confirm Version Deletion",
+      "body": "This will delete the version folder: ",
+      "warning": "This action cannot be undone.",
+      "confirm": "Delete",
+      "success_title": "Deletion Complete",
+      "success_body": "Version deleted: "
+    }
+  },
+  "errors": {
+    "ERR_GAME_ALREADY_RUNNING": "Detected the current version of Minecraft is already running. Please close it before launching or switch to another version.",
+    "ERR_TARGET_DIR_NOT_SPECIFIED": "Target directory not specified",
+    "ERR_CREATE_TARGET_DIR": "Failed to create target directory",
+    "ERR_NOT_FOUND_GAME_DIR": "Game content directory not found",
+    "ERR_NOT_FOUND_EXE": "Executable not found",
+    "ERR_WRITE_TARGET": "Failed to write target config",
+    "ERR_LAUNCH_GAME": "Failed to launch game",
+    "ERR_GAME_CRASH_DURING_LAUNCH": "Game crashed during launch",
+    "ERR_WAIT_KERNEL_TIMEOUT": "Kernel preparation timed out",
+    "ERR_COPY_WALK": "Failed to traverse files",
+    "ERR_COPY_FAILED": "Copy failed",
+    "ERR_NAME_REQUIRED": "Name is required",
+    "ERR_NAME_TOO_LONG": "Name is too long",
+    "ERR_NAME_TRAILING_DOT_SPACE": "Name cannot end with a dot or space",
+    "ERR_NAME_INVALID_CHAR": "Name contains invalid characters: <>:\"/\\|?*",
+    "ERR_NAME_CONTROL_CHAR": "Name contains control characters",
+    "ERR_NAME_RESERVED": "Name is a Windows reserved word",
+    "ERR_ACCESS_VERSIONS_DIR": "Cannot access versions directory",
+    "ERR_ACCESS_INSTALLERS_DIR": "Cannot access installers directory",
+    "ERR_READ_VERSIONS_DIR": "Failed to read versions directory",
+    "ERR_NAME_EXISTS": "Name already exists",
+    "ERR_INVALID_NAME": "Invalid name",
+    "ERR_ICON_DECODE": "Icon decode failed",
+    "ERR_ICON_NOT_SQUARE": "Icon must be square",
+    "ERR_NOT_FOUND_OLD": "Original directory not found",
+    "ERR_RENAME_FAILED": "Rename failed, possibly in use or no permission",
+    "ERR_MSIXVC_NOT_SPECIFIED": "Installer package not specified",
+    "ERR_MSIXVC_NOT_FOUND": "Installer package not found",
+    "ERR_APPX_UNINSTALL_FAILED": "Failed to uninstall existing game",
+    "ERR_APPX_INSTALL_FAILED": "Installation failed",
+    "ERR_INHERIT_SOURCE_NOT_FOUND": "Inherit source version not found",
+    "ERR_DELETE_FAILED": "Delete failed, possibly in use or permission denied",
+    "ERR_INHERIT_TARGET_NOT_FOUND": "Target version not found",
+    "ERR_INHERIT_TYPE_MISMATCH": "Type mismatch, cannot inherit",
+    "ERR_INHERIT_COPY_FAILED": "Failed to copy inherited data",
+    "ERR_NO_GAME_DATA": "No game data found for the selected source"
+  },
+  "filemanager": {
+    "title": "File Manager",
+    "search_placeholder": "Search...",
+    "sort": {
+      "name": "Name",
+      "size": "Size",
+      "kind": "Kind"
+    },
+    "empty": "No items found",
+    "drive_label": "Drive",
+    "drives_title": "Drives",
+    "quick_access": "Quick Access",
+    "pinned": "Pinned",
+    "navigation": "Navigation",
+    "pins_empty": "No pins. Use the star on items to pin.",
+    "choose_drive": "Choose a drive",
+    "computer": "Computer",
+    "up": "Up",
+    "pin_current": "Pin Current Path",
+    "refreshing": "Refreshing…",
+    "choose_this_dir": "Choose this directory",
+    "dir_not_writable": "Directory not writable. Please choose another location"
+  },
+  "file": {
+    "types": {
+      "folder": "Folder",
+      "executable": "Executable",
+      "library": "Library",
+      "archive": "Archive",
+      "image": "Image",
+      "text": "Text",
+      "json": "JSON",
+      "jar": "JAR",
+      "mcpack": "MC Pack",
+      "mcaddon": "MC Addon",
+      "file": "File"
+    }
+  },
+  "splash": {
+    "preparing": "Preparing to launch..."
+  },
+  "mods": {
+    "import_button": "Import .zip/.dll",
+    "importing_title": "Importing...",
+    "importing_body": "Please wait while processing selected files.",
+    "summary_title_done": "Import Completed",
+    "summary_title_partial": "Import Completed (Partial Failures)",
+    "summary_success": "Succeeded",
+    "summary_failed": "Failed",
+    "details_title": "Mod Details",
+    "field_name": "Name",
+    "field_version": "Version",
+    "field_type": "Type",
+    "field_entry": "Entry",
+    "field_author": "Author",
+    "delete_summary_title_done": "Deletion Completed",
+    "delete_summary_title_failed": "Deletion Failed",
+    "summary_deleted": "Deleted",
+    "confirm_delete_title": "Confirm Deletion",
+    "confirm_delete_body": "Are you sure you want to delete this mod? This action cannot be undone.",
+    "dll_modal_title": "Import DLL Plugin",
+    "dll_name": "Plugin Name",
+    "dll_type": "Type",
+    "dll_version": "Version",
+    "err_invalid_name": "Invalid version or module name",
+    "err_access_versions_dir": "Cannot access versions directory",
+    "err_create_target_dir": "Failed to create target directory",
+    "err_open_zip": "Cannot open ZIP file",
+    "err_manifest_not_found": "manifest.json not found",
+    "err_invalid_package": "Invalid package structure",
+    "err_duplicate_folder": "Module folder with same name exists",
+    "err_read_zip_entry": "Failed to read ZIP entry",
+    "err_write_file": "Failed to write file",
+        "err_unknown": "Unknown error",
+        "overwrite_modal_title": "Duplicate Detected",
+        "overwrite_modal_body": "A module folder with the same name exists. Overwrite (update)?",
+        "drag_import_unsupported_title": "Drag Import Unsupported",
+        "drag_import_unsupported_body": "Currently unsupported; waiting for Wails support."
+    },
+  "versionselect": {
+    "unsaved": {
+      "title": "Unsaved Changes",
+      "body": "You changed the selected version but haven't saved yet. Save and leave?",
+      "discard": "Discard and Leave",
+      "save_and_leave": "Save and Leave"
+    }
+  },
+  "terms": {
+    "title": "LeviLauncher License Agreement",
+    "body": "Welcome to LeviLauncher\n\nBy using this software, you agree that:\n• This is an unofficial Minecraft launcher\n• You must own a legally licensed copy of Minecraft, otherwise the trial mode will be used automatically\n• Any form of piracy or cheating is prohibited\n• Use of mods/resource packs is at your own risk\n• No affiliation with Mojang/Microsoft\n\nContinuing to use indicates acceptance of the terms",
+    "agree": "Agree and Continue",
+    "decline": "Decline and Exit"
+  }
+}
