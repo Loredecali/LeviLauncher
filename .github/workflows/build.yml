@@ -1,6 +1,12 @@
 name: LeviLauncher build
 
-on: [ push, pull_request ]
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - '**'  # 允许所有分支
+  pull_request:
 
 jobs:
   build:
@@ -8,14 +14,99 @@ jobs:
       fail-fast: false
       matrix:
         build: [
-          { name: LeviLauncher, platform: windows/amd64, os: windows-2022 },
+          { name: LeviLauncher, platform: windows/amd64, archs: amd64, os: windows-2022 },
         ]
     runs-on: ${{ matrix.build.os }}
+    
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+      
       - uses: ToQuery/wails3-build-action@v3-alpha.14
         with:
+          go-archs: ${{ matrix.build.archs }}
           build-name: ${{ matrix.build.name }}
           build-platform: ${{ matrix.build.platform }}
+          package: false 
+
+      - name: Create ZIP archives
+        shell: pwsh
+        run: |
+          Write-Host "Creating ZIP archives for Windows ${{ matrix.build.archs }}"
+          cd bin
+          
+          if (Test-Path "LeviLauncher.exe") {
+            $zipName = "LeviLauncher_windows_${{ matrix.build.archs }}.zip"
+            Compress-Archive -Path "LeviLauncher.exe" -DestinationPath $zipName -Force
+            Write-Host "Created $zipName"
+          } else {
+            Write-Host "LeviLauncher.exe not found!"
+            Get-ChildItem
+          }
+          
+          Write-Host "Files in bin directory:"
+          Get-ChildItem
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LeviLauncher-windows-${{ matrix.build.archs }}
+          path: |
+            bin/LeviLauncher_windows_${{ matrix.build.archs }}.zip
+            bin/LeviLauncher-${{ matrix.build.archs }}-installer.exe
+
+  release:
+    name: Create Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: List downloaded files
+        run: |
+          echo "Downloaded artifacts:"
+          find ./artifacts -type f -name "*" | sort
+          echo "Artifacts directory structure:"
+          ls -R ./artifacts/
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+
+      - name: Upload Release Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Uploading release assets..."
+          
+          for zip_file in ./artifacts/*/*.zip; do
+            if [ -f "$zip_file" ]; then
+              echo "Uploading ZIP: $zip_file"
+              gh release upload ${{ github.ref_name }} "$zip_file" --clobber
+            fi
+          done
+          
+          for installer_file in ./artifacts/*/*installer.exe; do
+            if [ -f "$installer_file" ]; then
+              echo "Uploading installer: $installer_file"
+              gh release upload ${{ github.ref_name }} "$installer_file" --clobber
+            fi
+          done
+          
+          echo "All assets uploaded successfully"

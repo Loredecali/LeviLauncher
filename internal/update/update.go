@@ -119,7 +119,7 @@ func Update(version string) error {
 		ver = "v" + ver
 	}
 
-	archName := fmt.Sprintf("LeviLauncher_%s.zip", runtime.GOOS)
+	archName := fmt.Sprintf("LeviLauncher_%s_%s.zip", runtime.GOOS, runtime.GOARCH)
 	execName := "LeviLauncher"
 	if runtime.GOOS == "windows" {
 		execName += ".exe"
