@@ -1,23 +1,21 @@
 name: LeviLauncher build
 
-on: [push, pull_request]
+on: [ push, pull_request ]
 
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
-        build:
-          [
-            { name: LeviLauncher, platform: windows/amd64, os: windows-latest },
-          ]
+        build: [
+          { name: LeviLauncher, platform: windows/amd64, os: windows-2022 },
+        ]
     runs-on: ${{ matrix.build.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - uses: ToQuery/wails3-build-action@v3
+      - uses: ToQuery/wails3-build-action@v3-alpha.14
         with:
-           build-name: ${{ matrix.build.name }}
-           build-platform: ${{ matrix.build.platform }}
-           package: true
+          build-name: ${{ matrix.build.name }}
+          build-platform: ${{ matrix.build.platform }}
