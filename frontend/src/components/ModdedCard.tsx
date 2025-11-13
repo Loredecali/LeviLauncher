@@ -15,11 +15,15 @@ export const ModCard = (args: {
   const [modsInfo, setModsInfo] = React.useState<Array<types.ModInfo>>([]);
   const [isModded, setIsModded] = React.useState<boolean>(false);
   useEffect(() => {
-    let name =
+    const name =
       args.localVersionMap.get(args.currentVersion)?.name.valueOf() || "";
-    GetMods(name).then((data) => {
-      setModsInfo(data);
-    });
+    if (name) {
+      GetMods(name)
+        .then((data) => setModsInfo(data || []))
+        .catch(() => setModsInfo([]));
+    } else {
+      setModsInfo([]);
+    }
 
     setIsModded(
       args.localVersionMap.get(args.currentVersion)?.isPreLoader.valueOf() ||
@@ -75,10 +79,13 @@ export const ModCard = (args: {
               variant="light"
               radius="full"
               onPress={() => navigate("/mods")}
+              isDisabled={!args.currentVersion}
               aria-label={
-                t("moddedcard.manage", {
-                  defaultValue: "管理模组",
-                }) as unknown as string
+                (args.currentVersion
+                  ? t("moddedcard.manage", { defaultValue: "管理模组" })
+                  : t("launcherpage.currentVersion_choose_version_aria", {
+                      defaultValue: "选择版本",
+                    })) as unknown as string
               }
             >
               <LuFolderPlus size={20} />

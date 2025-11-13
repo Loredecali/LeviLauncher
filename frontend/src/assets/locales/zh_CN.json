@@ -103,13 +103,15 @@
         "tip": {
             "general": "提示：首次启动可能较慢，请耐心等待。",
             "choose_version_dropdown": "右侧下拉按钮可快速切换当前版本。",
-            "open_version_settings_gear": "点击齿轮打开“版本设置”，可更换图标并启用版本隔离。",
-            "mods_drag": "在 Mods 页面拖拽 .zip/.dll 到卡片即可导入。",
+            "open_version_settings_gear": "悬停“当前版本”徽章，点击气泡内齿轮打开版本设置；支持更换图标与启用版本隔离。",
             "mods_import_button": "点击 Mods 卡片的“导入 .zip/.dll”选择文件。",
-            "mods_open_folder": "在 Mods 卡片点击“打开目录”直接管理插件文件。",
+            "mods_open_folder_requirement": "打开 Mods 目录前需先选择版本。",
             "download_versions": "在“下载”页安装 Release/Preview，安装后出现在下拉列表。",
             "content_counts_card": "主页“内容管理”显示世界、资源包、行为包数量。",
-            "file_manager_pick": "文件管理器支持多选并回传路径到 Mods 导入。"
+            "file_manager_pick": "文件管理器支持多选并回传路径到 Mods 导入。",
+            "settings_base_root": "设置页可修改内容存储路径，默认使用 %LOCALAPPDATA%\\LeviLauncher。",
+            "directory_write_check": "仅可保存到可写目录；不可写目录将被禁用。",
+            "drag_import_unsupported": "拖拽导入暂不支持，请使用“导入 .zip/.dll”或文件管理器。"
         }
     },
     "moddedcard": {

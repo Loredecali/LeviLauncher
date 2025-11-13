@@ -112,12 +112,14 @@ export const ModsPage: React.FC = () => {
 
   useEffect(() => {
     const name = readCurrentVersionName();
-    setCurrentVersionName(name);
-    if (name) {
-      GetMods(name)
-        .then((data) => setModsInfo(data || []))
-        .catch(() => setModsInfo([]));
+    if (!name) {
+      navigate("/versions", { replace: true });
+      return;
     }
+    setCurrentVersionName(name);
+    GetMods(name)
+      .then((data) => setModsInfo(data || []))
+      .catch(() => setModsInfo([]));
   }, []);
 
   const resolveImportError = (err: string): string => {

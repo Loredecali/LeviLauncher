@@ -90,14 +90,14 @@ export const LauncherPage = (args: any) => {
       t("launcherpage.tip.open_version_settings_gear", {
         defaultValue: "点击齿轮打开“版本设置”，可更换图标并启用版本隔离。",
       }) as unknown as string,
-      t("launcherpage.tip.mods_drag", {
-        defaultValue: "在 Mods 页面拖拽 .zip/.dll 到卡片即可导入。",
-      }) as unknown as string,
       t("launcherpage.tip.mods_import_button", {
         defaultValue: "点击 Mods 卡片的“导入 .zip/.dll”选择文件。",
       }) as unknown as string,
-      t("launcherpage.tip.mods_open_folder", {
-        defaultValue: "在 Mods 卡片点击“打开目录”直接管理插件文件。",
+      t("launcherpage.tip.mods_open_folder_requirement", {
+        defaultValue: "打开 Mods 目录前需先选择版本。",
+      }) as unknown as string,
+      t("launcherpage.tip.file_manager_pick", {
+        defaultValue: "文件管理器支持多选并回传路径到 Mods 导入。",
       }) as unknown as string,
       t("launcherpage.tip.download_versions", {
         defaultValue: "在“下载”页安装 Release/Preview，安装后出现在下拉列表。",
@@ -105,8 +105,14 @@ export const LauncherPage = (args: any) => {
       t("launcherpage.tip.content_counts_card", {
         defaultValue: "主页“内容管理”显示世界、资源包、行为包数量。",
       }) as unknown as string,
-      t("launcherpage.tip.file_manager_pick", {
-        defaultValue: "文件管理器支持多选并回传路径到 Mods 导入。",
+      t("launcherpage.tip.settings_base_root", {
+        defaultValue: "设置页可修改内容存储路径，默认使用 %LOCALAPPDATA%\\LeviLauncher。",
+      }) as unknown as string,
+      t("launcherpage.tip.directory_write_check", {
+        defaultValue: "仅可保存到可写目录；不可写目录将被禁用。",
+      }) as unknown as string,
+      t("launcherpage.tip.drag_import_unsupported", {
+        defaultValue: "拖拽导入暂不支持，请使用“导入 .zip/.dll”或文件管理器。",
       }) as unknown as string,
       t("launcherpage.tip.general", {
         defaultValue: "首次启动可能较慢，请耐心等待。",
