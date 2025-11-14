@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -695,7 +697,9 @@ func (a *Minecraft) DeleteVersionFolder(name string) string {
 }
 
 type Minecraft struct {
-	ctx context.Context
+	ctx        context.Context
+	importSrv  *http.Server
+	importAddr string
 }
 
 func NewMinecraft() *Minecraft {
@@ -709,6 +713,7 @@ func (a *Minecraft) startup() {
 	exeDir := filepath.Dir(exePath)
 	os.Chdir(exeDir)
 	launch.EnsureGamingServicesInstalled(a.ctx)
+	a.startImportServer()
 }
 
 func (a *Minecraft) IsFirstLaunch() bool {
@@ -1229,7 +1234,7 @@ func (a *Minecraft) BackupWorld(worldDir string) string {
 	safe := utils.SanitizeFilename(level)
 	ts := time.Now().Format("20060102-150405")
 	base := utils.BaseRoot()
-	backupDir := filepath.Join(base, "backup", "worlds", safe)
+	backupDir := filepath.Join(base, "backups", "worlds", safe)
 	if err := utils.CreateDir(backupDir); err != nil {
 		return ""
 	}
@@ -1257,7 +1262,7 @@ func (a *Minecraft) BackupWorldWithVersion(worldDir string, versionName string) 
 	}
 	ts := time.Now().Format("20060102-150405")
 	base := utils.BaseRoot()
-	backupDir := filepath.Join(base, "backup", "worlds", safeVersion, safeFolder+"_"+safeWorld)
+	backupDir := filepath.Join(base, "backups", "worlds", safeVersion, safeFolder+"_"+safeWorld)
 	if err := utils.CreateDir(backupDir); err != nil {
 		return ""
 	}
@@ -1289,6 +1294,204 @@ func (a *Minecraft) ImportModDllPath(name string, path string, modName string, m
 	}
 	return mods.ImportDllToMods(name, filepath.Base(path), b, modName, modType, version, overwrite)
 }
+
+func (a *Minecraft) startImportServer() {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/_ping", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("ok"))
+	})
+	mux.HandleFunc("/api/import/modzip", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST,OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			_, _ = w.Write([]byte(`{"error":"METHOD_NOT_ALLOWED"}`))
+			return
+		}
+		var name string
+		var overwrite bool
+		var data []byte
+		ct := strings.ToLower(strings.TrimSpace(r.Header.Get("Content-Type")))
+		if strings.HasPrefix(ct, "multipart/form-data") {
+			_ = r.ParseMultipartForm(64 << 20)
+			name = strings.TrimSpace(r.FormValue("name"))
+			ow := strings.TrimSpace(r.FormValue("overwrite"))
+			if ow != "" {
+				l := strings.ToLower(ow)
+				overwrite = l == "1" || l == "true" || l == "yes"
+			}
+			f, fh, err := r.FormFile("file")
+			if err == nil && f != nil {
+				defer f.Close()
+				b, er := io.ReadAll(f)
+				if er == nil {
+					data = b
+				}
+			}
+			if len(data) == 0 && fh != nil {
+				_ = f.Close()
+			}
+		} else {
+			b, _ := io.ReadAll(r.Body)
+			_ = r.Body.Close()
+			var obj map[string]interface{}
+			if err := json.Unmarshal(b, &obj); err == nil {
+				if v, ok := obj["name"].(string); ok {
+					name = strings.TrimSpace(v)
+				}
+				if v, ok := obj["overwrite"].(bool); ok {
+					overwrite = v
+				} else if v2, ok2 := obj["overwrite"].(string); ok2 {
+					l := strings.ToLower(strings.TrimSpace(v2))
+					overwrite = l == "1" || l == "true" || l == "yes"
+				}
+				if v, ok := obj["data"].(string); ok && v != "" {
+					bs, _ := base64.StdEncoding.DecodeString(v)
+					if len(bs) > 0 {
+						data = bs
+					}
+				}
+			}
+		}
+		if name == "" || len(data) == 0 {
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte(`{"error":"BAD_REQUEST"}`))
+			return
+		}
+		err := mods.ImportZipToMods(name, data, overwrite)
+		if err != "" {
+			_, _ = w.Write([]byte(`{"error":"` + err + `"}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"error":""}`))
+	})
+	mux.HandleFunc("/api/import/moddll", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST,OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			_, _ = w.Write([]byte(`{"error":"METHOD_NOT_ALLOWED"}`))
+			return
+		}
+		var name, fileName, modName, modType, version string
+		var overwrite bool
+		var data []byte
+		ct := strings.ToLower(strings.TrimSpace(r.Header.Get("Content-Type")))
+		if strings.HasPrefix(ct, "multipart/form-data") {
+			_ = r.ParseMultipartForm(64 << 20)
+			name = strings.TrimSpace(r.FormValue("name"))
+			fileName = strings.TrimSpace(r.FormValue("fileName"))
+			modName = strings.TrimSpace(r.FormValue("modName"))
+			modType = strings.TrimSpace(r.FormValue("modType"))
+			version = strings.TrimSpace(r.FormValue("version"))
+			ow := strings.TrimSpace(r.FormValue("overwrite"))
+			if ow != "" {
+				l := strings.ToLower(ow)
+				overwrite = l == "1" || l == "true" || l == "yes"
+			}
+			f, fh, err := r.FormFile("file")
+			if err == nil && f != nil {
+				defer f.Close()
+				b, er := io.ReadAll(f)
+				if er == nil {
+					data = b
+				}
+				if fileName == "" && fh != nil {
+					fileName = fh.Filename
+				}
+			}
+		} else {
+			b, _ := io.ReadAll(r.Body)
+			_ = r.Body.Close()
+			var obj map[string]interface{}
+			if err := json.Unmarshal(b, &obj); err == nil {
+				if v, ok := obj["name"].(string); ok {
+					name = strings.TrimSpace(v)
+				}
+				if v, ok := obj["fileName"].(string); ok {
+					fileName = strings.TrimSpace(v)
+				}
+				if v, ok := obj["modName"].(string); ok {
+					modName = strings.TrimSpace(v)
+				}
+				if v, ok := obj["modType"].(string); ok {
+					modType = strings.TrimSpace(v)
+				}
+				if v, ok := obj["version"].(string); ok {
+					version = strings.TrimSpace(v)
+				}
+				if v, ok := obj["overwrite"].(bool); ok {
+					overwrite = v
+				} else if v2, ok2 := obj["overwrite"].(string); ok2 {
+					l := strings.ToLower(strings.TrimSpace(v2))
+					overwrite = l == "1" || l == "true" || l == "yes"
+				}
+				if v, ok := obj["data"].(string); ok && v != "" {
+					bs, _ := base64.StdEncoding.DecodeString(v)
+					if len(bs) > 0 {
+						data = bs
+					}
+				}
+			}
+		}
+		if name == "" || modName == "" || modType == "" || version == "" || len(data) == 0 {
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte(`{"error":"BAD_REQUEST"}`))
+			return
+		}
+		err := mods.ImportDllToMods(name, fileName, data, modName, modType, version, overwrite)
+		if err != "" {
+			_, _ = w.Write([]byte(`{"error":"` + err + `"}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"error":""}`))
+	})
+	srv := &http.Server{Handler: mux}
+	addrs := []int{32773, 32774, 32775, 32776, 32777}
+	var ln net.Listener
+	for _, p := range addrs {
+		l, err := net.Listen("tcp", "127.0.0.1:"+strconv.Itoa(p))
+		if err == nil {
+			ln = l
+			a.importAddr = "http://127.0.0.1:" + strconv.Itoa(p)
+			break
+		}
+	}
+	if ln == nil {
+		l, err := net.Listen("tcp", "127.0.0.1:0")
+		if err != nil {
+			return
+		}
+		ln = l
+		addr := ln.Addr().String()
+		if strings.HasPrefix(addr, "[::]") {
+			addr = strings.Replace(addr, "[::]", "127.0.0.1", 1)
+		}
+		a.importAddr = "http://" + addr
+	}
+	a.importSrv = srv
+	go func() { _ = srv.Serve(ln) }()
+}
+
+func (a *Minecraft) GetImportServerURL() string { return a.importAddr }
 
 func (a *Minecraft) CanCreateDir(dir string) bool {
 	err := os.Mkdir(filepath.Join(dir, "levitest"), 0755)

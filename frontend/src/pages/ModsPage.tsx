@@ -27,6 +27,78 @@ import { FiUploadCloud, FiAlertTriangle } from "react-icons/fi";
 import { AnimatePresence, motion } from "framer-motion";
 import * as minecraft from "../../bindings/github.com/liteldev/LeviLauncher/minecraft";
 
+const IMPORT_SERVER = "http://127.0.0.1:32773";
+const postImportModZip = async (
+  name: string,
+  file: File,
+  overwrite: boolean
+): Promise<string> => {
+  try {
+    const fd = new FormData();
+    fd.append("name", name);
+    fd.append("overwrite", overwrite ? "1" : "0");
+    fd.append("file", file, file.name);
+    const resp = await fetch(`${IMPORT_SERVER}/api/import/modzip`, {
+      method: "POST",
+      body: fd,
+    });
+    const j = (await resp.json().catch(() => ({}))) as any;
+    return String(j?.error || "");
+  } catch (e: any) {
+    try {
+      const buf = await file.arrayBuffer();
+      const bytes = Array.from(new Uint8Array(buf));
+      const err = await (minecraft as any)?.ImportModZip?.(name, bytes, overwrite);
+      return String(err || "");
+    } catch (e2: any) {
+      return String(e2?.message || "IMPORT_ERROR");
+    }
+  }
+};
+const postImportModDll = async (
+  name: string,
+  file: File,
+  fileName: string,
+  modName: string,
+  modType: string,
+  version: string,
+  overwrite: boolean
+): Promise<string> => {
+  try {
+    const fd = new FormData();
+    fd.append("name", name);
+    fd.append("fileName", fileName);
+    fd.append("modName", modName);
+    fd.append("modType", modType);
+    fd.append("version", version);
+    fd.append("overwrite", overwrite ? "1" : "0");
+    fd.append("file", file, fileName);
+    const resp = await fetch(`${IMPORT_SERVER}/api/import/moddll`, {
+      method: "POST",
+      body: fd,
+    });
+    const j = (await resp.json().catch(() => ({}))) as any;
+    return String(j?.error || "");
+  } catch (e: any) {
+    try {
+      const buf = await file.arrayBuffer();
+      const bytes = Array.from(new Uint8Array(buf));
+      const err = await (minecraft as any)?.ImportModDll?.(
+        name,
+        fileName,
+        bytes,
+        modName,
+        modType,
+        version,
+        overwrite
+      );
+      return String(err || "");
+    } catch (e2: any) {
+      return String(e2?.message || "IMPORT_ERROR");
+    }
+  }
+};
+
 const readCurrentVersionName = (): string => {
   try {
     return localStorage.getItem("ll.currentVersionName") || "";
@@ -89,9 +161,6 @@ export const ModsPage: React.FC = () => {
     onClose: infoOnClose,
   } = useDisclosure();
   const {
-    isOpen: dndUnsupportedOpen,
-    onOpen: dndUnsupportedOnOpen,
-    onOpenChange: dndUnsupportedOnOpenChange,
   } = useDisclosure();
   const [activeMod, setActiveMod] = useState<types.ModInfo | null>(null);
   const [dllName, setDllName] = useState("");
@@ -339,11 +408,7 @@ export const ModsPage: React.FC = () => {
             started = true;
           }
           setCurrentFile(f.name);
-          let err = await minecraft?.ImportModZip?.(
-            currentVersionName,
-            bytes,
-            false
-          );
+          let err = await postImportModZip(currentVersionName, f, false);
           if (err) {
             if (String(err) === "ERR_DUPLICATE_FOLDER") {
               dupNameRef.current = f.name;
@@ -353,11 +418,7 @@ export const ModsPage: React.FC = () => {
                 dupResolveRef.current = resolve;
               });
               if (ok) {
-                err = await minecraft?.ImportModZip?.(
-                  currentVersionName,
-                  bytes,
-                  true
-                );
+                err = await postImportModZip(currentVersionName, f, true);
                 if (!err) {
                   succFiles.push(f.name);
                   continue;
@@ -394,10 +455,10 @@ export const ModsPage: React.FC = () => {
             version: dllVersion,
           };
           dllConfirmRef.current = null;
-          let err = await minecraft?.ImportModDll?.(
+          let err = await postImportModDll(
             currentVersionName,
+            dllFileRef.current || f,
             f.name,
-            dllBytesRef.current,
             vals.name,
             vals.type || "preload-native",
             vals.version || "0.0.0",
@@ -413,10 +474,10 @@ export const ModsPage: React.FC = () => {
                 dupResolveRef.current = resolve;
               });
               if (ok) {
-                err = await minecraft?.ImportModDll?.(
+                err = await postImportModDll(
                   currentVersionName,
+                  dllFileRef.current || f,
                   f.name,
-                  dllBytesRef.current,
                   vals.name,
                   vals.type || "preload-native",
                   vals.version || "0.0.0",
@@ -517,8 +578,6 @@ export const ModsPage: React.FC = () => {
     setErrorFile("");
     setResultSuccess([]);
     setResultFailed([]);
-    dndUnsupportedOnOpen();
-    return;
     const files: File[] = Array.from(e.dataTransfer.files || []).filter(
       (f) =>
         f &&
@@ -540,11 +599,7 @@ export const ModsPage: React.FC = () => {
             started = true;
           }
           setCurrentFile(f.name);
-          let err = await minecraft?.ImportModZip?.(
-            currentVersionName,
-            bytes,
-            false
-          );
+          let err = await postImportModZip(currentVersionName, f, false);
           if (err) {
             if (String(err) === "ERR_DUPLICATE_FOLDER") {
               dupNameRef.current = f.name;
@@ -554,11 +609,7 @@ export const ModsPage: React.FC = () => {
                 dupResolveRef.current = resolve;
               });
               if (ok) {
-                err = await minecraft?.ImportModZip?.(
-                  currentVersionName,
-                  bytes,
-                  true
-                );
+                err = await postImportModZip(currentVersionName, f, true);
                 if (!err) {
                   succFiles.push(f.name);
                   continue;
@@ -595,10 +646,10 @@ export const ModsPage: React.FC = () => {
             version: dllVersion,
           };
           dllConfirmRef.current = null;
-          let err = await minecraft?.ImportModDll?.(
+          let err = await postImportModDll(
             currentVersionName,
+            dllFileRef.current || f,
             f.name,
-            dllBytesRef.current,
             vals.name,
             vals.type || "preload-native",
             vals.version || "0.0.0",
@@ -614,10 +665,10 @@ export const ModsPage: React.FC = () => {
                 dupResolveRef.current = resolve;
               });
               if (ok) {
-                err = await minecraft?.ImportModDll?.(
+                err = await postImportModDll(
                   currentVersionName,
+                  dllFileRef.current || f,
                   f.name,
-                  dllBytesRef.current,
                   vals.name,
                   vals.type || "preload-native",
                   vals.version || "0.0.0",
@@ -1045,51 +1096,6 @@ export const ModsPage: React.FC = () => {
           )}
         </ModalContent>
       </Modal>
-      <Modal
-        size="md"
-        isOpen={dndUnsupportedOpen}
-        onOpenChange={dndUnsupportedOnOpenChange}
-        hideCloseButton
-      >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="text-primary-600">
-                {t("mods.drag_import_unsupported_title", {
-                  defaultValue: "拖拽导入暂不支持",
-                })}
-              </ModalHeader>
-              <ModalBody>
-                <div className="text-sm text-default-700">
-                  {t("mods.drag_import_unsupported_body", {
-                    defaultValue: "暂不支持，等待 Wails 支持。",
-                  })}
-                </div>
-                <div className="mt-2 text-sm">
-                  <a
-                    href="https://github.com/wailsapp/wails/pull/4702"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-primary underline"
-                  >
-                    https://github.com/wailsapp/wails/pull/4702
-                  </a>
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  color="primary"
-                  onPress={() => {
-                    onClose();
-                  }}
-                >
-                  {t("common.confirm", { defaultValue: "确定" })}
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
       <div className="px-3 sm:px-5 lg:px-8 py-3 sm:py-4 lg:py-6 w-full flex flex-col gap-4">
         <motion.div
           initial={{ opacity: 0, y: -8 }}
@@ -1097,7 +1103,7 @@ export const ModsPage: React.FC = () => {
           transition={{ duration: 0.25 }}
         >
           <Card
-            className={`rounded-3xl shadow-xl bg-white/60 dark:bg-black/30 backdrop-blur-md border border-white/30 ${
+            className={`rounded-3xl bg-white/60 dark:bg-black/30 backdrop-blur-md border border-white/30 ${
               dragActive ? "border-2 border-dashed border-primary" : ""
             }`}
           >
@@ -1192,7 +1198,7 @@ export const ModsPage: React.FC = () => {
                         <Card
                           isPressable
                           onPress={() => openDetails(m)}
-                          className="rounded-2xl shadow-sm bg-content2 hover:bg-content3 transition-colors border border-default-200 transform-gpu hover:-translate-y-0.5 transition-transform duration-200"
+                          className="rounded-2xl bg-content2 hover:bg-content3 transition-colors border border-default-200 transform-gpu hover:-translate-y-0.5 transition-transform duration-200"
                         >
                           <CardBody className="p-4">
                             <div className="flex items-start justify-between gap-3">
