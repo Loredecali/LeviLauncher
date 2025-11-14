@@ -430,7 +430,7 @@
       "behavior_packs": "Behavior Packs"
     }
   },
-    "contentpage": {
+  "contentpage": {
         "not_ready_title": "Page Not Ready",
         "not_ready_body": "This page is under development and not accessible yet. Please return to the home page.",
         "current_version": "Current Version",
@@ -457,6 +457,10 @@
     "count": "Count",
     "error_resolve_paths": "Failed to resolve content paths.",
     "players_aria": "Players"
+    ,
+    "min_engine_version": "Min Engine Version",
+    "drop_hint": "Drag .mcworld/.mcpack/.mcaddon to import",
+    "import_button": "Import .mcworld/.mcpack/.mcaddon"
   },
   
   "versions": {

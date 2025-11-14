@@ -191,6 +191,23 @@ export const ModsPage: React.FC = () => {
       .catch(() => setModsInfo([]));
   }, []);
 
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const name = readCurrentVersionName();
+      if (name !== currentVersionName) {
+        setCurrentVersionName(name);
+        if (name) {
+          GetMods(name)
+            .then((data) => setModsInfo(data || []))
+            .catch(() => setModsInfo([]));
+        } else {
+          setModsInfo([]);
+        }
+      }
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [currentVersionName]);
+
   const resolveImportError = (err: string): string => {
     const code = String(err || "").trim();
     switch (code) {

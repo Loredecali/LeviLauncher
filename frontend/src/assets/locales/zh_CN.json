@@ -455,6 +455,10 @@
         "count": "数量",
         "error_resolve_paths": "无法解析内容路径。",
         "players_aria": "玩家列表"
+        ,
+        "min_engine_version": "最小游戏版本",
+        "drop_hint": "拖入 .mcworld/.mcpack/.mcaddon 以导入",
+        "import_button": "导入 .mcworld/.mcpack/.mcaddon"
     },
     
     "versions": {

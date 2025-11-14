@@ -81,8 +81,8 @@ func main() {
 
 	app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title:     "LeviLauncher",
-		Width:     960,
-		Height:    600,
+		Width:     1024,
+		Height:    640,
 		MinWidth:  960,
 		MinHeight: 600,
 		Mac:       application.MacWindow{},

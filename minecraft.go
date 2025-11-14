@@ -21,6 +21,7 @@ import (
 	"github.com/liteldev/LeviLauncher/internal/config"
 	"github.com/wailsapp/wails/v3/pkg/application"
 
+	"github.com/liteldev/LeviLauncher/internal/content"
 	"github.com/liteldev/LeviLauncher/internal/explorer"
 	"github.com/liteldev/LeviLauncher/internal/extractor"
 	"github.com/liteldev/LeviLauncher/internal/lang"
@@ -1157,6 +1158,105 @@ func (a *Minecraft) ImportModDll(name string, fileName string, data []byte, modN
 	return mods.ImportDllToMods(name, fileName, data, modName, modType, version, overwrite)
 }
 
+func (a *Minecraft) ImportMcpack(name string, data []byte, overwrite bool) string {
+	roots := a.GetContentRoots(name)
+	return content.ImportMcpackToDirs(data, "", roots.ResourcePacks, roots.BehaviorPacks, overwrite)
+}
+
+func (a *Minecraft) ImportMcpackPath(name string, path string, overwrite bool) string {
+	if strings.TrimSpace(path) == "" {
+		return "ERR_OPEN_ZIP"
+	}
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return "ERR_OPEN_ZIP"
+	}
+	roots := a.GetContentRoots(name)
+	return content.ImportMcpackToDirs(b, filepath.Base(path), roots.ResourcePacks, roots.BehaviorPacks, overwrite)
+}
+
+func (a *Minecraft) ImportMcaddon(name string, data []byte, overwrite bool) string {
+	roots := a.GetContentRoots(name)
+	return content.ImportMcaddonToDirs(data, roots.ResourcePacks, roots.BehaviorPacks, overwrite)
+}
+
+func (a *Minecraft) ImportMcaddonPath(name string, path string, overwrite bool) string {
+	if strings.TrimSpace(path) == "" {
+		return "ERR_OPEN_ZIP"
+	}
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return "ERR_OPEN_ZIP"
+	}
+	roots := a.GetContentRoots(name)
+	return content.ImportMcaddonToDirs(b, roots.ResourcePacks, roots.BehaviorPacks, overwrite)
+}
+
+func (a *Minecraft) ImportMcworld(name string, player string, fileName string, data []byte, overwrite bool) string {
+	roots := a.GetContentRoots(name)
+	users := strings.TrimSpace(roots.UsersRoot)
+	if users == "" || strings.TrimSpace(player) == "" {
+		return "ERR_ACCESS_VERSIONS_DIR"
+	}
+	wp := filepath.Join(users, player, "games", "com.mojang", "minecraftWorlds")
+	return content.ImportMcworldToDir(data, fileName, wp, overwrite)
+}
+
+func (a *Minecraft) ImportMcworldPath(name string, player string, path string, overwrite bool) string {
+	if strings.TrimSpace(path) == "" {
+		return "ERR_OPEN_ZIP"
+	}
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return "ERR_OPEN_ZIP"
+	}
+	roots := a.GetContentRoots(name)
+	users := strings.TrimSpace(roots.UsersRoot)
+	if users == "" || strings.TrimSpace(player) == "" {
+		return "ERR_ACCESS_VERSIONS_DIR"
+	}
+	wp := filepath.Join(users, player, "games", "com.mojang", "minecraftWorlds")
+	return content.ImportMcworldToDir(b, filepath.Base(path), wp, overwrite)
+}
+
+func (a *Minecraft) GetPackInfo(dir string) types.PackInfo {
+	return content.ReadPackInfoFromDir(dir)
+}
+
+func (a *Minecraft) DeletePack(name string, path string) string {
+	p := strings.TrimSpace(path)
+	if p == "" {
+		return "ERR_INVALID_PATH"
+	}
+	fi, err := os.Stat(p)
+	if err != nil || !fi.IsDir() {
+		return "ERR_INVALID_PATH"
+	}
+	roots := a.GetContentRoots(name)
+	allowed := []string{strings.TrimSpace(roots.ResourcePacks), strings.TrimSpace(roots.BehaviorPacks)}
+	absTarget, _ := filepath.Abs(p)
+	lowT := strings.ToLower(absTarget)
+	ok := false
+	for _, r := range allowed {
+		if strings.TrimSpace(r) == "" {
+			continue
+		}
+		absRoot, _ := filepath.Abs(r)
+		lowR := strings.ToLower(absRoot)
+		if lowT != lowR && strings.HasPrefix(lowT, lowR+string(os.PathSeparator)) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return "ERR_INVALID_PACKAGE"
+	}
+	if err := os.RemoveAll(absTarget); err != nil {
+		return "ERR_WRITE_FILE"
+	}
+	return ""
+}
+
 func (a *Minecraft) ListDrives() []string {
 	drives := []string{}
 	for l := 'A'; l <= 'Z'; l++ {
@@ -1324,6 +1424,7 @@ func (a *Minecraft) startImportServer() {
 		var name string
 		var overwrite bool
 		var data []byte
+
 		ct := strings.ToLower(strings.TrimSpace(r.Header.Get("Content-Type")))
 		if strings.HasPrefix(ct, "multipart/form-data") {
 			_ = r.ParseMultipartForm(64 << 20)
@@ -1458,6 +1559,226 @@ func (a *Minecraft) startImportServer() {
 			return
 		}
 		err := mods.ImportDllToMods(name, fileName, data, modName, modType, version, overwrite)
+		if err != "" {
+			_, _ = w.Write([]byte(`{"error":"` + err + `"}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"error":""}`))
+	})
+	mux.HandleFunc("/api/import/mcpack", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST,OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			_, _ = w.Write([]byte(`{"error":"METHOD_NOT_ALLOWED"}`))
+			return
+		}
+		var name string
+		var overwrite bool
+		var data []byte
+		var fileName string
+		ct := strings.ToLower(strings.TrimSpace(r.Header.Get("Content-Type")))
+		if strings.HasPrefix(ct, "multipart/form-data") {
+			_ = r.ParseMultipartForm(64 << 20)
+			name = strings.TrimSpace(r.FormValue("name"))
+			ow := strings.TrimSpace(r.FormValue("overwrite"))
+			if ow != "" {
+				l := strings.ToLower(ow)
+				overwrite = l == "1" || l == "true" || l == "yes"
+			}
+			f, fh, err := r.FormFile("file")
+			if err == nil && f != nil {
+				defer f.Close()
+				b, er := io.ReadAll(f)
+				if er == nil {
+					data = b
+				}
+				if fh != nil {
+					fileName = fh.Filename
+				}
+			}
+		} else {
+			b, _ := io.ReadAll(r.Body)
+			_ = r.Body.Close()
+			var obj map[string]interface{}
+			if err := json.Unmarshal(b, &obj); err == nil {
+				if v, ok := obj["name"].(string); ok {
+					name = strings.TrimSpace(v)
+				}
+				if v, ok := obj["overwrite"].(bool); ok {
+					overwrite = v
+				} else if v2, ok2 := obj["overwrite"].(string); ok2 {
+					l := strings.ToLower(strings.TrimSpace(v2))
+					overwrite = l == "1" || l == "true" || l == "yes"
+				}
+				if v, ok := obj["fileName"].(string); ok {
+					fileName = strings.TrimSpace(v)
+				}
+				if v, ok := obj["data"].(string); ok && v != "" {
+					bs, _ := base64.StdEncoding.DecodeString(v)
+					if len(bs) > 0 {
+						data = bs
+					}
+				}
+			}
+		}
+		if name == "" || len(data) == 0 {
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte(`{"error":"BAD_REQUEST"}`))
+			return
+		}
+		roots := a.GetContentRoots(name)
+		err := content.ImportMcpackToDirs(data, fileName, roots.ResourcePacks, roots.BehaviorPacks, overwrite)
+		if err != "" {
+			_, _ = w.Write([]byte(`{"error":"` + err + `"}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"error":""}`))
+	})
+	mux.HandleFunc("/api/import/mcaddon", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST,OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			_, _ = w.Write([]byte(`{"error":"METHOD_NOT_ALLOWED"}`))
+			return
+		}
+		var name string
+		var overwrite bool
+		var data []byte
+		ct := strings.ToLower(strings.TrimSpace(r.Header.Get("Content-Type")))
+		if strings.HasPrefix(ct, "multipart/form-data") {
+			_ = r.ParseMultipartForm(64 << 20)
+			name = strings.TrimSpace(r.FormValue("name"))
+			ow := strings.TrimSpace(r.FormValue("overwrite"))
+			if ow != "" {
+				l := strings.ToLower(ow)
+				overwrite = l == "1" || l == "true" || l == "yes"
+			}
+			f, _, err := r.FormFile("file")
+			if err == nil && f != nil {
+				defer f.Close()
+				b, er := io.ReadAll(f)
+				if er == nil {
+					data = b
+				}
+			}
+		} else {
+			b, _ := io.ReadAll(r.Body)
+			_ = r.Body.Close()
+			var obj map[string]interface{}
+			if err := json.Unmarshal(b, &obj); err == nil {
+				if v, ok := obj["name"].(string); ok {
+					name = strings.TrimSpace(v)
+				}
+				if v, ok := obj["overwrite"].(bool); ok {
+					overwrite = v
+				} else if v2, ok2 := obj["overwrite"].(string); ok2 {
+					l := strings.ToLower(strings.TrimSpace(v2))
+					overwrite = l == "1" || l == "true" || l == "yes"
+				}
+				if v, ok := obj["data"].(string); ok && v != "" {
+					bs, _ := base64.StdEncoding.DecodeString(v)
+					if len(bs) > 0 {
+						data = bs
+					}
+				}
+			}
+		}
+		if name == "" || len(data) == 0 {
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte(`{"error":"BAD_REQUEST"}`))
+			return
+		}
+		err := a.ImportMcaddon(name, data, overwrite)
+		if err != "" {
+			_, _ = w.Write([]byte(`{"error":"` + err + `"}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"error":""}`))
+	})
+	mux.HandleFunc("/api/import/mcworld", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST,OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			_, _ = w.Write([]byte(`{"error":"METHOD_NOT_ALLOWED"}`))
+			return
+		}
+		var name, player, fileName string
+		var overwrite bool
+		var data []byte
+		ct := strings.ToLower(strings.TrimSpace(r.Header.Get("Content-Type")))
+		if strings.HasPrefix(ct, "multipart/form-data") {
+			_ = r.ParseMultipartForm(64 << 20)
+			name = strings.TrimSpace(r.FormValue("name"))
+			player = strings.TrimSpace(r.FormValue("player"))
+			fileName = strings.TrimSpace(r.FormValue("fileName"))
+			ow := strings.TrimSpace(r.FormValue("overwrite"))
+			if ow != "" {
+				l := strings.ToLower(ow)
+				overwrite = l == "1" || l == "true" || l == "yes"
+			}
+			f, fh, err := r.FormFile("file")
+			if err == nil && f != nil {
+				defer f.Close()
+				b, er := io.ReadAll(f)
+				if er == nil {
+					data = b
+				}
+				if fileName == "" && fh != nil {
+					fileName = fh.Filename
+				}
+			}
+		} else {
+			b, _ := io.ReadAll(r.Body)
+			_ = r.Body.Close()
+			var obj map[string]interface{}
+			if err := json.Unmarshal(b, &obj); err == nil {
+				if v, ok := obj["name"].(string); ok {
+					name = strings.TrimSpace(v)
+				}
+				if v, ok := obj["player"].(string); ok {
+					player = strings.TrimSpace(v)
+				}
+				if v, ok := obj["fileName"].(string); ok {
+					fileName = strings.TrimSpace(v)
+				}
+				if v, ok := obj["overwrite"].(bool); ok {
+					overwrite = v
+				} else if v2, ok2 := obj["overwrite"].(string); ok2 {
+					l := strings.ToLower(strings.TrimSpace(v2))
+					overwrite = l == "1" || l == "true" || l == "yes"
+				}
+				if v, ok := obj["data"].(string); ok && v != "" {
+					bs, _ := base64.StdEncoding.DecodeString(v)
+					if len(bs) > 0 {
+						data = bs
+					}
+				}
+			}
+		}
+		if name == "" || player == "" || len(data) == 0 {
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte(`{"error":"BAD_REQUEST"}`))
+			return
+		}
+		err := a.ImportMcworld(name, player, fileName, data, overwrite)
 		if err != "" {
 			_, _ = w.Write([]byte(`{"error":"` + err + `"}`))
 			return

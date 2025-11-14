@@ -34,19 +34,19 @@ type PreloaderJson struct {
 }
 
 type ModManifestJson struct {
-    Name    string `json:"name"`
-    Entry   string `json:"entry"`
-    Version string `json:"version"`
-    Type    string `json:"type"`
-    Author  string `json:"author,omitempty"`
+	Name    string `json:"name"`
+	Entry   string `json:"entry"`
+	Version string `json:"version"`
+	Type    string `json:"type"`
+	Author  string `json:"author,omitempty"`
 }
 
 type ModInfo struct {
-    Name    string `json:"name"`
-    Entry   string `json:"entry"`
-    Version string `json:"version"`
-    Type    string `json:"type"`
-    Author  string `json:"author,omitempty"`
+	Name    string `json:"name"`
+	Entry   string `json:"entry"`
+	Version string `json:"version"`
+	Type    string `json:"type"`
+	Author  string `json:"author,omitempty"`
 }
 
 type LanguageJson struct {
@@ -55,9 +55,9 @@ type LanguageJson struct {
 }
 
 type CheckUpdate struct {
-    IsUpdate bool   `json:"isUpdate"`
-    Version  string `json:"version"`
-    Body     string `json:"body"`
+	IsUpdate bool   `json:"isUpdate"`
+	Version  string `json:"version"`
+	Body     string `json:"body"`
 }
 
 type FileEntry struct {
@@ -75,20 +75,20 @@ type MirrorTestResult struct {
 	Error     string `json:"error,omitempty"`
 }
 
-// ContentRoots provides resolved base directories for managing game content.
-// When version isolation is enabled, these paths point inside the selected version folder.
-// Otherwise, they point to the installed GDK content directory.
 type ContentRoots struct {
-	// The base directory that contains the `Users` folder.
-	Base string `json:"base"`
-	// Path to the `Users` directory where player folders are stored.
-	UsersRoot string `json:"usersRoot"`
-	// Shared resource packs directory: `<Base>/Users/Shared/games/com.mojang/resource_packs`.
+	Base          string `json:"base"`
+	UsersRoot     string `json:"usersRoot"`
 	ResourcePacks string `json:"resourcePacks"`
-	// Shared behavior packs directory: `<Base>/Users/Shared/games/com.mojang/behavior_packs`.
 	BehaviorPacks string `json:"behaviorPacks"`
-	// Whether current version uses isolation (paths under versions/<name>/...).
-	IsIsolation bool `json:"isIsolation"`
-	// Whether current version is preview.
-	IsPreview bool `json:"isPreview"`
+	IsIsolation   bool   `json:"isIsolation"`
+	IsPreview     bool   `json:"isPreview"`
+}
+
+type PackInfo struct {
+	Name             string `json:"name"`
+	Description      string `json:"description"`
+	Version          string `json:"version"`
+	MinEngineVersion string `json:"minEngineVersion"`
+	IconDataUrl      string `json:"iconDataUrl"`
+	Path             string `json:"path"`
 }
