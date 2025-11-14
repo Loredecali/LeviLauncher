@@ -1,4 +1,4 @@
-Unicode true
+﻿Unicode true
 
 ####
 ## Please note: Template replacements don't work in this file. They are provided with default defines like
@@ -49,6 +49,10 @@ VIAddVersionKey "ProductName"     "${INFO_PRODUCTNAME}"
 ManifestDPIAware true
 
 !include "MUI.nsh"
+!include "nsDialogs.nsh"
+!include "LogicLib.nsh"
+!include "TextFunc.nsh"
+!include "FileFunc.nsh"
 
 !define MUI_ICON "..\icon.ico"
 !define MUI_UNICON "..\icon.ico"
@@ -62,9 +66,12 @@ ManifestDPIAware true
 !insertmacro MUI_PAGE_INSTFILES # Installing page.
 !insertmacro MUI_PAGE_FINISH # Finished installation page.
 
-!insertmacro MUI_UNPAGE_INSTFILES # Uninstalling page
+!insertmacro MUI_UNPAGE_CONFIRM
+UninstPage custom un.customPage un.customPageLeave
+!insertmacro MUI_UNPAGE_INSTFILES
 
-!insertmacro MUI_LANGUAGE "English" # Set the Language of the installer
+!insertmacro MUI_LANGUAGE "SimpChinese"
+!insertmacro MUI_LANGUAGE "English"
 
 ## The following two statements can be used to sign the installer and the uninstaller. The path to the binaries are provided in %1
 #!uninstfinalize 'signtool --file "%1"'
@@ -74,9 +81,246 @@ Name "${INFO_PRODUCTNAME}"
 OutFile "..\..\..\bin\${INFO_PROJECTNAME}-${ARCH}-installer.exe" # Name of the installer's file.
 InstallDir "$PROGRAMFILES64\${INFO_COMPANYNAME}\${INFO_PRODUCTNAME}" # Default installing folder ($PROGRAMFILES is Program Files folder).
 ShowInstDetails show # This will always show the installation details.
+ShowUninstDetails show
+
+Var BaseRoot
+Var LogFileHandle
+Var RoamingPath
+Var LocalPath
+Var ConfigPath
+Var UninstallCleanRoamingCheckbox
+Var UninstallCleanLocalCheckbox
+Var UninstallCleanBaseRootCheckbox
+Var UninstallCleanBackupCheckbox
+Var UninstallCleanRoamingFlag
+Var UninstallCleanLocalFlag
+Var UninstallCleanBaseRootFlag
+Var UninstallCleanBackupFlag
+Var BaseRootLabel
+Var ResolveBaseRootButton
+Var InstallParent
+
+LangString LBL_Roaming ${LANG_ENGLISH} "Roaming: $RoamingPath"
+LangString LBL_Roaming ${LANG_SIMPCHINESE} "Roaming：$RoamingPath"
+LangString CHK_RemoveRoaming ${LANG_ENGLISH} "Remove Roaming data"
+LangString CHK_RemoveRoaming ${LANG_SIMPCHINESE} "删除漫游数据"
+LangString LBL_Local ${LANG_ENGLISH} "Local: $LocalPath"
+LangString LBL_Local ${LANG_SIMPCHINESE} "Local：$LocalPath"
+LangString CHK_RemoveLocal ${LANG_ENGLISH} "Remove Local data (config.json + bin)"
+LangString CHK_RemoveLocal ${LANG_SIMPCHINESE} "删除Local数据（config.json + bin）"
+LangString LBL_BaseRoot ${LANG_ENGLISH} "BaseRoot: $BaseRoot"
+LangString LBL_BaseRoot ${LANG_SIMPCHINESE} "BaseRoot：$BaseRoot"
+LangString BTN_ResolveBaseRoot ${LANG_ENGLISH} "Resolve BaseRoot"
+LangString BTN_ResolveBaseRoot ${LANG_SIMPCHINESE} "解析 BaseRoot"
+LangString CHK_RemoveBaseRoot ${LANG_ENGLISH} "Remove BaseRoot"
+LangString CHK_RemoveBaseRoot ${LANG_SIMPCHINESE} "删除 BaseRoot"
+LangString CHK_RemoveBackup ${LANG_ENGLISH} "Remove Backup"
+LangString CHK_RemoveBackup ${LANG_SIMPCHINESE} "删除备份"
+LangString MSG_ConfirmBaseRoot ${LANG_ENGLISH} "Removing installers and versions under BaseRoot will delete downloaded versions and installers. Continue?"
+LangString MSG_ConfirmBaseRoot ${LANG_SIMPCHINESE} "删除 BaseRoot 下的 installers 和 versions 将删除已下载的版本与安装包。是否继续？"
+LangString MSG_ConfirmBackup ${LANG_ENGLISH} "Removing Backup will delete all backups under BaseRoot. Continue?"
+LangString MSG_ConfirmBackup ${LANG_SIMPCHINESE} "删除备份将移除 BaseRoot 下的所有备份。是否继续？"
+LangString TXT_UninstallInit ${LANG_ENGLISH} "Uninstall init"
+LangString TXT_UninstallInit ${LANG_SIMPCHINESE} "卸载初始化"
+LangString TXT_Blocked ${LANG_ENGLISH} "Blocked: application is running"
+LangString TXT_Blocked ${LANG_SIMPCHINESE} "阻止：应用正在运行"
+LangString MSG_CloseBeforeUninstall ${LANG_ENGLISH} "${INFO_PRODUCTNAME} is currently running. Please close it before uninstalling."
+LangString MSG_CloseBeforeUninstall ${LANG_SIMPCHINESE} "${INFO_PRODUCTNAME} 正在运行。请关闭后再卸载。"
+LangString TXT_UninstallStart ${LANG_ENGLISH} "Uninstall section start"
+LangString TXT_UninstallStart ${LANG_SIMPCHINESE} "开始卸载"
+LangString TXT_RoamingPath ${LANG_ENGLISH} "Roaming path: $RoamingPath"
+LangString TXT_RoamingPath ${LANG_SIMPCHINESE} "漫游路径：$RoamingPath"
+LangString TXT_LocalPath ${LANG_ENGLISH} "Local path: $LocalPath"
+LangString TXT_LocalPath ${LANG_SIMPCHINESE} "本地路径：$LocalPath"
+LangString TXT_ConfigPath ${LANG_ENGLISH} "Config path: $ConfigPath"
+LangString TXT_ConfigPath ${LANG_SIMPCHINESE} "配置路径：$ConfigPath"
+LangString TXT_BaseRoot ${LANG_ENGLISH} "BaseRoot: $BaseRoot"
+LangString TXT_BaseRoot ${LANG_SIMPCHINESE} "BaseRoot：$BaseRoot"
+LangString TXT_RemoveRoaming ${LANG_ENGLISH} "Remove Roaming"
+LangString TXT_RemoveRoaming ${LANG_SIMPCHINESE} "删除启动器数据"
+LangString TXT_RoamingErr ${LANG_ENGLISH} "Roaming removal error"
+LangString TXT_RoamingErr ${LANG_SIMPCHINESE} "删除启动器数据出错"
+LangString TXT_RemoveBaseSubs ${LANG_ENGLISH} "Remove BaseRoot subdirectories: installers, versions"
+LangString TXT_RemoveBaseSubs ${LANG_SIMPCHINESE} "删除 BaseRoot 子目录：installers、versions"
+LangString TXT_InstallersErr ${LANG_ENGLISH} "Installers removal error"
+LangString TXT_InstallersErr ${LANG_SIMPCHINESE} "删除 installers 出错"
+LangString TXT_VersionsErr ${LANG_ENGLISH} "Versions removal error"
+LangString TXT_VersionsErr ${LANG_SIMPCHINESE} "删除 versions 出错"
+LangString TXT_RemoveBackup ${LANG_ENGLISH} "Remove Backup: $BaseRoot\\backups"
+LangString TXT_RemoveBackup ${LANG_SIMPCHINESE} "删除备份：$BaseRoot\\backups"
+LangString TXT_BackupErr ${LANG_ENGLISH} "Backup removal error"
+LangString TXT_BackupErr ${LANG_SIMPCHINESE} "删除备份出错"
+LangString TXT_RemoveLocalMatch ${LANG_ENGLISH} "Remove Local directory (matches BaseRoot)"
+LangString TXT_RemoveLocalMatch ${LANG_SIMPCHINESE} "删除本地目录（与 BaseRoot 相同）"
+LangString TXT_LocalDirErr ${LANG_ENGLISH} "Local directory removal error"
+LangString TXT_LocalDirErr ${LANG_SIMPCHINESE} "删除本地目录出错"
+LangString TXT_RemoveLocalParts ${LANG_ENGLISH} "Remove Local parts (config.json + bin)"
+LangString TXT_RemoveLocalParts ${LANG_SIMPCHINESE} "删除本地部分（config.json + bin）"
+LangString TXT_ConfigErr ${LANG_ENGLISH} "Delete config.json error"
+LangString TXT_ConfigErr ${LANG_SIMPCHINESE} "删除 config.json 出错"
+LangString TXT_BinErr ${LANG_ENGLISH} "Remove bin error"
+LangString TXT_BinErr ${LANG_SIMPCHINESE} "删除 bin 出错"
+LangString TXT_RemoveInstDir ${LANG_ENGLISH} "InstallDir removal error"
+LangString TXT_RemoveInstDir ${LANG_SIMPCHINESE} "删除安装目录出错"
+LangString TXT_RemovedInstDir ${LANG_ENGLISH} "Removed install dir"
+LangString TXT_RemovedInstDir ${LANG_SIMPCHINESE} "已删除安装目录"
+LangString TXT_UninstallEnd ${LANG_ENGLISH} "Uninstall end"
+LangString TXT_UninstallEnd ${LANG_SIMPCHINESE} "卸载结束"
+LangString TXT_RemovedCompanyDir ${LANG_ENGLISH} "Removed company dir"
+LangString TXT_RemovedCompanyDir ${LANG_SIMPCHINESE} "Removed company dir"
+LangString TXT_CompanyDirNotRemoved ${LANG_ENGLISH} "Company dir not removed (not empty)"
+LangString TXT_CompanyDirNotRemoved ${LANG_SIMPCHINESE} "Company dir not removed (not empty)"
 
 Function .onInit
    !insertmacro wails.checkArchitecture
+FunctionEnd
+
+Function un.customPage
+  SetShellVarContext current
+  StrCpy $RoamingPath "$APPDATA\${INFO_PRODUCTNAME}"
+  StrCpy $LocalPath "$LOCALAPPDATA\${INFO_PRODUCTNAME}"
+  StrCpy $ConfigPath "$LOCALAPPDATA\${INFO_PRODUCTNAME}\config.json"
+  StrCpy $BaseRoot ""
+
+  nsDialogs::Create 1018
+  Pop $0
+  ${NSD_CreateLabel} 0u 0u 100% 10u "$(LBL_Roaming)"
+  ${NSD_CreateCheckbox} 0u 12u 100% 12u "$(CHK_RemoveRoaming)"
+  Pop $UninstallCleanRoamingCheckbox
+  ${NSD_SetState} $UninstallCleanRoamingCheckbox 1
+  ${NSD_CreateLabel} 0u 28u 100% 10u "$(LBL_Local)"
+  ${NSD_CreateCheckbox} 0u 40u 100% 12u "$(CHK_RemoveLocal)"
+  Pop $UninstallCleanLocalCheckbox
+  ${NSD_CreateLabel} 0u 56u 100% 10u "$(LBL_BaseRoot)"
+  Pop $BaseRootLabel
+  ${NSD_CreateButton} 0u 68u 40% 12u "$(BTN_ResolveBaseRoot)"
+  Pop $ResolveBaseRootButton
+  ${NSD_OnClick} $ResolveBaseRootButton un.resolveBaseRoot
+  ${NSD_CreateCheckbox} 0u 84u 100% 12u "$(CHK_RemoveBaseRoot)"
+  Pop $UninstallCleanBaseRootCheckbox
+  ${NSD_OnClick} $UninstallCleanBaseRootCheckbox un.onBaseRootCheckboxClick
+  StrCmp $BaseRoot "" 0 +2
+    EnableWindow $UninstallCleanBaseRootCheckbox 0
+  ${NSD_CreateCheckbox} 0u 100u 100% 12u "$(CHK_RemoveBackup)"
+  Pop $UninstallCleanBackupCheckbox
+  ${NSD_OnClick} $UninstallCleanBackupCheckbox un.onBackupCheckboxClick
+  StrCmp $BaseRoot "" 0 +2
+    EnableWindow $UninstallCleanBackupCheckbox 0
+  nsDialogs::Show
+FunctionEnd
+
+Function un.resolveBaseRoot
+  SetShellVarContext current
+  StrCpy $ConfigPath "$LOCALAPPDATA\${INFO_PRODUCTNAME}\config.json"
+  StrCpy $BaseRoot ""
+  IfFileExists "$ConfigPath" 0 endResolve
+    InitPluginsDir
+    FileOpen $1 "$pluginsdir\read-base-root.ps1" w
+    FileWrite $1 "$$path = Join-Path $$env:LOCALAPPDATA '${INFO_PRODUCTNAME}\\config.json'$\r$\n"
+    FileWrite $1 "if (Test-Path -LiteralPath $$path) {$\r$\n"
+    FileWrite $1 "  try { $$cfg = Get-Content -Raw -Encoding UTF8 $$path | ConvertFrom-Json; [Console]::Write(([string]$$cfg.base_root).Trim()) } catch { }$\r$\n"
+    FileWrite $1 "}$\r$\n"
+    FileClose $1
+    nsExec::ExecToStack 'powershell -NoProfile -ExecutionPolicy Bypass -File "$pluginsdir\read-base-root.ps1"'
+    Pop $0
+    Pop $BaseRoot
+  ${NSD_SetText} $BaseRootLabel "$(LBL_BaseRoot)"
+  StrCmp $BaseRoot "" 0 enableBase
+    EnableWindow $UninstallCleanBaseRootCheckbox 0
+    EnableWindow $UninstallCleanBackupCheckbox 0
+    Goto endResolve
+  enableBase:
+    EnableWindow $UninstallCleanBaseRootCheckbox 1
+    EnableWindow $UninstallCleanBackupCheckbox 1
+  endResolve:
+FunctionEnd
+
+Function un.onBaseRootCheckboxClick
+  ${NSD_GetState} $UninstallCleanBaseRootCheckbox $UninstallCleanBaseRootFlag
+  ${If} $UninstallCleanBaseRootFlag == 1
+    MessageBox MB_ICONEXCLAMATION|MB_YESNO "$(MSG_ConfirmBaseRoot)" IDYES endWarn IDNO uncheckBase
+    uncheckBase:
+      ${NSD_SetState} $UninstallCleanBaseRootCheckbox 0
+      StrCpy $UninstallCleanBaseRootFlag 0
+    endWarn:
+  ${EndIf}
+FunctionEnd
+
+Function un.onBackupCheckboxClick
+  ${NSD_GetState} $UninstallCleanBackupCheckbox $UninstallCleanBackupFlag
+  ${If} $UninstallCleanBackupFlag == 1
+    MessageBox MB_ICONEXCLAMATION|MB_YESNO "$(MSG_ConfirmBackup)" IDYES endWarn IDNO uncheckBackup
+    uncheckBackup:
+      ${NSD_SetState} $UninstallCleanBackupCheckbox 0
+      StrCpy $UninstallCleanBackupFlag 0
+    endWarn:
+  ${EndIf}
+FunctionEnd
+
+Function un.RemoveDirForce
+  Exch $0
+  StrLen $1 $0
+  IntCmp $1 0 end 0 0
+  IntCmp $1 3 end 0 0
+  IfFileExists "$0" 0 end
+  IfFileExists "$0\*" 0 tryremove
+  tryremove:
+  FindFirst $2 $3 "$0\*"
+  loop:
+  StrCmp $3 "" endloop
+  StrCmp $3 "." next
+  StrCmp $3 ".." next
+  IfFileExists "$0\$3\*" 0 isfile
+  Push "$0\$3"
+  Call un.RemoveDirForce
+  Goto next
+  isfile:
+  SetFileAttributes "$0\$3" NORMAL
+  Delete /REBOOTOK "$0\$3"
+  next:
+  FindNext $2 $3
+  Goto loop
+  endloop:
+  FindClose $2
+  RMDir "$0"
+  end:
+  Pop $0
+FunctionEnd
+
+Function un.FastRemoveDir
+  Exch $0
+  IfFileExists "$0" 0 end
+  nsExec::Exec 'cmd /C rmdir /S /Q "$0"'
+  IfFileExists "$0" 0 end
+  Push "$0"
+  Call un.RemoveDirForce
+  end:
+  Pop $0
+FunctionEnd
+
+Function un.customPageLeave
+  ${NSD_GetState} $UninstallCleanRoamingCheckbox $UninstallCleanRoamingFlag
+  ${NSD_GetState} $UninstallCleanLocalCheckbox $UninstallCleanLocalFlag
+  ${NSD_GetState} $UninstallCleanBaseRootCheckbox $UninstallCleanBaseRootFlag
+  ${NSD_GetState} $UninstallCleanBackupCheckbox $UninstallCleanBackupFlag
+FunctionEnd
+
+Function un.onInit
+  SetDetailsPrint both
+  DetailPrint "$(TXT_UninstallInit)"
+  IfFileExists "$INSTDIR\${PRODUCT_EXECUTABLE}" 0 done
+  loop:
+  System::Call 'kernel32::CreateFileW(w "$INSTDIR\${PRODUCT_EXECUTABLE}", i 0xC0000000, i 0, p 0, i 3, i 0x80, p 0) i .r0'
+  StrCmp $0 -1 blocked ok
+  System::Call 'kernel32::CloseHandle(i $0)'
+  Goto done
+  blocked:
+  DetailPrint "$(TXT_Blocked)"
+  MessageBox MB_ICONEXCLAMATION|MB_RETRYCANCEL "$(MSG_CloseBeforeUninstall)" IDRETRY loop
+  Abort
+  ok:
+  System::Call 'kernel32::CloseHandle(i $0)'
+  done:
 FunctionEnd
 
 Section
@@ -100,9 +344,74 @@ SectionEnd
 Section "uninstall" 
     !insertmacro wails.setShellContext
 
-    RMDir /r "$AppData\${PRODUCT_EXECUTABLE}" # Remove the WebView2 DataPath
+    SetDetailsPrint both
+    DetailPrint "$(TXT_UninstallStart)"
+    FileOpen $LogFileHandle "$TEMP\${INFO_PRODUCTNAME}-uninstall.log" w
+    FileWrite $LogFileHandle "Uninstall start\r\n"
+
+    SetShellVarContext current
+    DetailPrint "$(TXT_RoamingPath)"
+    DetailPrint "$(TXT_LocalPath)"
+    DetailPrint "$(TXT_ConfigPath)"
+    DetailPrint "$(TXT_BaseRoot)"
+    FileWrite $LogFileHandle "Roaming: $RoamingPath\r\n"
+    FileWrite $LogFileHandle "Local: $LocalPath\r\n"
+    FileWrite $LogFileHandle "Config: $ConfigPath\r\n"
+    FileWrite $LogFileHandle "BaseRoot: $BaseRoot\r\n"
+
+    ${If} $UninstallCleanRoamingFlag == 1
+        DetailPrint "$(TXT_RemoveRoaming)"
+        RMDir /r "$RoamingPath"
+        IfErrors 0 +2
+        DetailPrint "$(TXT_RoamingErr)"
+    ${EndIf}
+
+    ${If} $UninstallCleanBaseRootFlag == 1
+        DetailPrint "$(TXT_RemoveBaseSubs)"
+        Push "$BaseRoot\installers"
+        Call un.FastRemoveDir
+        IfFileExists "$BaseRoot\installers" 0 +2
+        DetailPrint "$(TXT_InstallersErr)"
+        Push "$BaseRoot\versions"
+        Call un.FastRemoveDir
+        IfFileExists "$BaseRoot\versions" 0 +2
+        DetailPrint "$(TXT_VersionsErr)"
+    ${EndIf}
+
+    ${If} $UninstallCleanBackupFlag == 1
+        DetailPrint "$(TXT_RemoveBackup)"
+        Push "$BaseRoot\backups"
+        Call un.FastRemoveDir
+        IfFileExists "$BaseRoot\backups" 0 +2
+        DetailPrint "$(TXT_BackupErr)"
+    ${EndIf}
+    
+    ${If} $UninstallCleanLocalFlag == 1
+        DetailPrint "$(TXT_RemoveLocalParts)"
+        Delete "$LocalPath\config.json"
+        IfErrors 0 +2
+        DetailPrint "$(TXT_ConfigErr)"
+        RMDir /r "$LocalPath\bin"
+        IfErrors 0 +2
+        DetailPrint "$(TXT_BinErr)"
+    ${EndIf}
+
+    SetShellVarContext all
 
     RMDir /r $INSTDIR
+    IfErrors 0 +2
+    DetailPrint "$(TXT_RemoveInstDir)"
+    FileWrite $LogFileHandle "$(TXT_RemovedInstDir)\r\n"
+
+    ${GetParent} "$INSTDIR" $InstallParent
+    StrCmp $InstallParent "" doneParent
+    StrCmp $InstallParent "$PROGRAMFILES64\${INFO_COMPANYNAME}" 0 doneParent
+    RMDir $InstallParent
+    IfErrors 0 +2
+    DetailPrint "$(TXT_CompanyDirNotRemoved)"
+    IfFileExists "$InstallParent" 0 +2
+    FileWrite $LogFileHandle "$(TXT_RemovedCompanyDir)\r\n"
+    doneParent:
 
     Delete "$SMPROGRAMS\${INFO_PRODUCTNAME}.lnk"
     Delete "$DESKTOP\${INFO_PRODUCTNAME}.lnk"
@@ -110,5 +419,7 @@ Section "uninstall"
     !insertmacro wails.unassociateFiles
     !insertmacro wails.unassociateCustomProtocols
 
+    FileWrite $LogFileHandle "$(TXT_UninstallEnd)\r\n"
+    FileClose $LogFileHandle
     !insertmacro wails.deleteUninstaller
 SectionEnd
