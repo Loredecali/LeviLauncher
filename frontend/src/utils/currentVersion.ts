@@ -12,6 +12,5 @@ export function saveCurrentVersionName(name: string): void {
   try {
     localStorage.setItem(KEY, name);
   } catch {
-    // ignore
   }
 }

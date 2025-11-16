@@ -18,6 +18,7 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/corpix/uarand"
 	"github.com/liteldev/LeviLauncher/internal/config"
 	"github.com/wailsapp/wails/v3/pkg/application"
 
@@ -756,7 +757,7 @@ func ensureGameInputInteractive(ctx context.Context) {
 		Assets []ghAsset `json:"assets"`
 	}
 	req, _ := http.NewRequest("GET", "https://api.github.com/repos/microsoftconnect/GameInput/releases/latest", nil)
-	req.Header.Set("User-Agent", "LeviLauncher")
+	req.Header.Set("User-Agent", uarand.GetRandom())
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Println("gameinput latest fetch error:", err)
@@ -795,7 +796,7 @@ func ensureGameInputInteractive(ctx context.Context) {
 		log.Println("GameInputRedist cached, size:", fi.Size())
 	} else {
 		req2, _ := http.NewRequest("GET", dl, nil)
-		req2.Header.Set("User-Agent", "LeviLauncher")
+		req2.Header.Set("User-Agent", uarand.GetRandom())
 		r2, err := http.DefaultClient.Do(req2)
 		if err != nil {
 			log.Println("gameinput download error:", err)
@@ -1894,7 +1895,7 @@ func (a *Minecraft) TestMirrorLatencies(urls []string, timeoutMs int) []map[stri
 		ok := false
 		req, err := http.NewRequest("HEAD", strings.TrimSpace(u), nil)
 		if err == nil {
-			req.Header.Set("User-Agent", "LeviLauncher/latency")
+			req.Header.Set("User-Agent", uarand.GetRandom())
 			if resp, er := client.Do(req); er == nil {
 				_ = resp.Body.Close()
 				if resp.StatusCode >= 200 && resp.StatusCode < 400 {

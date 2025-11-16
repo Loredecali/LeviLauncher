@@ -16,12 +16,10 @@ import (
 var _ = reflect.TypeOf(VersionMeta{})
 var _ = reflect.TypeOf(metaFileName)
 
-// VersionMeta is stored as version.json inside each version folder
-// and is used by the launcher to display available versions.
 type VersionMeta struct {
-	Name             string    `json:"name"`        // folder name (display name)
-	GameVersion      string    `json:"gameVersion"` // e.g. 1.21.30
-	Type             string    `json:"type"`        // "release" | "preview"
+	Name             string    `json:"name"`        
+	GameVersion      string    `json:"gameVersion"`
+	Type             string    `json:"type"`       
 	EnableIsolation  bool      `json:"enableIsolation"`
 	EnableConsole    bool      `json:"enableConsole"`
 	EnableEditorMode bool      `json:"enableEditorMode"`
@@ -30,10 +28,8 @@ type VersionMeta struct {
 
 const metaFileName = "version.json"
 
-// metaPath returns the full path to version.json for a given version directory.
 func metaPath(versionDir string) string { return filepath.Join(versionDir, metaFileName) }
 
-// WriteMeta writes the VersionMeta into the given version directory.
 func WriteMeta(versionDir string, meta VersionMeta) error {
 	if !utils.DirExists(versionDir) {
 		if err := os.MkdirAll(versionDir, 0755); err != nil {
@@ -50,7 +46,6 @@ func WriteMeta(versionDir string, meta VersionMeta) error {
 	return enc.Encode(meta)
 }
 
-// ReadMeta reads VersionMeta from the given version directory.
 func ReadMeta(versionDir string) (VersionMeta, error) {
 	var m VersionMeta
 	f, err := os.Open(metaPath(versionDir))
@@ -63,7 +58,6 @@ func ReadMeta(versionDir string) (VersionMeta, error) {
 	return m, err
 }
 
-// ScanVersions scans the versions root directory and returns all metas found.
 func ScanVersions(versionsRoot string) ([]VersionMeta, error) {
 	entries, err := os.ReadDir(versionsRoot)
 	if err != nil {
@@ -84,7 +78,6 @@ func ScanVersions(versionsRoot string) ([]VersionMeta, error) {
 	return out, nil
 }
 
-// ComputeVCRuntimeHash returns SHA256 hex of vcruntime140_1.dll in given dir if present.
 func ComputeVCRuntimeHash(versionDir string) (string, error) {
 	path := filepath.Join(versionDir, "vcruntime140_1.dll")
 	f, err := os.Open(path)

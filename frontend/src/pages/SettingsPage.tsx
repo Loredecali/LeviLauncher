@@ -176,7 +176,7 @@ export const SettingsPage: React.FC = () => {
   const onUpdate = async () => {
     setUpdating(true);
     try {
-      await Update();
+      navigate("/updating", { replace: true });
     } finally {
       setUpdating(false);
     }

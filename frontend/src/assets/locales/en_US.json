@@ -122,7 +122,11 @@
   "updating": {
     "title": "Updating LeviLauncher",
     "body": "Requesting administrator permission and performing update. Do not close this window during update.",
-    "failed_title": "Update Failed"
+    "failed_title": "Update Failed",
+    "phase": {
+      "download": "Download Update Package",
+      "install": "Install Update"
+    }
   },
   "downloadpage": {
     "type": {
@@ -334,6 +338,9 @@
       "body": "You changed the content path but haven't saved it. Save and leave?",
       "cancel": "Cancel",
       "save": "Save and Leave"
+    },
+    "lang": {
+      "changed": "Language changed"
     }
   },
   
@@ -449,7 +456,11 @@
     "close": "Close",
     "go": "Go",
     "empty": "No data",
-    "browse": "Browse..."
+    "browse": "Browse...",
+    "processing": "Processing...",
+    "done": "Done",
+    "wait": "Please wait...",
+    "updating": "Updating"
   },
   "content": {
     "count": {

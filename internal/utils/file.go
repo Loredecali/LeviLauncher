@@ -80,15 +80,12 @@ func ZipDir(srcDir, destZip string) error {
 		if err != nil {
 			return err
 		}
-		// Skip top-level root
 		if rel == "." {
 			return nil
 		}
-		// Normalize zip entry paths to forward slashes
 		rel = filepath.ToSlash(rel)
 
 		if info.IsDir() {
-			// Explicit directory entries are optional; skip
 			return nil
 		}
 
@@ -113,9 +110,6 @@ func ZipDir(srcDir, destZip string) error {
 	})
 }
 
-// DirSize walks the directory recursively and returns the total size of regular files in bytes.
-// Errors encountered during traversal are ignored to keep this utility resilient.
-// Symlinks and non-regular files are skipped.
 func DirSize(path string) int64 {
     var total int64
     root := filepath.Clean(strings.TrimSpace(path))
@@ -134,14 +128,12 @@ func DirSize(path string) int64 {
     return total
 }
 
-// SanitizeFilename removes invalid characters for Windows file names and trims spaces.
-// Returns a safe non-empty name; if the input results in empty, it falls back to "world".
+
 func SanitizeFilename(name string) string {
 	s := strings.TrimSpace(name)
 	if s == "" {
 		return "world"
 	}
-	// invalid characters for Windows filenames
 	invalid := "<>:\"/\\|?*"
 	var b strings.Builder
 	for _, r := range s {
@@ -158,8 +150,7 @@ func SanitizeFilename(name string) string {
 	return cleaned
 }
 
-// CopyDir recursively copies all files and subdirectories from src to dst.
-// Existing files will be overwritten. File permissions are preserved where possible.
+
 func CopyDir(src, dst string) error {
     src = filepath.Clean(strings.TrimSpace(src))
     dst = filepath.Clean(strings.TrimSpace(dst))
@@ -184,20 +175,16 @@ func CopyDir(src, dst string) error {
         if err != nil {
             return err
         }
-        // Skip root
         if rel == "." {
             return nil
         }
-        // Normalize destination path
         target := filepath.Join(dst, rel)
         if info.IsDir() {
             return os.MkdirAll(target, 0755)
         }
-        // Skip unsupported types (symlinks, devices)
         if !info.Mode().IsRegular() {
             return nil
         }
-        // Ensure parent
         if err := os.MkdirAll(filepath.Dir(target), 0755); err != nil {
             return err
         }

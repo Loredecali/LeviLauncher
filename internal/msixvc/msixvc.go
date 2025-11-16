@@ -14,13 +14,13 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/corpix/uarand"
 	"github.com/wailsapp/wails/v3/pkg/application"
 
 	"github.com/liteldev/LeviLauncher/internal/registry"
 	"github.com/liteldev/LeviLauncher/internal/utils"
 )
 
-// Events (duplicated string literals to avoid import cycles)
 const (
 	EventDownloadStatus     = "msixvc_download_status"
 	EventDownloadProgress   = "msixvc_download_progress"
@@ -29,7 +29,6 @@ const (
 	EventAppxInstallLoading = "appx_install_loading"
 )
 
-// Manager holds download state (singleton-style)
 var (
 	mu sync.Mutex
 	st *state
@@ -53,7 +52,6 @@ type DownloadProgress struct {
 	Dest       string
 }
 
-// StartDownload starts a download into installers dir and returns the destination path.
 func StartDownload(ctx context.Context, rawurl string) string {
 	dir, err := utils.GetInstallerDir()
 	if err != nil {
@@ -116,7 +114,6 @@ func run() {
 	if local == nil || local.cancelled || local.paused {
 		return
 	}
-	// resume
 	var cur int64
 	if fi, err := os.Stat(local.dest); err == nil {
 		cur = fi.Size()
@@ -135,7 +132,7 @@ func run() {
 		finishRunning(local)
 		return
 	}
-	req.Header.Set("User-Agent", "LeviLauncher/1.0")
+	req.Header.Set("User-Agent", uarand.GetRandom())
 	if cur > 0 {
 		req.Header.Set("Range", fmt.Sprintf("bytes=%d-", cur))
 	}
@@ -151,7 +148,7 @@ func run() {
 		finishRunning(local)
 		return
 	}
-	// total
+
 	total := resp.ContentLength
 	if total > 0 && cur > 0 {
 		if cr := resp.Header.Get("Content-Range"); cr != "" {
@@ -206,11 +203,11 @@ func run() {
 			}
 			local.downloaded += int64(n)
 			if since(lastEmit) >= 250 {
-                application.Get().Event.Emit(EventDownloadProgress, DownloadProgress{
-                    local.downloaded,
-                    local.total,
-                    local.dest,
-                })
+				application.Get().Event.Emit(EventDownloadProgress, DownloadProgress{
+					local.downloaded,
+					local.total,
+					local.dest,
+				})
 				lastEmit = timeNow()
 			}
 		}
@@ -250,7 +247,6 @@ func finishRunning(s *state) {
 	mu.Unlock()
 }
 
-// Install invokes Add-AppxPackage, optionally removing existing Minecraft.
 func Install(ctx context.Context, msixvcPath string, isPreview bool) string {
 	application.Get().Event.Emit(EventAppxInstallLoading, true)
 	defer application.Get().Event.Emit(EventAppxInstallLoading, false)
@@ -319,13 +315,11 @@ func ensureMsixvcFilename(name string) string {
 	return n
 }
 
-// small time helpers to simplify testing
 var timeNow = func() int64 { return timeNowMS() }
 var since = func(last int64) int64 { return timeNowMS() - last }
 
 func timeNowMS() int64 { return time.Now().UnixNano() / int64(time.Millisecond) }
 
-// helpers
 func parseInt64(s string) (int64, error) {
 	var v int64
 	for _, c := range s {
@@ -343,7 +337,6 @@ func runPowerShell(script string) error {
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		if len(out) > 0 {
-			// swallow but keep parity with original behavior
 		}
 	}
 	return err

@@ -51,7 +51,15 @@ function App() {
   const { t, i18n } = useTranslation();
   const hasBackend = minecraft !== undefined;
   const [isBeta, setIsBeta] = useState(false);
-  const [navLocked, setNavLocked] = useState<boolean>(false);
+  const [navLocked, setNavLocked] = useState<boolean>(() => {
+    try {
+      const h = typeof window !== "undefined" ? String(window.location.hash || "") : "";
+      const initLock = h.startsWith("#/updating") || h.startsWith("#/onboarding") || Boolean((window as any).llNavLock);
+      return initLock;
+    } catch {
+      return false;
+    }
+  });
   const [termsOpen, setTermsOpen] = useState<boolean>(false);
   const [termsCountdown, setTermsCountdown] = useState<number>(0);
   const [updateOpen, setUpdateOpen] = useState<boolean>(false);
@@ -73,8 +81,18 @@ function App() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const isUpdatingMode = String(location?.pathname || "") === "/updating";
-  const isOnboardingMode = String(location?.pathname || "") === "/onboarding";
+  const isUpdatingMode = (() => {
+    const p = String(location?.pathname || "");
+    if (p === "/updating") return true;
+    const h = typeof window !== "undefined" ? String(window.location.hash || "") : "";
+    return h.startsWith("#/updating");
+  })();
+  const isOnboardingMode = (() => {
+    const p = String(location?.pathname || "");
+    if (p === "/onboarding") return true;
+    const h = typeof window !== "undefined" ? String(window.location.hash || "") : "";
+    return h.startsWith("#/onboarding");
+  })();
   useEffect(() => {
     if (isUpdatingMode || isOnboardingMode) setNavLocked(true);
     else setNavLocked(Boolean((window as any).llNavLock));
@@ -641,7 +659,10 @@ function App() {
                     onPress={async () => {
                       setUpdateLoading(true);
                       try {
-                        await minecraft?.Update?.();
+                        setUpdateOpen(false);
+                        setNavLocked(true);
+                        onClose();
+                        navigate("/updating", { replace: true });
                       } finally {
                         setUpdateLoading(false);
                       }

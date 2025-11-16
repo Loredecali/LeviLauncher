@@ -11,7 +11,6 @@ import (
 	"github.com/liteldev/LeviLauncher/internal/utils"
 )
 
-// OpenPath opens a directory path in Explorer via powershell to ensure compatibility.
 func OpenPath(dir string) bool {
 	d := strings.TrimSpace(dir)
 	if d == "" {
@@ -31,7 +30,6 @@ func OpenPath(dir string) bool {
 	return true
 }
 
-// SelectFile selects the given file in Explorer.
 func SelectFile(path string) bool {
 	p := strings.TrimSpace(path)
 	if p == "" || !utils.FileExists(p) {
@@ -46,7 +44,6 @@ func SelectFile(path string) bool {
 	return true
 }
 
-// OpenMods opens versions/<name>/mods under the launcher versions directory.
 func OpenMods(name string) bool {
 	n := strings.TrimSpace(name)
 	if n == "" {
@@ -60,13 +57,12 @@ func OpenMods(name string) bool {
 	return OpenPath(dir)
 }
 
-// OpenWorlds opens the worlds directory under GDK data path.
+
 func OpenWorlds(isPreview bool) bool {
 	dir := filepath.Join(utils.GetMinecraftGDKDataPath(isPreview), "worlds")
 	return OpenPath(dir)
 }
 
-// OpenInstallers opens the installers directory.
 func OpenInstallers() bool {
 	dir, err := utils.GetInstallerDir()
 	if err != nil || dir == "" {

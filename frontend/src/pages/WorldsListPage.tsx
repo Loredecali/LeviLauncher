@@ -60,7 +60,6 @@ export default function WorldsListPage() {
     const wp = `${r.usersRoot}\\${player}\\games\\com.mojang\\minecraftWorlds`;
     try {
       const dirs = await listDirectories(wp);
-      // fetch levelname and icon for each world directory via backend
       const enriched = await Promise.all(
         dirs.map(async (d) => {
           let levelName = "";

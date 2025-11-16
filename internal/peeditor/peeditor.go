@@ -37,7 +37,6 @@ func fileSHA256(p string) ([]byte, error) {
 	return h.Sum(nil), nil
 }
 
-// EnsureForVersion writes PeEditor.exe into versionDir if missing or hash mismatched.
 func EnsureForVersion(ctx context.Context, versionDir string) bool {
 	dir := strings.TrimSpace(versionDir)
 	if dir == "" {

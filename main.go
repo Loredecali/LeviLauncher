@@ -54,6 +54,10 @@ func init() {
 	application.RegisterEvent[struct{}](vcruntime.EventEnsureStart)
 	application.RegisterEvent[vcruntime.EnsureProgress](vcruntime.EventEnsureProgress)
 	application.RegisterEvent[bool](vcruntime.EventEnsureDone)
+	// app update
+	application.RegisterEvent[string](update.EventAppUpdateStatus)
+	application.RegisterEvent[update.AppUpdateProgress](update.EventAppUpdateProgress)
+	application.RegisterEvent[string](update.EventAppUpdateError)
 }
 
 func main() {

@@ -153,7 +153,6 @@ export const VersionStatusProvider: React.FC<{ children: React.ReactNode }> = ({
         const short = inferShort();
         const type = (downloadingTypeRef.current || "release").toLowerCase();
         if (!short) return;
-        // optimistic update
         setMap((prev) => {
           const m = new Map(prev);
           const existing = m.get(short);
@@ -165,9 +164,7 @@ export const VersionStatusProvider: React.FC<{ children: React.ReactNode }> = ({
           } as any);
           return m;
         });
-        // reconcile with backend
         refreshOne(short, type);
-        // clear downloading refs after completion
         downloadingShortRef.current = null;
         downloadingTypeRef.current = null;
       }

@@ -3,6 +3,7 @@ module github.com/liteldev/LeviLauncher
 go 1.24.0
 
 require (
+	github.com/corpix/uarand v0.2.0
 	github.com/mouuff/go-rocket-update v1.5.6
 	github.com/wailsapp/wails/v3 v3.0.0-alpha.40
 )

@@ -46,7 +46,6 @@ type VersionItem = {
   timestamp?: number;
 };
 
-// 版本数据库地址（根据地区选择镜像）
 const GITHUB_DB_URL =
   "https://raw.githubusercontent.com/LiteLDev/minecraft-windows-gdk-version-db/refs/heads/main/historical_versions.json";
 const GITCODE_DB_URL =
@@ -189,7 +188,6 @@ export const DownloadPage: React.FC = () => {
     [isChinaUser]
   );
 
-  // Debug log removed
   const fetchDbJson = async (): Promise<any> => {
     const first = pickDbUrl;
     const second = first === GITCODE_DB_URL ? GITHUB_DB_URL : GITCODE_DB_URL;
@@ -236,7 +234,6 @@ export const DownloadPage: React.FC = () => {
           })
         );
       } else {
-        // Backend not available; mark unknown and avoid browser fetch to prevent CORS
         setMirrorResults((prev) =>
           prev.map((mr) => ({ ...mr, latencyMs: null, ok: false }))
         );
@@ -338,7 +335,6 @@ export const DownloadPage: React.FC = () => {
       try {
         progressDisclosure.onClose();
       } catch {}
-      // Defer opening success modal to next tick to avoid transition clobbering
       setTimeout(() => {
         try {
           const fname = d
@@ -451,7 +447,7 @@ export const DownloadPage: React.FC = () => {
     fetchData();
   }, []);
 
-  // Integrated refresh: re-fetch version list from DATA_URL, then refresh statuses
+ 
   const reloadAll = async () => {
     try {
       let data: any;
@@ -495,9 +491,6 @@ export const DownloadPage: React.FC = () => {
     }
   };
 
-  // 状态刷新改由全局 VersionStatusProvider 负责，这里不再定义页面级刷新函数
-
-  // 初次进入页面时进行一次全量同步刷新，确保与磁盘对账；避免旧缓存导致状态不一致
   useEffect(() => {
     if (!hasBackend) return;
     if (!initialStatusFetchedRef.current && items.length > 0) {
@@ -880,7 +873,7 @@ export const DownloadPage: React.FC = () => {
           </Table>
         </CardBody>
       </Card>
-      {/* install/appx/pipe/success modals removed */}
+
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
@@ -948,7 +941,6 @@ export const DownloadPage: React.FC = () => {
               <ModalBody>
                 {mirrorUrls && mirrorUrls.length > 0 ? (
                   <div className="flex flex-col gap-4">
-                    {/* 推荐区域 */}
                     <div className="rounded-lg border border-default-200 p-3">
                       <div className="flex items-center gap-3 min-w-0">
                         <span className="font-medium">
@@ -1104,7 +1096,6 @@ export const DownloadPage: React.FC = () => {
                         setDlError("");
                         setDlProgress(null);
                         progressDisclosure.onOpen();
-                        // ensure downloaded filename matches version for backend detection
                         let urlWithFilename = selectedUrl;
                         try {
                           const u = new URL(selectedUrl);
@@ -1521,8 +1512,6 @@ export const DownloadPage: React.FC = () => {
           )}
         </ModalContent>
       </Modal>
-
-      {/* 安装弹窗已移除 */}
 
       {/* Install progress modal (beautified) */}
       <Modal

@@ -74,7 +74,6 @@ func GetAppxInfo(packageName string) (*AppxInfo, error) {
 			return nil, err
 		}
 	}
-	// Basic sanity check
 	if info.InstallLocation == "" || info.PackageFullName == "" {
 		return nil, fmt.Errorf("package %s not found", packageName)
 	}
@@ -175,7 +174,6 @@ func ClearAppModelStateChange(isPreview bool) error {
 }
 
 func runElevatedRegDelete(fullPath string) error {
-	// fullPath e.g. HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModel\StateChange\PackageList\<PackageFullName>
 	arg := fmt.Sprintf("delete \"%s\" /f", fullPath)
 	ps := fmt.Sprintf("Start-Process reg -ArgumentList '%s' -Verb RunAs -WindowStyle Hidden", arg)
 	cmd := exec.Command("powershell", "-NoProfile", "-NonInteractive", "-Command", ps)
@@ -202,7 +200,7 @@ func runElevatedSetIsDevOnly(packageFullName string) error {
 
 func isAccessDenied(err error) bool {
 	if errno, ok := err.(syscall.Errno); ok {
-		if errno == 5 { // ERROR_ACCESS_DENIED
+		if errno == 5 { 
 			return true
 		}
 	}

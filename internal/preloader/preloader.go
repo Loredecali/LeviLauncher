@@ -35,8 +35,6 @@ func fileSHA256(p string) ([]byte, error) {
 	return h.Sum(nil), nil
 }
 
-// EnsureForVersion ensures PreLoader.dll exists under versionDir and matches embedded hash.
-// No remote download fallback is provided; returns true on success.
 func EnsureForVersion(ctx context.Context, versionDir string) bool {
 	dir := strings.TrimSpace(versionDir)
 	if dir == "" {
@@ -46,7 +44,6 @@ func EnsureForVersion(ctx context.Context, versionDir string) bool {
     application.Get().Event.Emit(EventEnsureStart, struct{}{})
 	dest := filepath.Join(dir, "PreLoader.dll")
 	if len(embeddedPreLoader) == 0 {
-		// embed not available; do nothing
 		application.Get().Event.Emit(EventEnsureDone, false)
 		return false
 	}
@@ -76,7 +73,6 @@ func EnsureForVersion(ctx context.Context, versionDir string) bool {
 	return true
 }
 
-// EnsureEmbedded writes the provided embedded bytes to contentDir if missing.
 func EnsureEmbedded(contentDir string, embedded []byte) {
 	if strings.TrimSpace(contentDir) == "" {
 		return

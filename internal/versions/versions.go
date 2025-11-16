@@ -5,7 +5,6 @@ import (
 	"strings"
 )
 
-// ValidateFolderName returns empty string if valid; otherwise returns a standardized ERR_* code for i18n.
 func ValidateFolderName(name string) string {
 	n := strings.TrimSpace(name)
 	if n == "" {
@@ -29,7 +28,7 @@ func ValidateFolderName(name string) string {
 	return ""
 }
 
-// NormalizeName strips leading type prefixes.
+
 func NormalizeName(name string) string {
 	t := strings.TrimSpace(name)
 	l := strings.ToLower(t)
@@ -42,7 +41,6 @@ func NormalizeName(name string) string {
 	return t
 }
 
-// EqualsIgnoreType compares downloaded base name and short version ignoring type prefixes.
 func EqualsIgnoreType(downloadedBase, shortVersion string) bool {
 	return strings.EqualFold(NormalizeName(downloadedBase), strings.TrimSpace(shortVersion))
 }

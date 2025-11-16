@@ -8,7 +8,7 @@ module.exports = {
     "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: { // 添加自定义类
+    extend: {
       keyframes: {
         
         fadeInUp: {

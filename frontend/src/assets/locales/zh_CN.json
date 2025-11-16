@@ -115,7 +115,11 @@
     "updating": {
         "title": "正在更新 LeviLauncher",
         "body": "正在请求管理员权限并执行更新。更新期间请勿关闭窗口。",
-        "failed_title": "更新失败"
+        "failed_title": "更新失败",
+        "phase": {
+            "download": "下载更新包",
+            "install": "安装更新"
+        }
     },
     "moddedcard": {
         "title": "模组",
@@ -335,6 +339,9 @@
             "body": "您更改了内容路径但尚未保存。是否保存后离开？",
             "cancel": "取消",
             "save": "保存并离开"
+        },
+        "lang": {
+            "changed": "语言已更改"
         }
     },
     
@@ -447,7 +454,11 @@
         "delete": "删除",
         "search": "搜索",
         "empty": "暂无数据",
-        "browse": "选择..."
+        "browse": "选择...",
+        "processing": "正在处理...",
+        "done": "完成",
+        "wait": "请稍候...",
+        "updating": "更新中"
     },
     "content": {
         "count": {
