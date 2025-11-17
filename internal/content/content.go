@@ -31,6 +31,45 @@ type bedrockManifest struct {
 	} `json:"modules"`
 }
 
+func findManifestDir(dir string) string {
+    d := strings.TrimSpace(dir)
+    if d == "" {
+        return ""
+    }
+    if utils.FileExists(filepath.Join(d, "manifest.json")) {
+        return d
+    }
+    fi, err := os.Stat(d)
+    if err != nil || !fi.IsDir() {
+        return ""
+    }
+    queue := []string{d}
+    seen := map[string]struct{}{}
+    for len(queue) > 0 {
+        cur := queue[0]
+        queue = queue[1:]
+        if _, ok := seen[cur]; ok {
+            continue
+        }
+        seen[cur] = struct{}{}
+        ents, er := os.ReadDir(cur)
+        if er != nil {
+            continue
+        }
+        for _, e := range ents {
+            if !e.IsDir() {
+                continue
+            }
+            sub := filepath.Join(cur, e.Name())
+            if utils.FileExists(filepath.Join(sub, "manifest.json")) {
+                return sub
+            }
+            queue = append(queue, sub)
+        }
+    }
+    return ""
+}
+
 func ImportMcpackToDirs(data []byte, archiveName string, resDir string, bpDir string, overwrite bool) string {
 	if len(data) == 0 || (strings.TrimSpace(resDir) == "" && strings.TrimSpace(bpDir) == "") {
 		return "ERR_OPEN_ZIP"
@@ -635,19 +674,23 @@ func ImportMcworldToDir(data []byte, archiveName string, worldsDir string, overw
 }
 
 func ReadPackInfoFromDir(dir string) types.PackInfo {
-	var info types.PackInfo
-	d := strings.TrimSpace(dir)
-	if d == "" {
-		return info
-	}
-	manifestPath := filepath.Join(d, "manifest.json")
-	if utils.FileExists(manifestPath) {
-		if b, err := os.ReadFile(manifestPath); err == nil {
-			var mf bedrockManifest
-			_ = json.Unmarshal(b, &mf)
-			info.Name = strings.TrimSpace(mf.Header.Name)
-			info.Description = strings.TrimSpace(mf.Header.Description)
-			if len(mf.Header.Version) > 0 {
+    var info types.PackInfo
+    d := strings.TrimSpace(dir)
+    if d == "" {
+        return info
+    }
+    target := findManifestDir(d)
+    if strings.TrimSpace(target) == "" {
+        target = d
+    }
+    manifestPath := filepath.Join(target, "manifest.json")
+    if utils.FileExists(manifestPath) {
+        if b, err := os.ReadFile(manifestPath); err == nil {
+            var mf bedrockManifest
+            _ = json.Unmarshal(b, &mf)
+            info.Name = strings.TrimSpace(mf.Header.Name)
+            info.Description = strings.TrimSpace(mf.Header.Description)
+            if len(mf.Header.Version) > 0 {
 				var vb strings.Builder
 				for i, n := range mf.Header.Version {
 					if i > 0 {
@@ -669,13 +712,13 @@ func ReadPackInfoFromDir(dir string) types.PackInfo {
 			}
 		}
 	}
-	iconPath := filepath.Join(d, "pack_icon.png")
-	if utils.FileExists(iconPath) {
-		if b, err := os.ReadFile(iconPath); err == nil {
-			enc := base64.StdEncoding.EncodeToString(b)
-			info.IconDataUrl = "data:image/png;base64," + enc
-		}
-	}
-	info.Path = d
-	return info
+    iconPath := filepath.Join(target, "pack_icon.png")
+    if utils.FileExists(iconPath) {
+        if b, err := os.ReadFile(iconPath); err == nil {
+            enc := base64.StdEncoding.EncodeToString(b)
+            info.IconDataUrl = "data:image/png;base64," + enc
+        }
+    }
+    info.Path = target
+    return info
 }
