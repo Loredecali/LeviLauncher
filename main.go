@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/liteldev/LeviLauncher/internal/config"
+	"github.com/liteldev/LeviLauncher/internal/discord"
 	"github.com/liteldev/LeviLauncher/internal/extractor"
 	"github.com/liteldev/LeviLauncher/internal/launch"
 	"github.com/liteldev/LeviLauncher/internal/msixvc"
@@ -64,6 +65,7 @@ func main() {
 	c, _ := config.Load()
 	extractor.Init()
 	update.Init()
+	discord.Init()
 	mc := Minecraft{}
 	app := application.New(application.Options{
 		Name:        "LeviLauncher",

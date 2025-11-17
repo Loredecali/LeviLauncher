@@ -1,11 +1,11 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
-	"io"
-	"log"
+    "context"
+    "encoding/json"
+    "fmt"
+    "io"
+    "log"
 	"net"
 	"net/http"
 	"os"
@@ -14,17 +14,18 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 	"unsafe"
 
 	"github.com/corpix/uarand"
-	"github.com/liteldev/LeviLauncher/internal/config"
-	"github.com/wailsapp/wails/v3/pkg/application"
+    "github.com/liteldev/LeviLauncher/internal/config"
+    "github.com/liteldev/LeviLauncher/internal/discord"
+    "github.com/wailsapp/wails/v3/pkg/application"
 
 	"github.com/liteldev/LeviLauncher/internal/content"
 	"github.com/liteldev/LeviLauncher/internal/explorer"
 	"github.com/liteldev/LeviLauncher/internal/extractor"
+	"github.com/liteldev/LeviLauncher/internal/gameinput"
 	"github.com/liteldev/LeviLauncher/internal/lang"
 	"github.com/liteldev/LeviLauncher/internal/launch"
 	"github.com/liteldev/LeviLauncher/internal/mods"
@@ -39,7 +40,6 @@ import (
 	"github.com/liteldev/LeviLauncher/internal/versions"
 
 	"golang.org/x/sys/windows"
-	winreg "golang.org/x/sys/windows/registry"
 
 	"bytes"
 	"encoding/base64"
@@ -723,148 +723,9 @@ func (a *Minecraft) IsFirstLaunch() bool {
 	return false
 }
 
-func (a *Minecraft) EnsureGameInputInteractive() { go ensureGameInputInteractive(a.ctx) }
+func (a *Minecraft) EnsureGameInputInteractive() { go gameinput.EnsureInteractive(a.ctx) }
 
-func (a *Minecraft) IsGameInputInstalled() bool {
-	if _, err := winreg.OpenKey(winreg.LOCAL_MACHINE, `SOFTWARE\Microsoft\GameInputRedist`, winreg.READ); err == nil {
-		return true
-	}
-	return false
-}
-
-func ensureGameInputInteractive(ctx context.Context) {
-	giMu.Lock()
-	if giEnsuring {
-		giMu.Unlock()
-		return
-	}
-	giEnsuring = true
-	giMu.Unlock()
-	defer func() {
-		giMu.Lock()
-		giEnsuring = false
-		giMu.Unlock()
-	}()
-
-	if _, err := winreg.OpenKey(winreg.LOCAL_MACHINE, `SOFTWARE\Microsoft\GameInputRedist`, winreg.READ); err == nil {
-		return
-	}
-	application.Get().Event.Emit(EventGameInputEnsureStart, struct{}{})
-	type ghAsset struct {
-		Name string `json:"name"`
-		URL  string `json:"browser_download_url"`
-	}
-	type ghRelease struct {
-		Assets []ghAsset `json:"assets"`
-	}
-	req, _ := http.NewRequest("GET", "https://api.github.com/repos/microsoftconnect/GameInput/releases/latest", nil)
-	req.Header.Set("User-Agent", uarand.GetRandom())
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		log.Println("gameinput latest fetch error:", err)
-		return
-	}
-	defer resp.Body.Close()
-	var rel ghRelease
-	if err := json.NewDecoder(resp.Body).Decode(&rel); err != nil {
-		log.Println("gameinput json error:", err)
-		return
-	}
-	var dl string
-	for _, a := range rel.Assets {
-		if strings.EqualFold(a.Name, "GameInputRedist.msi") {
-			dl = a.URL
-			break
-		}
-	}
-	if dl == "" {
-		log.Println("gameinput asset not found in latest release")
-		return
-	}
-	dir, _ := utils.GetInstallerDir()
-	if dir == "" {
-		dir = "."
-	}
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		log.Println("mkdir installers error:", err)
-		return
-	}
-	dlPath := filepath.Join(dir, "GameInputRedist.msi")
-	tmpPath := dlPath + ".part"
-	if fi, err := os.Stat(dlPath); err == nil && fi.Size() > 0 {
-		application.Get().Event.Emit(EventGameInputDownloadStart, fi.Size())
-		application.Get().Event.Emit(EventGameInputDownloadDone, struct{}{})
-		log.Println("GameInputRedist cached, size:", fi.Size())
-	} else {
-		req2, _ := http.NewRequest("GET", dl, nil)
-		req2.Header.Set("User-Agent", uarand.GetRandom())
-		r2, err := http.DefaultClient.Do(req2)
-		if err != nil {
-			log.Println("gameinput download error:", err)
-			return
-		}
-		if r2.StatusCode < 200 || r2.StatusCode >= 300 {
-			log.Println("gameinput download bad status:", r2.Status)
-			r2.Body.Close()
-			return
-		}
-		defer r2.Body.Close()
-		_ = os.Remove(tmpPath)
-		f, err := os.Create(tmpPath)
-		if err != nil {
-			log.Println("gameinput create file error:", err)
-			return
-		}
-		defer f.Close()
-		application.Get().Event.Emit(EventGameInputDownloadStart, r2.ContentLength)
-		var downloaded int64
-		buf := make([]byte, 64*1024)
-		for {
-			n, er := r2.Body.Read(buf)
-			if n > 0 {
-				if _, werr := f.Write(buf[:n]); werr != nil {
-					log.Println("gameinput write error:", werr)
-					application.Get().Event.Emit(EventGameInputDownloadError, werr.Error())
-					return
-				}
-				downloaded += int64(n)
-				application.Get().Event.Emit(EventGameInputDownloadProgress, GameInputDownloadProgress{Downloaded: downloaded, Total: r2.ContentLength})
-			}
-			if er == io.EOF {
-				break
-			}
-			if er != nil {
-				log.Println("gameinput read error:", er)
-				application.Get().Event.Emit(EventGameInputDownloadError, er.Error())
-				return
-			}
-		}
-		if _, stErr := os.Stat(dlPath); stErr == nil {
-			_ = os.Remove(dlPath)
-		}
-		if err := os.Rename(tmpPath, dlPath); err != nil {
-			log.Println("gameinput rename error:", err)
-			return
-		}
-		application.Get().Event.Emit(EventGameInputDownloadDone, struct{}{})
-		log.Println("GameInputRedist downloaded:", dlPath)
-	}
-	cmd := exec.Command("msiexec", "/i", dlPath)
-	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-	if err := cmd.Run(); err != nil {
-		log.Println("failed to run GameInput installer:", err)
-	}
-	installed := false
-	for i := 0; i < 30; i++ {
-		if _, err := winreg.OpenKey(winreg.LOCAL_MACHINE, `SOFTWARE\Microsoft\GameInput`, winreg.READ); err == nil {
-			installed = true
-			break
-		}
-		time.Sleep(1 * time.Second)
-	}
-	log.Println("GameInput installed:", installed)
-	application.Get().Event.Emit(EventGameInputEnsureDone, struct{}{})
-}
+func (a *Minecraft) IsGameInputInstalled() bool { return gameinput.IsInstalled() }
 
 func (a *Minecraft) IsGamingServicesInstalled() bool {
 	if _, err := registry.GetAppxInfo("Microsoft.GamingServices"); err == nil {
@@ -1931,15 +1792,17 @@ func (a *Minecraft) launchVersionInternal(name string, checkRunning bool) string
 	_ = peeditor.RunForVersion(a.ctx, dir)
 	var args []string
 	toRun := exe
-	if m, err := versions.ReadMeta(dir); err == nil {
-		p := peeditor.PrepareExecutableForLaunch(a.ctx, dir, m.EnableConsole)
-		if strings.TrimSpace(p) != "" {
-			toRun = p
-		}
-		if m.EnableEditorMode {
-			args = []string{"minecraft://creator/?Editor=true"}
-		}
-	}
+    var gameVer string
+    if m, err := versions.ReadMeta(dir); err == nil {
+        p := peeditor.PrepareExecutableForLaunch(a.ctx, dir, m.EnableConsole)
+        if strings.TrimSpace(p) != "" {
+            toRun = p
+        }
+        if m.EnableEditorMode {
+            args = []string{"minecraft://creator/?Editor=true"}
+        }
+        gameVer = strings.TrimSpace(m.GameVersion)
+    }
 	if checkRunning {
 		if isProcessRunningAtPath(toRun) {
 			return "ERR_GAME_ALREADY_RUNNING"
@@ -1950,11 +1813,12 @@ func (a *Minecraft) launchVersionInternal(name string, checkRunning bool) string
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
-	if err := cmd.Start(); err != nil {
-		return "ERR_LAUNCH_GAME"
-	}
-	go launch.MonitorMinecraftWindow(a.ctx)
-	return ""
+    if err := cmd.Start(); err != nil {
+        return "ERR_LAUNCH_GAME"
+    }
+    discord.SetPlayingVersion(gameVer)
+    go launch.MonitorMinecraftWindow(a.ctx)
+    return ""
 }
 
 func (a *Minecraft) GetBaseRoot() string { return utils.BaseRoot() }
