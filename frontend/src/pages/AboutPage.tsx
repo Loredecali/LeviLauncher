@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Button, Chip } from "@heroui/react";
 import { FaGithub, FaUsers, FaHeart, FaCode, FaPatreon, FaStar } from "react-icons/fa";
 import { Browser } from "@wailsio/runtime";
+import { motion } from "framer-motion";
 
 export default function AboutPage() {
   const { t } = useTranslation();
@@ -11,9 +12,19 @@ export default function AboutPage() {
   const orgUrl = "https://github.com/LiteLDev";
 
   return (
-    <div className="relative w-full h-full p-3 sm:p-4 lg:p-6">
+    <motion.div
+      className="relative w-full h-full p-3 sm:p-4 lg:p-6"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
+    >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <section className="rounded-2xl border border-default-200 bg-white/60 dark:bg-black/30 backdrop-blur-md shadow-sm p-4">
+          <motion.section
+            className="rounded-2xl border border-default-200 bg-white/60 dark:bg-black/30 backdrop-blur-md shadow-sm p-4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.05 }}
+          >
           <div className="flex items-center gap-2 mb-2">
             <FaUsers className="text-default-600" />
             <h2 className="text-base font-semibold">
@@ -58,9 +69,14 @@ export default function AboutPage() {
               </Button>
             </div>
           </div>
-        </section>
+        </motion.section>
 
-          <section className="rounded-2xl border border-default-200 bg-white/60 dark:bg-black/30 backdrop-blur-md shadow-sm p-4">
+          <motion.section
+            className="rounded-2xl border border-default-200 bg-white/60 dark:bg-black/30 backdrop-blur-md shadow-sm p-4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+          >
             <div className="flex items-center gap-2 mb-2">
               <FaStar className="text-warning-500" />
               <h2 className="text-base font-semibold">
@@ -88,9 +104,14 @@ export default function AboutPage() {
               {t("about.website", { defaultValue: "官网" })}
             </Button>
           </div>
-        </section>
+        </motion.section>
 
-          <section className="rounded-2xl border border-default-200 bg-white/60 dark:bg-black/30 backdrop-blur-md shadow-sm p-4">
+          <motion.section
+            className="rounded-2xl border border-default-200 bg-white/60 dark:bg-black/30 backdrop-blur-md shadow-sm p-4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.15 }}
+          >
             <div className="flex items-center gap-2 mb-2">
               <FaHeart className="text-danger-500" />
               <h2 className="text-base font-semibold">
@@ -102,9 +123,14 @@ export default function AboutPage() {
                 defaultValue: "感谢所有为项目发展提供帮助的赞助者与支持者！",
               })}
             </p>
-          </section>
+          </motion.section>
 
-          <section className="rounded-2xl border border-default-200 bg-white/60 dark:bg-black/30 backdrop-blur-md shadow-sm p-4 lg:col-span-2">
+          <motion.section
+            className="rounded-2xl border border-default-200 bg-white/60 dark:bg-black/30 backdrop-blur-md shadow-sm p-4 lg:col-span-2"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+          >
             <div className="flex items-center gap-2 mb-2">
               <FaCode className="text-default-600" />
               <h2 className="text-base font-semibold">
@@ -138,9 +164,14 @@ export default function AboutPage() {
                 defaultValue: "许可证与详细信息请参见仓库中的 LICENSE 文件。",
               })}
             </p>
-          </section>
+          </motion.section>
 
-          <section className="rounded-2xl border border-default-200 bg-white/60 dark:bg-black/30 backdrop-blur-md shadow-sm p-4 lg:col-span-2">
+          <motion.section
+            className="rounded-2xl border border-default-200 bg-white/60 dark:bg-black/30 backdrop-blur-md shadow-sm p-4 lg:col-span-2"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.25 }}
+          >
             <div className="flex items-center gap-2 mb-2">
               <FaGithub className="text-default-600" />
               <h2 className="text-base font-semibold">
@@ -169,8 +200,8 @@ export default function AboutPage() {
                 {t("about.star_fork", { defaultValue: "Star / Fork" })}
               </Button>
             </div>
-          </section>
+          </motion.section>
         </div>
-    </div>
+    </motion.div>
   );
 }

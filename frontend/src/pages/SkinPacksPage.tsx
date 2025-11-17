@@ -143,13 +143,8 @@ export default function SkinPacksPage() {
               {packs.length ? (
                 <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                   {packs.map((p, idx) => (
-                    <div key={`${p.path}-${idx}`} className="relative rounded-xl border border-default-200 bg-white/70 dark:bg-neutral-800/50 p-3 hover:bg-white/80 dark:hover:bg-neutral-800/60 transition-colors h-44">
-                      <div className="flex items-start gap-3 h-full">
-                        {p.iconDataUrl ? (
-                          <Image src={p.iconDataUrl} alt={p.name || p.path} width={56} height={56} radius="md" className="shrink-0" />
-                        ) : (
-                          <div className="w-14 h-14 rounded-md bg-default-200" />
-                        )}
+                    <div key={`${p.path}-${idx}`} className="relative rounded-xl border border-default-200 bg-white/70 dark:bg-neutral-800/50 p-3 hover:bg-white/80 dark:hover:bg-neutral-800/60 transition-colors h-36">
+                      <div className="flex items-start h-full">
                         <div className="flex-1 min-w-0 flex flex-col pb-12 pr-3">
                           <div className="flex items-center justify-between">
                             <div className="font-semibold truncate">{renderMcText(p.name || p.path.split("\\").pop())}</div>
