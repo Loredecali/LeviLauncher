@@ -60,8 +60,10 @@ ManifestDPIAware true
 !define MUI_FINISHPAGE_NOAUTOCLOSE # Wait on the INSTFILES page so the user can take a look into the details of the installation steps
 !define MUI_ABORTWARNING # This will warn the user if they exit from the installer.
 
+!define MUI_PAGE_CUSTOMFUNCTION_PRE WelcomePre
 !insertmacro MUI_PAGE_WELCOME # Welcome to the installer page.
 # !insertmacro MUI_PAGE_LICENSE "resources\eula.txt" # Adds a EULA page to the installer
+!define MUI_PAGE_CUSTOMFUNCTION_PRE DirPre
 !insertmacro MUI_PAGE_DIRECTORY # In which folder install page.
 !insertmacro MUI_PAGE_INSTFILES # Installing page.
 !insertmacro MUI_PAGE_FINISH # Finished installation page.
@@ -80,6 +82,7 @@ UninstPage custom un.customPage un.customPageLeave
 Name "${INFO_PRODUCTNAME}"
 OutFile "..\..\..\bin\${INFO_PROJECTNAME}-${ARCH}-installer.exe" # Name of the installer's file.
 InstallDir "$PROGRAMFILES64\${INFO_COMPANYNAME}\${INFO_PRODUCTNAME}" # Default installing folder ($PROGRAMFILES is Program Files folder).
+InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${UNINST_KEY_NAME}" "InstallLocation"
 ShowInstDetails show # This will always show the installation details.
 ShowUninstDetails show
 
@@ -95,6 +98,7 @@ Var UninstallCleanBackupFlag
 Var BaseRootLabel
 Var ResolveBaseRootButton
 Var InstallParent
+Var IsUpgrade
 
 LangString LBL_Roaming ${LANG_ENGLISH} "Roaming: $RoamingPath"
 LangString LBL_Roaming ${LANG_SIMPCHINESE} "Roaming：$RoamingPath"
@@ -168,9 +172,53 @@ LangString TXT_RemovedCompanyDir ${LANG_ENGLISH} "Removed company dir"
 LangString TXT_RemovedCompanyDir ${LANG_SIMPCHINESE} "Removed company dir"
 LangString TXT_CompanyDirNotRemoved ${LANG_ENGLISH} "Company dir not removed (not empty)"
 LangString TXT_CompanyDirNotRemoved ${LANG_SIMPCHINESE} "Company dir not removed (not empty)"
+LangString TXT_UpgradeBrand ${LANG_ENGLISH} "Upgrade mode detected"
+LangString TXT_UpgradeBrand ${LANG_SIMPCHINESE} "检测到已安装，正在进行升级"
 
 Function .onInit
    !insertmacro wails.checkArchitecture
+   SetRegView 64
+   StrCpy $IsUpgrade 0
+   ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${UNINST_KEY_NAME}" "InstallLocation"
+   StrCmp $0 "" tryHKCU
+     StrCpy $INSTDIR $0
+     StrCpy $IsUpgrade 1
+     Goto endInitReg
+  tryHKCU:
+    ReadRegStr $0 HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${UNINST_KEY_NAME}" "InstallLocation"
+    StrCmp $0 "" tryHKLMIcon
+    StrCpy $INSTDIR $0
+    StrCpy $IsUpgrade 1
+    Goto endInitReg
+  tryHKLMIcon:
+    ReadRegStr $1 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${UNINST_KEY_NAME}" "DisplayIcon"
+    StrCmp $1 "" tryHKCUIcon
+    ${GetParent} "$1" $0
+    StrCmp $0 "" endInitReg
+    StrCpy $INSTDIR $0
+    StrCpy $IsUpgrade 1
+    Goto endInitReg
+  tryHKCUIcon:
+    ReadRegStr $1 HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${UNINST_KEY_NAME}" "DisplayIcon"
+    StrCmp $1 "" endInitReg
+    ${GetParent} "$1" $0
+    StrCmp $0 "" endInitReg
+    StrCpy $INSTDIR $0
+    StrCpy $IsUpgrade 1
+  endInitReg:
+FunctionEnd
+
+Function DirPre
+  StrCmp $IsUpgrade 1 skipDir
+  Return
+  skipDir:
+    Abort
+FunctionEnd
+
+Function WelcomePre
+  StrCmp $IsUpgrade 1 +2
+  Return
+  !insertmacro MUI_HEADER_TEXT "${INFO_PRODUCTNAME}" "$(TXT_UpgradeBrand)"
 FunctionEnd
 
 Function un.customPage
@@ -320,6 +368,7 @@ Section
     !insertmacro wails.webview2runtime
 
     SetOutPath $INSTDIR
+    SetOverwrite on
     
     !insertmacro wails.files
 
@@ -330,6 +379,10 @@ Section
     !insertmacro wails.associateCustomProtocols
     
     !insertmacro wails.writeUninstaller
+    SetRegView 64
+    WriteRegStr HKLM "${UNINST_KEY}" "InstallLocation" "$INSTDIR"
+    IfErrors 0 +2
+    WriteRegStr HKCU "${UNINST_KEY}" "InstallLocation" "$INSTDIR"
 SectionEnd
 
 Section "uninstall" 

@@ -1928,12 +1928,17 @@ func (a *Minecraft) SetBaseRoot(root string) string {
 }
 
 func (a *Minecraft) ResetBaseRoot() string {
-	c, _ := config.Load()
-	c.BaseRoot = ""
-	if err := config.Save(c); err != nil {
-		return "ERR_WRITE_FILE"
-	}
-	return ""
+    c, _ := config.Load()
+    c.BaseRoot = ""
+    if err := config.Save(c); err != nil {
+        return "ERR_WRITE_FILE"
+    }
+    br := utils.BaseRoot()
+    c.BaseRoot = strings.TrimSpace(br)
+    if err := config.Save(c); err != nil {
+        return "ERR_WRITE_FILE"
+    }
+    return ""
 }
 
 func (a *Minecraft) CanWriteToDir(path string) bool { return utils.CanWriteDir(path) }
