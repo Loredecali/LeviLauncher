@@ -50,6 +50,7 @@ import * as minecraft from "../../bindings/github.com/liteldev/LeviLauncher/mine
 
 let __didCheckGameInput = false;
 let __didCheckGamingServices = false;
+const IGNORE_GS_KEY = "ll.ignore.gs";
 
 export const LauncherPage = (args: any) => {
   let [currentVersion, setCurrentVersion] = React.useState<string>("");
@@ -275,13 +276,16 @@ export const LauncherPage = (args: any) => {
       if (!__didCheckGamingServices) {
         __didCheckGamingServices = true;
         try {
-          minecraft?.IsGamingServicesInstalled?.().then((ok: boolean) => {
-            if (!ok) {
-              setModalState(9);
-              setOverlayActive(true);
-              onOpen();
-            }
-          });
+          const ig = String(localStorage.getItem(IGNORE_GS_KEY) || "") === "1";
+          if (!ig) {
+            minecraft?.IsGamingServicesInstalled?.().then((ok: boolean) => {
+              if (!ok) {
+                setModalState(9);
+                setOverlayActive(true);
+                onOpen();
+              }
+            });
+          }
         } catch {}
       }
     }, 0);
@@ -353,6 +357,8 @@ export const LauncherPage = (args: any) => {
     });
 
     const unlistenGsMissing = Events.On("gamingservices.missing", () => {
+      const ig = String(localStorage.getItem(IGNORE_GS_KEY) || "") === "1";
+      if (ig) return;
       setModalState(9);
       setOverlayActive(true);
       onOpen();
@@ -735,6 +741,20 @@ export const LauncherPage = (args: any) => {
             }}
           >
             {t("common.quit_launcher", { defaultValue: "退出启动器" })}
+          </Button>
+          <Button
+            color="default"
+            variant="flat"
+            onPress={() => {
+              localStorage.setItem(IGNORE_GS_KEY, "1");
+              setOverlayActive(false);
+              setModalState(0);
+              onClose && onClose({} as any);
+            }}
+          >
+            {t("launcherpage.gs.missing.ignore_forever", {
+              defaultValue: "忽略并不再提醒",
+            })}
           </Button>
           <Button
             color="primary"

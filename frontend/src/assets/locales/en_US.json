@@ -83,7 +83,8 @@
       "missing": {
         "title": "Microsoft Gaming Services Missing",
         "body": "Microsoft Gaming Services was not detected. This dependency is required for Minecraft.",
-        "open_store": "Open Store to Install"
+        "open_store": "Open Store to Install",
+        "ignore_forever": "Ignore and don’t remind again"
       }
     },
     "install_confirm": {

@@ -83,7 +83,8 @@
             "missing": {
                 "title": "缺少 Microsoft Gaming Services",
                 "body": "未检测到 Microsoft Gaming Services。该组件是 Minecraft 运行所必须的依赖项。",
-                "open_store": "打开商店进行安装"
+                "open_store": "打开商店进行安装",
+                "ignore_forever": "忽略并不再提醒"
             }
         },
         "install_confirm": {
