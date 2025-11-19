@@ -921,11 +921,17 @@ func GetLevelDat(worldDir string) ([]byte, error) {
 }
 
 func PutLevelDat(worldDir string, levelDatData []byte) error {
-	if strings.TrimSpace(worldDir) == "" {
-		return os.ErrNotExist
-	}
-	p := filepath.Join(worldDir, "level.dat")
-	return os.WriteFile(p, levelDatData, 0644)
+    if strings.TrimSpace(worldDir) == "" {
+        return os.ErrNotExist
+    }
+    p := filepath.Join(worldDir, "level.dat")
+    backup := filepath.Join(worldDir, "level.dat_leviold")
+    if !utils.FileExists(backup) {
+        if b, err := os.ReadFile(p); err == nil {
+            _ = os.WriteFile(backup, b, 0644)
+        }
+    }
+    return os.WriteFile(p, levelDatData, 0644)
 }
 
 func GetLevelDatNbtAndVersion(worldDir string) ([]byte, int32, error) {
