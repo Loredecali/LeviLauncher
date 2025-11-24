@@ -317,9 +317,9 @@ export default function SkinPacksPage() {
                       }
                     });
                     return sorted.map((p: any, idx: number) => (
-                    <div key={`${p.path}-${idx}`} className="relative rounded-xl border border-default-200 bg-white/70 dark:bg-neutral-800/50 p-3 hover:bg-white/80 dark:hover:bg-neutral-800/60 transition-colors h-36">
+                    <div key={`${p.path}-${idx}`} className={`relative rounded-xl border p-3 transition-colors h-36 ${selectMode ? 'cursor-pointer' : 'cursor-default'} ${selectMode && selected[p.path] ? 'border-primary-300 dark:border-primary-400 bg-primary/10 dark:bg-primary/15 shadow-sm' : 'border-default-200 bg-white/70 dark:bg-neutral-800/50 hover:bg-white/80 dark:hover:bg-neutral-800/60'}`} onClick={() => { if (!selectMode) return; setSelected((prev) => ({ ...prev, [p.path]: !prev[p.path] })); }}>
                       <div className="flex items-start h-full">
-                        {selectMode ? (<div className="mr-2 shrink-0 flex items-center"><Checkbox size="sm" isSelected={!!selected[p.path]} onValueChange={() => setSelected((prev) => ({ ...prev, [p.path]: !prev[p.path] }))} /></div>) : null}
+                        {selectMode ? (<div className="mr-2 shrink-0 flex items-center" onClick={(e) => e.stopPropagation()}><Checkbox size="sm" isSelected={!!selected[p.path]} onValueChange={() => setSelected((prev) => ({ ...prev, [p.path]: !prev[p.path] }))} /></div>) : null}
                         <div className="flex-1 min-w-0 flex flex-col pb-12 pr-3">
                           <div className="flex items-center justify-between">
                             <div className="font-semibold truncate">{renderMcText(p.name || p.path.split("\\").pop())}</div>
@@ -336,7 +336,7 @@ export default function SkinPacksPage() {
                           </div>
                         </div>
                       </div>
-                      <div className="absolute right-3 bottom-3 flex items-center gap-2">
+                      <div className="absolute right-3 bottom-3 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                         <Button size="sm" variant="flat" onPress={() => OpenPathDir(p.path)}>{t("common.open", { defaultValue: "打开" })}</Button>
                         <Button size="sm" color="danger" variant="flat" onPress={() => { setActivePack(p); delCfmOnOpen(); }}>{t("common.delete", { defaultValue: "删除" })}</Button>
                       </div>

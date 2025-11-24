@@ -34,6 +34,7 @@ import {
   FaCogs,
   FaList,
   FaWindows,
+  FaFolderOpen,
 } from "react-icons/fa";
 import { ModCard } from "../components/ModdedCard";
 import {
@@ -939,6 +940,18 @@ export const LauncherPage = (args: any) => {
             </div>
           </div>
         </ModalBody>
+        <ModalFooter>
+          <Button
+            color="primary"
+            onPress={(e) => {
+              onClose?.(e);
+              setOverlayActive(false);
+              setModalState(0);
+            }}
+          >
+            {t("common.close", { defaultValue: "关闭" }) as unknown as string}
+          </Button>
+        </ModalFooter>
       </>
     ),
     2: (onClose) => (
@@ -1113,6 +1126,34 @@ export const LauncherPage = (args: any) => {
                         >
                           {t("launcherpage.shortcut.create_button", {
                             defaultValue: "创建桌面快捷方式",
+                          }) as unknown as string}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="flat"
+                          className="rounded-full justify-start shadow-none"
+                          startContent={<FaFolderOpen />}
+                          onPress={async () => {
+                            try {
+                              if (!currentVersion) {
+                                navigate("/versions");
+                                return;
+                              }
+                              const vdir = await (minecraft as any)?.GetVersionsDir?.();
+                              const base = String(vdir || "");
+                              if (!base) return;
+                              const dir = `${base}\\${currentVersion}`;
+                              await (minecraft as any)?.OpenPathDir?.(dir);
+                            } catch {}
+                          }}
+                          aria-label={
+                            t("launcherpage.open_exe_dir", {
+                              defaultValue: "打开游戏安装目录",
+                            }) as unknown as string
+                          }
+                        >
+                          {t("launcherpage.open_exe_dir", {
+                            defaultValue: "打开游戏安装目录",
                           }) as unknown as string}
                         </Button>
                       </div>

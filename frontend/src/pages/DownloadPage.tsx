@@ -118,7 +118,7 @@ export const DownloadPage: React.FC = () => {
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
   const [deleteSuccessMsg, setDeleteSuccessMsg] = useState<string>("");
 
-  const trErr = (msg: string): string => {
+  const trErr = (msg: string, typeLabelOverride?: string): string => {
     const s = String(msg || "");
     if (!s) return "";
     if (s.startsWith("ERR_")) {
@@ -126,7 +126,16 @@ export const DownloadPage: React.FC = () => {
       const codeTrim = code.trim();
       const rest = restArr.join(":").trim();
       const key = `errors.${codeTrim}`;
-      const translated = t(key) as unknown as string;
+      const translated =
+        (codeTrim === "ERR_APPX_INSTALL_FAILED"
+          ? (t(key, {
+              typeLabel:
+                typeLabelOverride ||
+                ((String(mirrorType || "Release") === "Preview"
+                  ? t("common.preview")
+                  : t("common.release")) as unknown as string),
+            }) as unknown as string)
+          : (t(key) as unknown as string));
       if (translated && translated !== key) {
         return rest ? `${translated} (${rest})` : translated;
       }
@@ -1530,9 +1539,7 @@ export const DownloadPage: React.FC = () => {
                 </h2>
               </ModalHeader>
               <ModalBody>
-                <div className="text-small text-default-600">
-                  {trErr(installError)}
-                </div>
+                <div className="text-small text-default-600">{trErr(installError)}</div>
               </ModalBody>
               <ModalFooter>
                 <Button

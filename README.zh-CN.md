@@ -49,6 +49,7 @@
 - 操作系统：Windows 10/11。
 - 必备组件：Microsoft Gaming Services、Microsoft GameInput（首次运行可引导安装）。
 - WebView2 Runtime：随安装包引导安装或由系统提供。
+- Minecraft：你的设备至少拥有正版授权副本，且至少从 Microsoft Store 安装过一次 Minecraft，方可使用启动器进行安装。
 
 ## 快速开始（开发者）
 

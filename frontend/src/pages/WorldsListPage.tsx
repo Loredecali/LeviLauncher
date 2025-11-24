@@ -483,18 +483,24 @@ export default function WorldsListPage() {
                     return sorted.map((w) => (
                       <div
                         key={w.path}
-                        className="flex items-center justify-between rounded-xl px-3 py-2 bg-default-100/50"
+                        className={`flex items-center justify-between rounded-xl px-3 py-2 border border-transparent transition-colors ${selectMode ? 'cursor-pointer' : 'cursor-default'} ${selected[w.path] && selectMode ? 'bg-primary/10 border-primary-300 dark:border-primary-400 shadow-sm' : 'bg-default-100/50 hover:bg-default-200/60'}`}
+                        onClick={() => {
+                          if (!selectMode) return;
+                          setSelected((prev) => ({ ...prev, [w.path]: !prev[w.path] }));
+                        }}
                       >
                         <div className="flex items-center gap-3 overflow-hidden">
                           {selectMode ? (
-                          <Checkbox
-                            size="sm"
-                            isSelected={!!selected[w.path]}
-                            onValueChange={() =>
-                              setSelected((prev) => ({ ...prev, [w.path]: !prev[w.path] }))
-                            }
-                            className="shrink-0"
-                          />
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <Checkbox
+                              size="sm"
+                              isSelected={!!selected[w.path]}
+                              onValueChange={() =>
+                                setSelected((prev) => ({ ...prev, [w.path]: !prev[w.path] }))
+                              }
+                              className="shrink-0"
+                            />
+                          </div>
                           ) : null}
                           {w.iconDataUrl ? (
                             <img
@@ -517,7 +523,7 @@ export default function WorldsListPage() {
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                           <Button
                             size="sm"
                             variant="flat"

@@ -82,13 +82,14 @@ func InstallExtractMsixvc(ctx context.Context, name string, folderName string, i
 		}
 	}(outDir)
 
-	rc, msg := extractor.MiHoYo(inPath, outDir)
+	rc, msg := extractor.Get(inPath, outDir)
 	close(stopCh)
 	if rc != 0 {
 		application.Get().Event.Emit(EventExtractError, msg)
 		if strings.TrimSpace(msg) == "" {
 			msg = "ERR_APPX_INSTALL_FAILED"
 		}
+        _ = os.RemoveAll(outDir)
 		return msg
 	}
 	_ = vcruntime.EnsureForVersion(ctx, outDir)

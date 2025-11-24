@@ -12,6 +12,7 @@
         "go_version_settings": "版本设置",
         "manage_versions": "版本列表",
         "search_versions": "搜索版本或名称",
+        "open_exe_dir": "打开游戏安装目录",
         "delete": {
             "failed": {
                 "title": "删除失败",
@@ -418,7 +419,7 @@
         },
         "installfailed": {
             "title": "安装失败",
-            "content": "请稍后再试。",
+            "content": "安装失败。请确认您拥有正版 Minecraft 授权，并已在微软商店下载并安装{{typeLabel}} Minecraft。",
             "close_button": "关闭"
         },
         "open_folder": "打开目录"
@@ -615,7 +616,7 @@
         "ERR_MSIXVC_NOT_SPECIFIED": "未指定安装包",
         "ERR_MSIXVC_NOT_FOUND": "安装包不存在",
         "ERR_APPX_UNINSTALL_FAILED": "卸载已安装游戏失败",
-        "ERR_APPX_INSTALL_FAILED": "安装失败",
+        "ERR_APPX_INSTALL_FAILED": "安装失败。请确认您拥有正版 Minecraft 授权，并已在微软商店下载并安装{{typeLabel}} Minecraft。",
         "ERR_INHERIT_SOURCE_NOT_FOUND": "未找到继承来源版本",
         "ERR_INHERIT_TARGET_NOT_FOUND": "未找到目标版本",
         "ERR_INHERIT_TYPE_MISMATCH": "类型不匹配，无法继承",

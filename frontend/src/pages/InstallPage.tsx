@@ -33,6 +33,9 @@ export default function InstallPage() {
   const mirrorType: ItemType = String(
     location?.state?.mirrorType || "Release"
   ) as ItemType;
+  const typeLabel: string = (mirrorType === "Preview"
+    ? (t("common.preview") as unknown as string)
+    : (t("common.release") as unknown as string)) as unknown as string;
   const returnTo: string = String(location?.state?.returnTo || "/download");
 
   const [installName, setInstallName] = useState<string>(mirrorVersion || "");
@@ -230,7 +233,7 @@ export default function InstallPage() {
     checkResolved();
   }, [mirrorVersion, mirrorType]);
 
-  const trErr = (msg: string): string => {
+  const trErr = (msg: string, typeLabelOverride?: string): string => {
     const s = String(msg || "");
     if (!s) return "";
     if (s.startsWith("ERR_")) {
@@ -238,7 +241,12 @@ export default function InstallPage() {
       const codeTrim = code.trim();
       const rest = restArr.join(":").trim();
       const key = `errors.${codeTrim}`;
-      const translated = t(key) as unknown as string;
+      const translated =
+        (codeTrim === "ERR_APPX_INSTALL_FAILED"
+          ? (t(key, {
+              typeLabel: typeLabelOverride || typeLabel,
+            }) as unknown as string)
+          : (t(key) as unknown as string));
       if (translated && translated !== key) {
         return rest ? `${translated} (${rest})` : translated;
       }
@@ -390,7 +398,9 @@ export default function InstallPage() {
                       variant="flat"
                       color={mirrorType === "Preview" ? "warning" : "primary"}
                     >
-                      {mirrorType}
+                      {mirrorType === "Preview"
+                        ? `${t("common.preview")} Minecraft`
+                        : `${t("common.release")} Minecraft`}
                     </Chip>
                     <span className="font-mono">{mirrorVersion}</span>
                   </div>
@@ -404,9 +414,7 @@ export default function InstallPage() {
                   <div className="text-danger font-medium">
                     {t("common.error", { defaultValue: "错误" })}
                   </div>
-                  <div className="text-small text-danger-600">
-                    {trErr(installError)}
-                  </div>
+                  <div className="text-small text-danger-600">{trErr(installError, typeLabel)}</div>
                 </div>
               ) : null}
 
@@ -479,7 +487,7 @@ export default function InstallPage() {
                     onValueChange={setInstallName}
                     isInvalid={!!installError}
                     errorMessage={
-                      installError ? trErr(installError) : undefined
+                      installError ? trErr(installError, typeLabel) : undefined
                     }
                     variant="bordered"
                     size="sm"

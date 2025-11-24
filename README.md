@@ -42,6 +42,7 @@ Supports installing, managing, and launching Release/Preview builds. Provides ve
 - OS: Windows 10/11.
 - Required components: Microsoft Gaming Services, Microsoft GameInput (guided on first run).
 - WebView2 Runtime: provided by installer or system.
+- Minecraft: You must own a legitimate licensed copy and have installed it at least once from Microsoft Store to use the launcher for installation.
 
 ## Quick Start (Dev)
 - Dependencies:

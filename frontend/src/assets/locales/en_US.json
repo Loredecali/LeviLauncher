@@ -12,6 +12,7 @@
     "go_version_settings": "Version Settings",
     "manage_versions": "Versions",
     "search_versions": "Search versions or names",
+    "open_exe_dir": "Open Game Installation Directory",
     "delete": {
       "failed": {
         "title": "Delete Failed",
@@ -276,7 +277,7 @@
     "body": {
       "version": {
         "name": "Current Version",
-        "hasnew": "New version available!",
+        "hasnew": "New version available! ",
         "button": "Check Update",
         "ignore": "Ignore this version"
       },
