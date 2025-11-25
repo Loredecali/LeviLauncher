@@ -274,9 +274,9 @@ func ImportMcpackToDirs(data []byte, archiveName string, resDir string, bpDir st
 			dir := filepath.Dir(nameInZip)
 			rc, er := f.Open()
 			if er == nil {
-				b, _ := io.ReadAll(rc)
-				_ = rc.Close()
-				_ = json.Unmarshal(b, &manifest)
+                b, _ := io.ReadAll(rc)
+                _ = rc.Close()
+                _ = json.Unmarshal(utils.JsonCompatBytes(b), &manifest)
 			}
 			if dir != "." && strings.TrimSpace(dir) != "" {
 				manifestDir = dir
@@ -393,9 +393,9 @@ func ImportMcpackToDirs2(data []byte, archiveName string, resDir string, bpDir s
 			dir := filepath.Dir(nameInZip)
 			rc, er := f.Open()
 			if er == nil {
-				b, _ := io.ReadAll(rc)
-				_ = rc.Close()
-				_ = json.Unmarshal(b, &manifest)
+                b, _ := io.ReadAll(rc)
+                _ = rc.Close()
+                _ = json.Unmarshal(utils.JsonCompatBytes(b), &manifest)
 			}
 			if dir != "." && strings.TrimSpace(dir) != "" {
 				manifestDir = dir
@@ -542,10 +542,10 @@ func ImportMcaddonToDirs2(data []byte, resDir string, bpDir string, skinDir stri
 			if er != nil {
 				continue
 			}
-			b, _ := io.ReadAll(rc)
-			_ = rc.Close()
-			var mf bedrockManifest
-			_ = json.Unmarshal(b, &mf)
+            b, _ := io.ReadAll(rc)
+            _ = rc.Close()
+            var mf bedrockManifest
+            _ = json.Unmarshal(utils.JsonCompatBytes(b), &mf)
 			packs = append(packs, packInfo{dir: dir, manifest: mf})
 		}
 	}
@@ -680,10 +680,10 @@ func ImportMcaddonToDirs(data []byte, resDir string, bpDir string, overwrite boo
 			if er != nil {
 				continue
 			}
-			b, _ := io.ReadAll(rc)
-			_ = rc.Close()
-			var mf bedrockManifest
-			_ = json.Unmarshal(b, &mf)
+            b, _ := io.ReadAll(rc)
+            _ = rc.Close()
+            var mf bedrockManifest
+            _ = json.Unmarshal(utils.JsonCompatBytes(b), &mf)
 			packs = append(packs, packInfo{dir: dir, manifest: mf})
 		}
 	}
@@ -870,9 +870,9 @@ func ReadPackInfoFromDir(dir string) types.PackInfo {
 	}
 	manifestPath := filepath.Join(target, "manifest.json")
 	if utils.FileExists(manifestPath) {
-		if b, err := os.ReadFile(manifestPath); err == nil {
-			var mf bedrockManifest
-			_ = json.Unmarshal(b, &mf)
+        if b, err := os.ReadFile(manifestPath); err == nil {
+            var mf bedrockManifest
+            _ = json.Unmarshal(utils.JsonCompatBytes(b), &mf)
 			info.Name = strings.TrimSpace(mf.Header.Name)
 			info.Description = strings.TrimSpace(mf.Header.Description)
 			if len(mf.Header.Version) > 0 {

@@ -44,9 +44,9 @@ func GetMods(mcname string) (result []types.ModInfo) {
 		if err != nil {
 			continue
 		}
-		if err = json.Unmarshal(data, &ManifestJson); err != nil {
-			continue
-		}
+        if err = json.Unmarshal(utils.JsonCompatBytes(data), &ManifestJson); err != nil {
+            continue
+        }
 		var modinfo types.ModInfo
 		modinfo.Name = ManifestJson.Name
 		modinfo.Entry = ManifestJson.Entry
@@ -223,10 +223,10 @@ func ImportZipToMods(mcname string, data []byte, overwrite bool) string {
 			dir := filepath.Dir(nameInZip)
 			rc, er := f.Open()
 			if er == nil {
-				b, _ := io.ReadAll(rc)
-				_ = rc.Close()
-				_ = json.Unmarshal(b, &manifestJson)
-				manifestName = strings.TrimSpace(manifestJson.Name)
+                b, _ := io.ReadAll(rc)
+                _ = rc.Close()
+                _ = json.Unmarshal(utils.JsonCompatBytes(b), &manifestJson)
+                manifestName = strings.TrimSpace(manifestJson.Name)
 			}
 			if dir != "." && strings.TrimSpace(dir) != "" {
 				manifestDir = dir
