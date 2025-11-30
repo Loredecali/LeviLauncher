@@ -128,7 +128,7 @@ function App() {
     const tHide = setTimeout(() => setSplashVisible(false), splashDurationMs);
     const tHeader = setTimeout(
       () => setRevealStarted(true),
-      splashDurationMs + overlayFadeMs
+      splashDurationMs - 200
     );
     return () => {
       clearTimeout(tHide);
@@ -355,7 +355,7 @@ function App() {
                 height={24}
                 className="rounded-md shadow-sm"
               />
-              <p className="font-bold text-[16px] sm:text-[18px] tracking-tight brand-text-gradient bg-clip-text text-transparent animate-text-gradient animate-fadeInMove">
+              <p className="font-bold text-[16px] sm:text-[18px] tracking-tight text-emerald-600 dark:text-emerald-400 animate-fadeInMove">
                 LeviLauncher
               </p>
               {isBeta && (

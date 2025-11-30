@@ -164,14 +164,6 @@ export const DownloadPage: React.FC = () => {
     }
   }, [testing, bestMirror, selectedUrl]);
 
-  const truncateMiddle = (s: string, max: number = 60): string => {
-    if (!s) return "";
-    if (s.length <= max) return s;
-    const head = Math.ceil(max / 2) - 1;
-    const tail = Math.floor(max / 2) - 1;
-    return s.slice(0, head) + "…" + s.slice(s.length - tail);
-  };
-
   const isChinaUser = useMemo(() => {
     try {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
