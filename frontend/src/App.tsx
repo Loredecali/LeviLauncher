@@ -18,7 +18,14 @@ import { ThemeSwitcher } from "./components/ThemeSwitcher";
 import { IoCloseOutline } from "react-icons/io5";
 import { FiMinimize2 } from "react-icons/fi";
 import { LeviIcon } from "./icons/LeviIcon";
-import { FaDownload, FaRocket, FaCog, FaList, FaEllipsisH, FaInfoCircle } from "react-icons/fa";
+import {
+  FaDownload,
+  FaRocket,
+  FaCog,
+  FaList,
+  FaEllipsisH,
+  FaInfoCircle,
+} from "react-icons/fa";
 import { LauncherPage } from "./pages/LauncherPage";
 import { DownloadPage } from "./pages/DownloadPage";
 import { SplashScreen } from "./pages/SplashScreen";
@@ -55,8 +62,12 @@ function App() {
   const [isBeta, setIsBeta] = useState(false);
   const [navLocked, setNavLocked] = useState<boolean>(() => {
     try {
-      const h = typeof window !== "undefined" ? String(window.location.hash || "") : "";
-      const initLock = h.startsWith("#/updating") || h.startsWith("#/onboarding") || Boolean((window as any).llNavLock);
+      const h =
+        typeof window !== "undefined" ? String(window.location.hash || "") : "";
+      const initLock =
+        h.startsWith("#/updating") ||
+        h.startsWith("#/onboarding") ||
+        Boolean((window as any).llNavLock);
       return initLock;
     } catch {
       return false;
@@ -86,13 +97,15 @@ function App() {
   const isUpdatingMode = (() => {
     const p = String(location?.pathname || "");
     if (p === "/updating") return true;
-    const h = typeof window !== "undefined" ? String(window.location.hash || "") : "";
+    const h =
+      typeof window !== "undefined" ? String(window.location.hash || "") : "";
     return h.startsWith("#/updating");
   })();
   const isOnboardingMode = (() => {
     const p = String(location?.pathname || "");
     if (p === "/onboarding") return true;
-    const h = typeof window !== "undefined" ? String(window.location.hash || "") : "";
+    const h =
+      typeof window !== "undefined" ? String(window.location.hash || "") : "";
     return h.startsWith("#/onboarding");
   })();
   useEffect(() => {
@@ -107,7 +120,7 @@ function App() {
       return;
     }
     const splashDurationMs = 1400;
-    const overlayFadeMs = 600; 
+    const overlayFadeMs = 600;
 
     setIsFirstLoad(false);
 
@@ -127,8 +140,13 @@ function App() {
     if (isUpdatingMode) return;
     try {
       const onboarded = localStorage.getItem("ll.onboarded");
-      const allowDuringOnboarding = location.pathname.startsWith("/filemanager");
-      if (!onboarded && location.pathname !== "/onboarding" && !allowDuringOnboarding) {
+      const allowDuringOnboarding =
+        location.pathname.startsWith("/filemanager");
+      if (
+        !onboarded &&
+        location.pathname !== "/onboarding" &&
+        !allowDuringOnboarding
+      ) {
         setNavLocked(true);
         navigate("/onboarding", { replace: true });
       }
@@ -162,7 +180,8 @@ function App() {
         return;
       }
       const ignored = localStorage.getItem("ll.ignoreVersion") || "";
-      minecraft?.CheckUpdate?.()
+      minecraft
+        ?.CheckUpdate?.()
         .then((res: any) => {
           const ver = String(res?.version || "");
           const body = String(res?.body || "");
@@ -186,8 +205,6 @@ function App() {
     }, 1000);
     return () => clearInterval(iv);
   }, [termsOpen]);
-
-  
 
   useEffect(() => {
     try {
@@ -231,13 +248,13 @@ function App() {
     } catch {}
   }, [hasBackend]);
 
-  
-
   const tryNavigate = (path: string) => {
     if (navLocked) return;
     if (location.pathname === "/settings") {
       try {
-        window.dispatchEvent(new CustomEvent("ll-try-nav", { detail: { path } }));
+        window.dispatchEvent(
+          new CustomEvent("ll-try-nav", { detail: { path } })
+        );
         return;
       } catch {}
     }
@@ -315,7 +332,11 @@ function App() {
         )}
       </AnimatePresence>
 
-      <div className={`w-full min-h-[100dvh] flex flex-col overflow-x-hidden ${updateOpen ? "overflow-y-hidden" : ""}`}>
+      <div
+        className={`w-full min-h-[100dvh] flex flex-col overflow-x-hidden ${
+          updateOpen ? "overflow-y-hidden" : ""
+        }`}
+      >
         <motion.div
           id="wails-draggable"
           className="fixed top-0 left-0 right-0 z-50 px-4 py-2"
@@ -368,7 +389,7 @@ function App() {
                   {t("launcherpage.launch_button")}
                 </Button>
               </Tooltip>
-              
+
               <Tooltip
                 content={t("downloadmodal.download_button")}
                 delay={0}
@@ -430,10 +451,16 @@ function App() {
                     if (k === "about") tryNavigate("/about");
                   }}
                 >
-                  <DropdownItem key="versions" startContent={<FaList size={14} />}>
+                  <DropdownItem
+                    key="versions"
+                    startContent={<FaList size={14} />}
+                  >
                     {t("nav.versions", { defaultValue: "版本" })}
                   </DropdownItem>
-                  <DropdownItem key="about" startContent={<FaInfoCircle size={14} />}>
+                  <DropdownItem
+                    key="about"
+                    startContent={<FaInfoCircle size={14} />}
+                  >
                     {t("nav.about", { defaultValue: "关于" })}
                   </DropdownItem>
                 </DropdownMenu>
@@ -508,7 +535,10 @@ function App() {
                 <Route path="/filemanager" element={<FileManagerPage />} />
                 <Route path="/content" element={<ContentPage />} />
                 <Route path="/content/worlds" element={<WorldsListPage />} />
-                <Route path="/content/world-edit" element={<WorldLevelDatEditorPage />} />
+                <Route
+                  path="/content/world-edit"
+                  element={<WorldLevelDatEditorPage />}
+                />
                 <Route
                   path="/content/resource-packs"
                   element={<ResourcePacksPage />}
@@ -579,7 +609,7 @@ function App() {
                     {t("settingscard.body.version.hasnew", {
                       defaultValue: "有新的版本更新！",
                     })}
-                     {updateVersion}
+                    {updateVersion}
                   </span>
                 </ModalHeader>
                 <ModalBody>
@@ -595,22 +625,36 @@ function App() {
                           remarkPlugins={[remarkGfm]}
                           components={{
                             h1: ({ children }) => (
-                              <h1 className="text-xl font-semibold mt-2 mb-2">{children}</h1>
+                              <h1 className="text-xl font-semibold mt-2 mb-2">
+                                {children}
+                              </h1>
                             ),
                             h2: ({ children }) => (
-                              <h2 className="text-lg font-semibold mt-2 mb-2">{children}</h2>
+                              <h2 className="text-lg font-semibold mt-2 mb-2">
+                                {children}
+                              </h2>
                             ),
                             h3: ({ children }) => (
-                              <h3 className="text-base font-semibold mt-2 mb-2">{children}</h3>
+                              <h3 className="text-base font-semibold mt-2 mb-2">
+                                {children}
+                              </h3>
                             ),
-                            p: ({ children }) => <p className="my-1">{children}</p>,
+                            p: ({ children }) => (
+                              <p className="my-1">{children}</p>
+                            ),
                             ul: ({ children }) => (
-                              <ul className="list-disc pl-6 my-2">{children}</ul>
+                              <ul className="list-disc pl-6 my-2">
+                                {children}
+                              </ul>
                             ),
                             ol: ({ children }) => (
-                              <ol className="list-decimal pl-6 my-2">{children}</ol>
+                              <ol className="list-decimal pl-6 my-2">
+                                {children}
+                              </ol>
                             ),
-                            li: ({ children }) => <li className="my-1">{children}</li>,
+                            li: ({ children }) => (
+                              <li className="my-1">{children}</li>
+                            ),
                             a: ({ href, children }) => (
                               <a
                                 href={href}
@@ -621,7 +665,9 @@ function App() {
                                 {children}
                               </a>
                             ),
-                            hr: () => <hr className="my-3 border-default-200" />,
+                            hr: () => (
+                              <hr className="my-3 border-default-200" />
+                            ),
                           }}
                         >
                           {updateBody}
@@ -645,14 +691,19 @@ function App() {
                     variant="flat"
                     onPress={() => {
                       try {
-                        localStorage.setItem("ll.ignoreVersion", updateVersion || "");
+                        localStorage.setItem(
+                          "ll.ignoreVersion",
+                          updateVersion || ""
+                        );
                       } catch {}
                       setUpdateOpen(false);
                       setNavLocked(Boolean((window as any).llNavLock));
                       onClose();
                     }}
                   >
-                    {t("settingscard.body.version.ignore", { defaultValue: "屏蔽该版本" })}
+                    {t("settingscard.body.version.ignore", {
+                      defaultValue: "屏蔽该版本",
+                    })}
                   </Button>
                   <Button
                     color="primary"
@@ -669,7 +720,9 @@ function App() {
                       }
                     }}
                   >
-                    {t("settingscard.modal.2.footer.download_button", { defaultValue: "更新" })}
+                    {t("settingscard.modal.2.footer.download_button", {
+                      defaultValue: "更新",
+                    })}
                   </Button>
                 </ModalFooter>
               </>

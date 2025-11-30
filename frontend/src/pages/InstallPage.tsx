@@ -411,7 +411,9 @@ export default function InstallPage() {
                   <div className="text-danger font-medium">
                     {t("common.error", { defaultValue: "错误" })}
                   </div>
-                  <div className="text-small text-danger-600">{trErr(installError, typeLabel)}</div>
+                  <div className="text-small text-danger-600">
+                    {trErr(installError, typeLabel)}
+                  </div>
                 </div>
               ) : null}
 
@@ -489,7 +491,7 @@ export default function InstallPage() {
                     variant="bordered"
                     size="sm"
                   />
-                  {(!downloadResolved) ? (
+                  {!downloadResolved ? (
                     <div className="flex items-center justify-between">
                       <div className="min-w-0">
                         <div className="text-small font-medium">
@@ -514,9 +516,12 @@ export default function InstallPage() {
                             state: {
                               allowedExt: [".msixvc"],
                               multi: false,
-                              title: t("downloadpage.customappx.modal.1.header", {
-                                defaultValue: "版本信息",
-                              }),
+                              title: t(
+                                "downloadpage.customappx.modal.1.header",
+                                {
+                                  defaultValue: "版本信息",
+                                }
+                              ),
                               initialPath: installerDir || "",
                               returnTo: "/install",
                               returnState: {

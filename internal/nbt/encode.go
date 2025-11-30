@@ -1,13 +1,13 @@
 package nbt
 
 import (
-    "bytes"
-    "io"
-    "math"
-    "reflect"
-    "sort"
-    "strings"
-    "sync"
+	"bytes"
+	"io"
+	"math"
+	"reflect"
+	"sort"
+	"strings"
+	"sync"
 )
 
 // Encoder writes NBT objects to an NBT output stream.
@@ -242,22 +242,49 @@ func (e *Encoder) encode(val reflect.Value, tagName string) error {
 		if val.Type().Key().Kind() != reflect.String {
 			return IncompatibleTypeError{Type: val.Type(), ValueName: tagName}
 		}
-    ks := val.MapKeys()
-    names := make([]string, 0, len(ks))
-    for i := 0; i < len(ks); i++ { names = append(names, ks[i].String()) }
-    sort.Slice(names, func(i, j int) bool {
-        ai := names[i]; aj := names[j]
-        var gi, gj int
-        if len(ai) > 0 { c := ai[0]; if c >= 'A' && c <= 'Z' { gi = 0 } else if c >= 'a' && c <= 'z' { gi = 1 } else { gi = 2 } } else { gi = 2 }
-        if len(aj) > 0 { c := aj[0]; if c >= 'A' && c <= 'Z' { gj = 0 } else if c >= 'a' && c <= 'z' { gj = 1 } else { gj = 2 } } else { gj = 2 }
-        if gi != gj { return gi < gj }
-        return ai < aj
-    })
-    for _, k := range names {
-        if err := e.marshal(val.MapIndex(reflect.ValueOf(k)), k); err != nil {
-            return err
-        }
-    }
+		ks := val.MapKeys()
+		names := make([]string, 0, len(ks))
+		for i := 0; i < len(ks); i++ {
+			names = append(names, ks[i].String())
+		}
+		sort.Slice(names, func(i, j int) bool {
+			ai := names[i]
+			aj := names[j]
+			var gi, gj int
+			if len(ai) > 0 {
+				c := ai[0]
+				if c >= 'A' && c <= 'Z' {
+					gi = 0
+				} else if c >= 'a' && c <= 'z' {
+					gi = 1
+				} else {
+					gi = 2
+				}
+			} else {
+				gi = 2
+			}
+			if len(aj) > 0 {
+				c := aj[0]
+				if c >= 'A' && c <= 'Z' {
+					gj = 0
+				} else if c >= 'a' && c <= 'z' {
+					gj = 1
+				} else {
+					gj = 2
+				}
+			} else {
+				gj = 2
+			}
+			if gi != gj {
+				return gi < gj
+			}
+			return ai < aj
+		})
+		for _, k := range names {
+			if err := e.marshal(val.MapIndex(reflect.ValueOf(k)), k); err != nil {
+				return err
+			}
+		}
 		e.depth--
 		return e.w.WriteByte(byte(tagEnd))
 	}

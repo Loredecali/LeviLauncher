@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { LeviIcon } from "../icons/LeviIcon";
 import { useTranslation } from "react-i18next";
 
@@ -19,7 +19,11 @@ export const SplashScreen = () => {
           </div>
           <div className="absolute inset-0 splash-ring-glow" />
           <div className="relative flex h-full w-full items-center justify-center splash-logo-float">
-            <LeviIcon width={140} height={140} className="rounded-xl shadow-xl" />
+            <LeviIcon
+              width={140}
+              height={140}
+              className="rounded-xl shadow-xl"
+            />
           </div>
         </div>
 
@@ -34,9 +38,10 @@ export const SplashScreen = () => {
           </div>
         </div>
 
-        <p className="text-default-500 text-sm">{t("splash.preparing", { defaultValue: "正在准备启动..." })}</p>
+        <p className="text-default-500 text-sm">
+          {t("splash.preparing", { defaultValue: "正在准备启动..." })}
+        </p>
       </div>
     </div>
   );
 };
-

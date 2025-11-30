@@ -1,1 +1,1 @@
-declare module 'react-file-picker';
+declare module "react-file-picker";

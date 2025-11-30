@@ -1,9 +1,19 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Button, Card, CardBody, CardHeader, Input, Spinner, Switch, Select, SelectItem, Chip } from "@heroui/react";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Input,
+  Spinner,
+  Switch,
+  Select,
+  SelectItem,
+  Chip,
+} from "@heroui/react";
 import { useLocation, useNavigate } from "react-router-dom";
 import * as minecraft from "../../bindings/github.com/liteldev/LeviLauncher/minecraft";
- 
 
 export default function WorldLevelDatEditorPage() {
   const { t } = useTranslation();
@@ -17,62 +27,125 @@ export default function WorldLevelDatEditorPage() {
   const [levelName, setLevelName] = React.useState<string>("");
   const [saving, setSaving] = React.useState<boolean>(false);
   const [typedVersion, setTypedVersion] = React.useState<number>(0);
-  const [typedFields, setTypedFields] = React.useState<Array<{ name: string; tag: string; valueString?: string; valueJSON?: string }>>([]);
-  const [compoundOpen, setCompoundOpen] = React.useState<Record<string, boolean>>({});
-  const [compoundFields, setCompoundFields] = React.useState<Record<string, Array<{ name: string; tag: string; valueString?: string; valueJSON?: string }>>>({});
+  const [typedFields, setTypedFields] = React.useState<
+    Array<{
+      name: string;
+      tag: string;
+      valueString?: string;
+      valueJSON?: string;
+    }>
+  >([]);
+  const [compoundOpen, setCompoundOpen] = React.useState<
+    Record<string, boolean>
+  >({});
+  const [compoundFields, setCompoundFields] = React.useState<
+    Record<
+      string,
+      Array<{
+        name: string;
+        tag: string;
+        valueString?: string;
+        valueJSON?: string;
+      }>
+    >
+  >({});
   const [topOrder, setTopOrder] = React.useState<string[]>([]);
-  const [compoundOrders, setCompoundOrders] = React.useState<Record<string, string[]>>({});
-  const [typedDrafts, setTypedDrafts] = React.useState<Record<string, string>>({});
+  const [compoundOrders, setCompoundOrders] = React.useState<
+    Record<string, string[]>
+  >({});
+  const [typedDrafts, setTypedDrafts] = React.useState<Record<string, string>>(
+    {}
+  );
   const [currentAddParent, setCurrentAddParent] = React.useState<string>("");
-  const [newChildField, setNewChildField] = React.useState<{ name: string; tag: string; value: string }>({ name: "", tag: "string", value: "" });
-  const [newTopField, setNewTopField] = React.useState<{ name: string; tag: string; value: string }>({ name: "", tag: "string", value: "" });
+  const [newChildField, setNewChildField] = React.useState<{
+    name: string;
+    tag: string;
+    value: string;
+  }>({ name: "", tag: "string", value: "" });
+  const [newTopField, setNewTopField] = React.useState<{
+    name: string;
+    tag: string;
+    value: string;
+  }>({ name: "", tag: "string", value: "" });
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
   const lastScrollTopRef = React.useRef<number>(0);
   const restorePendingRef = React.useRef<boolean>(false);
   const beforeUpdate = React.useCallback(() => {
     try {
-      lastScrollTopRef.current = scrollRef.current ? scrollRef.current.scrollTop : window.scrollY || 0;
+      lastScrollTopRef.current = scrollRef.current
+        ? scrollRef.current.scrollTop
+        : window.scrollY || 0;
       restorePendingRef.current = true;
     } catch {}
   }, []);
 
   const normTag = (s: any) => String(s || "").toLowerCase();
   const nameCmp = React.useCallback((a: string, b: string) => {
-    const g = (s: string) => { const c = s.charCodeAt(0)||0; if (c>=65&&c<=90) return 0; if (c>=97&&c<=122) return 1; return 2; };
-    const ga = g(String(a||"")); const gb = g(String(b||""));
+    const g = (s: string) => {
+      const c = s.charCodeAt(0) || 0;
+      if (c >= 65 && c <= 90) return 0;
+      if (c >= 97 && c <= 122) return 1;
+      return 2;
+    };
+    const ga = g(String(a || ""));
+    const gb = g(String(b || ""));
     if (ga !== gb) return ga - gb;
-    if (a < b) return -1; if (a > b) return 1; return 0;
+    if (a < b) return -1;
+    if (a > b) return 1;
+    return 0;
   }, []);
   const orderedTopFields = React.useMemo(() => {
     if (!Array.isArray(topOrder) || topOrder.length === 0) {
       const arr = typedFields.slice();
-      arr.sort((x,y)=> nameCmp(String(x?.name||""), String(y?.name||"")));
+      arr.sort((x, y) => nameCmp(String(x?.name || ""), String(y?.name || "")));
       return arr;
     }
     const pos: Record<string, number> = {};
-    topOrder.forEach((n, i) => { pos[String(n)] = i; });
-    const withPos = typedFields.map((f, i) => ({ f, i, p: pos[String(f?.name||"")] ?? (100000 + i) }));
-    withPos.sort((a,b)=> a.p - b.p);
-    return withPos.map(x=>x.f);
+    topOrder.forEach((n, i) => {
+      pos[String(n)] = i;
+    });
+    const withPos = typedFields.map((f, i) => ({
+      f,
+      i,
+      p: pos[String(f?.name || "")] ?? 100000 + i,
+    }));
+    withPos.sort((a, b) => a.p - b.p);
+    return withPos.map((x) => x.f);
   }, [typedFields, topOrder]);
-  const nonCompoundFields = React.useMemo(() => orderedTopFields.filter(f => normTag(f.tag) !== "compound"), [orderedTopFields]);
-  const compoundTopFields = React.useMemo(() => orderedTopFields.filter(f => normTag(f.tag) === "compound"), [orderedTopFields]);
+  const nonCompoundFields = React.useMemo(
+    () => orderedTopFields.filter((f) => normTag(f.tag) !== "compound"),
+    [orderedTopFields]
+  );
+  const compoundTopFields = React.useMemo(
+    () => orderedTopFields.filter((f) => normTag(f.tag) === "compound"),
+    [orderedTopFields]
+  );
 
   const [filterText, setFilterText] = React.useState<string>("");
   const matchesName = (s: any) => {
-    const q = String(filterText || "").trim().toLowerCase();
+    const q = String(filterText || "")
+      .trim()
+      .toLowerCase();
     if (!q) return true;
-    return String(s || "").toLowerCase().includes(q);
+    return String(s || "")
+      .toLowerCase()
+      .includes(q);
   };
 
   const parseListJSON = (s: string): any[] => {
     try {
       const v = JSON.parse(String(s || ""));
       return Array.isArray(v) ? v : [];
-    } catch { return []; }
+    } catch {
+      return [];
+    }
   };
   const stringifyList = (arr: any[]): string => {
-    try { return JSON.stringify(arr); } catch { return "[]"; }
+    try {
+      return JSON.stringify(arr);
+    } catch {
+      return "[]";
+    }
   };
 
   const enumOptions: Record<string, Array<{ value: string; label: string }>> = {
@@ -173,16 +246,32 @@ export default function WorldLevelDatEditorPage() {
       { value: "0", label: "Normal" },
       { value: "1", label: "AlwaysDay" },
       { value: "2", label: "LockTime" },
-    ]
+    ],
   };
   const getEnumOpts = (name: string) => enumOptions[String(name || "")] || null;
-  const tagOptions = ["string","byte","short","int","long","float","double","list","compound"];
+  const tagOptions = [
+    "string",
+    "byte",
+    "short",
+    "int",
+    "long",
+    "float",
+    "double",
+    "list",
+    "compound",
+  ];
   const [addTargetKey, setAddTargetKey] = React.useState<string>("root");
-  const [newUnifiedField, setNewUnifiedField] = React.useState<{ name: string; tag: string; value: string }>({ name: "", tag: "string", value: "" });
+  const [newUnifiedField, setNewUnifiedField] = React.useState<{
+    name: string;
+    tag: string;
+    value: string;
+  }>({ name: "", tag: "string", value: "" });
   const [addOpen, setAddOpen] = React.useState<boolean>(false);
   const compoundTargetKeys = React.useMemo(() => {
-    const names = typedFields.filter(f=>normTag(f.tag)==="compound").map(f=>String(f.name||""));
-    const loaded = Object.keys(compoundFields||{});
+    const names = typedFields
+      .filter((f) => normTag(f.tag) === "compound")
+      .map((f) => String(f.name || ""));
+    const loaded = Object.keys(compoundFields || {});
     const set = new Set<string>(["root", ...names, ...loaded]);
     return Array.from(set);
   }, [typedFields, compoundFields]);
@@ -191,9 +280,12 @@ export default function WorldLevelDatEditorPage() {
     try {
       const path = Array.isArray(nameOrPath) ? nameOrPath : [nameOrPath];
       const key = path.join("/");
-      const res = await (minecraft as any)?.ReadWorldLevelDatFieldsAt?.(worldPath, path);
+      const res = await (minecraft as any)?.ReadWorldLevelDatFieldsAt?.(
+        worldPath,
+        path
+      );
       const remote = Array.isArray(res?.fields) ? res.fields : [];
-      setCompoundFields(prev => {
+      setCompoundFields((prev) => {
         const local = prev[key] ? prev[key].slice() : [];
         const localMap = new Map<string, any>();
         for (const it of local) localMap.set(String(it?.name || ""), it);
@@ -214,22 +306,28 @@ export default function WorldLevelDatEditorPage() {
         return { ...prev, [key]: merged };
       });
       const ord = Array.isArray(res?.order) ? (res.order as string[]) : [];
-      if (ord.length > 0) setCompoundOrders(prev => ({ ...prev, [key]: ord }));
-      setCompoundOpen(prev => ({ ...prev, [key]: true }));
+      if (ord.length > 0)
+        setCompoundOrders((prev) => ({ ...prev, [key]: ord }));
+      setCompoundOpen((prev) => ({ ...prev, [key]: true }));
     } catch {}
   };
 
   const addChildOnOpen = () => {
     const parent = String(currentAddParent || "").trim();
     if (!parent) return;
-    setCompoundOpen(prev => ({ ...prev, [parent]: true }));
+    setCompoundOpen((prev) => ({ ...prev, [parent]: true }));
   };
 
-  const setCompoundFieldValue = (parentPathKey: string, idx: number, patch: Partial<{ valueString?: string; valueJSON?: string }>) => {
+  const setCompoundFieldValue = (
+    parentPathKey: string,
+    idx: number,
+    patch: Partial<{ valueString?: string; valueJSON?: string }>
+  ) => {
     beforeUpdate();
-    setCompoundFields(prev => {
+    setCompoundFields((prev) => {
       const list = prev[parentPathKey] ? prev[parentPathKey].slice() : [];
-      if (idx >= 0 && idx < list.length) list[idx] = { ...list[idx], ...patch } as any;
+      if (idx >= 0 && idx < list.length)
+        list[idx] = { ...list[idx], ...patch } as any;
       return { ...prev, [parentPathKey]: list };
     });
   };
@@ -239,10 +337,16 @@ export default function WorldLevelDatEditorPage() {
     setError("");
     try {
       if (!hasBackend || !worldPath) {
-        setError(t("contentpage.error_resolve_paths", { defaultValue: "无法解析内容路径。" }) as string);
+        setError(
+          t("contentpage.error_resolve_paths", {
+            defaultValue: "无法解析内容路径。",
+          }) as string
+        );
         return;
       }
-      const res2 = await (minecraft as any)?.ReadWorldLevelDatFields?.(worldPath);
+      const res2 = await (minecraft as any)?.ReadWorldLevelDatFields?.(
+        worldPath
+      );
       const v2 = Number(res2?.version || 0);
       const fields2 = Array.isArray(res2?.fields) ? res2.fields : [];
       setTypedVersion(v2);
@@ -264,13 +368,17 @@ export default function WorldLevelDatEditorPage() {
     if (!restorePendingRef.current) return;
     requestAnimationFrame(() => {
       try {
-        if (scrollRef.current) scrollRef.current.scrollTop = lastScrollTopRef.current; else window.scrollTo({ top: lastScrollTopRef.current });
+        if (scrollRef.current)
+          scrollRef.current.scrollTop = lastScrollTopRef.current;
+        else window.scrollTo({ top: lastScrollTopRef.current });
       } catch {}
     });
     restorePendingRef.current = false;
   }, [typedFields, compoundFields, compoundOpen, filterText]);
 
-  React.useEffect(() => { load(); }, [load]);
+  React.useEffect(() => {
+    load();
+  }, [load]);
 
   const saveAll = async () => {
     if (!hasBackend || !worldPath) return;
@@ -290,10 +398,15 @@ export default function WorldLevelDatEditorPage() {
             if (p.length >= 2) {
               const parentPathKey = p[0];
               const childName = p.slice(1).join(":");
-              setCompoundFields(prev => {
-                const list = prev[parentPathKey] ? prev[parentPathKey].slice() : [];
-                const idx = list.findIndex(x => String(x.name || "") === childName);
-                if (idx >= 0) list[idx] = { ...list[idx], valueString: val } as any;
+              setCompoundFields((prev) => {
+                const list = prev[parentPathKey]
+                  ? prev[parentPathKey].slice()
+                  : [];
+                const idx = list.findIndex(
+                  (x) => String(x.name || "") === childName
+                );
+                if (idx >= 0)
+                  list[idx] = { ...list[idx], valueString: val } as any;
                 return { ...prev, [parentPathKey]: list };
               });
             }
@@ -303,10 +416,15 @@ export default function WorldLevelDatEditorPage() {
             if (p.length >= 2) {
               const parentPathKey = p[0];
               const childName = p.slice(1).join(":");
-              setCompoundFields(prev => {
-                const list = prev[parentPathKey] ? prev[parentPathKey].slice() : [];
-                const idx = list.findIndex(x => String(x.name || "") === childName);
-                if (idx >= 0) list[idx] = { ...list[idx], valueJSON: val } as any;
+              setCompoundFields((prev) => {
+                const list = prev[parentPathKey]
+                  ? prev[parentPathKey].slice()
+                  : [];
+                const idx = list.findIndex(
+                  (x) => String(x.name || "") === childName
+                );
+                if (idx >= 0)
+                  list[idx] = { ...list[idx], valueJSON: val } as any;
                 return { ...prev, [parentPathKey]: list };
               });
             }
@@ -319,10 +437,15 @@ export default function WorldLevelDatEditorPage() {
             if (p.length >= 2) {
               const parentPathKey = p[0];
               const childName = p.slice(1).join(":");
-              setCompoundFields(prev => {
-                const list = prev[parentPathKey] ? prev[parentPathKey].slice() : [];
-                const idx = list.findIndex(x => String(x.name || "") === childName);
-                if (idx >= 0) list[idx] = { ...list[idx], valueJSON: val } as any;
+              setCompoundFields((prev) => {
+                const list = prev[parentPathKey]
+                  ? prev[parentPathKey].slice()
+                  : [];
+                const idx = list.findIndex(
+                  (x) => String(x.name || "") === childName
+                );
+                if (idx >= 0)
+                  list[idx] = { ...list[idx], valueJSON: val } as any;
                 return { ...prev, [parentPathKey]: list };
               });
             }
@@ -331,29 +454,45 @@ export default function WorldLevelDatEditorPage() {
         setTypedDrafts({});
       }
 
-      const sanitizeJSON = (arr: Array<any>) => arr.map(it => {
-        const tag = String(it?.tag || "").toLowerCase();
-        if (tag === "list") {
-          const v = String(it?.valueJSON || "").trim();
-          if (!v) return { ...it, valueJSON: "[]" };
-        } else if (tag === "compound") {
-          const v = String(it?.valueJSON || "").trim();
-          if (!v) return { ...it, valueJSON: "{}" };
-        }
-        return it;
-      });
+      const sanitizeJSON = (arr: Array<any>) =>
+        arr.map((it) => {
+          const tag = String(it?.tag || "").toLowerCase();
+          if (tag === "list") {
+            const v = String(it?.valueJSON || "").trim();
+            if (!v) return { ...it, valueJSON: "[]" };
+          } else if (tag === "compound") {
+            const v = String(it?.valueJSON || "").trim();
+            if (!v) return { ...it, valueJSON: "{}" };
+          }
+          return it;
+        });
 
       const typedFieldsSafe = sanitizeJSON(typedFields);
-      const err2 = await (minecraft as any)?.SetWorldLevelName?.(worldPath, levelName);
-      const err3 = await (minecraft as any)?.WriteWorldLevelDatFields?.(worldPath, { version: typedVersion || 0, fields: typedFieldsSafe, levelName });
+      const err2 = await (minecraft as any)?.SetWorldLevelName?.(
+        worldPath,
+        levelName
+      );
+      const err3 = await (minecraft as any)?.WriteWorldLevelDatFields?.(
+        worldPath,
+        { version: typedVersion || 0, fields: typedFieldsSafe, levelName }
+      );
       let err4 = "";
       const entries = Object.entries(compoundFields);
       for (const [pathKey, list] of entries) {
-        const erx = await (minecraft as any)?.WriteWorldLevelDatFieldsAt?.(worldPath, { version: typedVersion || 0, path: pathKey.split("/"), fields: sanitizeJSON(list) });
+        const erx = await (minecraft as any)?.WriteWorldLevelDatFieldsAt?.(
+          worldPath,
+          {
+            version: typedVersion || 0,
+            path: pathKey.split("/"),
+            fields: sanitizeJSON(list),
+          }
+        );
         if (erx) err4 = erx;
       }
       if (err2 || err3 || err4) {
-        setError(t("common.save_failed", { defaultValue: "保存失败" }) as string);
+        setError(
+          t("common.save_failed", { defaultValue: "保存失败" }) as string
+        );
       } else {
         navigate(-1);
       }
@@ -364,11 +503,16 @@ export default function WorldLevelDatEditorPage() {
     }
   };
 
-  const setTypedFieldValueByName = (name: string, patch: Partial<{ valueString?: string; valueJSON?: string }>) => {
+  const setTypedFieldValueByName = (
+    name: string,
+    patch: Partial<{ valueString?: string; valueJSON?: string }>
+  ) => {
     beforeUpdate();
     setTypedFields((prev) => {
       const next = prev.slice();
-      const idx = next.findIndex((x: any) => String(x?.name || "") === String(name || ""));
+      const idx = next.findIndex(
+        (x: any) => String(x?.name || "") === String(name || "")
+      );
       if (idx >= 0) next[idx] = { ...next[idx], ...patch } as any;
       return next;
     });
@@ -380,80 +524,292 @@ export default function WorldLevelDatEditorPage() {
       if (t === "compound") return "secondary";
       if (t === "list") return "warning";
       if (t === "string") return "primary";
-      if (t === "byte" || t === "short" || t === "int" || t === "long" || t === "float" || t === "double") return "success";
+      if (
+        t === "byte" ||
+        t === "short" ||
+        t === "int" ||
+        t === "long" ||
+        t === "float" ||
+        t === "double"
+      )
+        return "success";
       if (t === "add") return "primary";
       return "default";
     };
-    return function Box({ title, type, children, delay = 0 }: { title: string; type: string; children: React.ReactNode; delay?: number }) {
+    return function Box({
+      title,
+      type,
+      children,
+      delay = 0,
+    }: {
+      title: string;
+      type: string;
+      children: React.ReactNode;
+      delay?: number;
+    }) {
       return (
         <div className="rounded-xl border border-default-200 bg-content1 p-2 min-h-[72px] flex flex-col gap-1 hover:border-default-300">
           <div className="flex items-center justify-between">
             <div className="text-sm font-medium truncate">{title}</div>
-            <Chip size="sm" variant="flat" color={chipColor(type)} className="h-6">{type}</Chip>
+            <Chip
+              size="sm"
+              variant="flat"
+              color={chipColor(type)}
+              className="h-6"
+            >
+              {type}
+            </Chip>
           </div>
           <div>{children}</div>
         </div>
       );
-    }
+    };
   }, []);
 
   return (
-    <div ref={scrollRef} className="w-full h-full p-3 sm:p-4 lg:p-6 overflow-auto">
+    <div
+      ref={scrollRef}
+      className="w-full h-full p-3 sm:p-4 lg:p-6 overflow-auto"
+    >
       <Card className="rounded-2xl">
         <CardHeader className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold">{t("contentpage.world_leveldat_editor", { defaultValue: "世界 level.dat 编辑" })}</h2>
+            <h2 className="text-xl font-bold">
+              {t("contentpage.world_leveldat_editor", {
+                defaultValue: "世界 level.dat 编辑",
+              })}
+            </h2>
           </div>
           <div className="flex items-center gap-2">
-            <Input size="sm" variant="bordered" placeholder={t("common.search", { defaultValue: "搜索" }) as string} value={filterText} onValueChange={(v)=>{ beforeUpdate(); setFilterText(v); }} isClearable className="w-[180px] sm:w-[220px]" />
+            <Input
+              size="sm"
+              variant="bordered"
+              placeholder={
+                t("common.search", { defaultValue: "搜索" }) as string
+              }
+              value={filterText}
+              onValueChange={(v) => {
+                beforeUpdate();
+                setFilterText(v);
+              }}
+              isClearable
+              className="w-[180px] sm:w-[220px]"
+            />
             <Button size="sm" variant="bordered" onPress={() => navigate(-1)}>
               {t("common.back", { defaultValue: "返回" })}
             </Button>
-            <Button size="sm" color="primary" isLoading={saving} onPress={saveAll} isDisabled={!hasBackend || loading}>
+            <Button
+              size="sm"
+              color="primary"
+              isLoading={saving}
+              onPress={saveAll}
+              isDisabled={!hasBackend || loading}
+            >
               {t("common.save", { defaultValue: "保存" })}
             </Button>
           </div>
         </CardHeader>
         <CardBody>
           {loading ? (
-            <div className="flex items-center gap-2"><Spinner size="sm" /><span className="text-default-500">{t("common.loading", { defaultValue: "加载中" })}</span></div>
+            <div className="flex items-center gap-2">
+              <Spinner size="sm" />
+              <span className="text-default-500">
+                {t("common.loading", { defaultValue: "加载中" })}
+              </span>
+            </div>
           ) : (
             <div className="flex flex-col gap-3">
-              {error ? <div className="text-danger text-sm">{error}</div> : null}
+              {error ? (
+                <div className="text-danger text-sm">{error}</div>
+              ) : null}
               <div className="flex flex-col gap-4">
-                <div className="text-lg font-semibold">{t("contentpage.basic", { defaultValue: "基础" }) as string}</div>
+                <div className="text-lg font-semibold">
+                  {t("contentpage.basic", { defaultValue: "基础" }) as string}
+                </div>
                 <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
-                  <Input size="sm" variant="bordered" label={t("contentpage.version", { defaultValue: "版本号" }) as string} value={String(typedVersion || 0)} isReadOnly />
-                  <Input size="sm" variant="bordered" label={t("contentpage.world_level_name", { defaultValue: "世界名称" }) as string} value={levelName} isReadOnly />
+                  <Input
+                    size="sm"
+                    variant="bordered"
+                    label={
+                      t("contentpage.version", {
+                        defaultValue: "版本号",
+                      }) as string
+                    }
+                    value={String(typedVersion || 0)}
+                    isReadOnly
+                  />
+                  <Input
+                    size="sm"
+                    variant="bordered"
+                    label={
+                      t("contentpage.world_level_name", {
+                        defaultValue: "世界名称",
+                      }) as string
+                    }
+                    value={levelName}
+                    isReadOnly
+                  />
                 </div>
                 <div role="separator" className="h-px bg-default-200 my-2" />
                 <div className="flex items-center justify-between">
-                  <div className="text-lg font-semibold">{t("contentpage.add_field", { defaultValue: "新增字段" }) as string}</div>
-                  <Button size="sm" variant="light" onPress={() => setAddOpen((o)=>!o)}>{addOpen ? t("common.collapse", { defaultValue: "收起" }) : t("common.expand", { defaultValue: "展开" })}</Button>
+                  <div className="text-lg font-semibold">
+                    {
+                      t("contentpage.add_field", {
+                        defaultValue: "新增字段",
+                      }) as string
+                    }
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="light"
+                    onPress={() => setAddOpen((o) => !o)}
+                  >
+                    {addOpen
+                      ? t("common.collapse", { defaultValue: "收起" })
+                      : t("common.expand", { defaultValue: "展开" })}
+                  </Button>
                 </div>
                 {addOpen ? (
-                  <FieldBox title={t("contentpage.add_field_panel", { defaultValue: "新增字段面板" }) as string} type="add" delay={0}>
+                  <FieldBox
+                    title={
+                      t("contentpage.add_field_panel", {
+                        defaultValue: "新增字段面板",
+                      }) as string
+                    }
+                    type="add"
+                    delay={0}
+                  >
                     <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
-                      <Select size="sm" selectedKeys={new Set([addTargetKey])} onSelectionChange={(keys:any)=>{ const v = String(Array.from(keys)[0] || "root"); setAddTargetKey(v); }}>
-                        {compoundTargetKeys.map((o)=>(<SelectItem key={o}>{o}</SelectItem>))}
+                      <Select
+                        size="sm"
+                        selectedKeys={new Set([addTargetKey])}
+                        onSelectionChange={(keys: any) => {
+                          const v = String(Array.from(keys)[0] || "root");
+                          setAddTargetKey(v);
+                        }}
+                      >
+                        {compoundTargetKeys.map((o) => (
+                          <SelectItem key={o}>{o}</SelectItem>
+                        ))}
                       </Select>
-                      <Input size="sm" variant="bordered" placeholder={t("contentpage.field_name", { defaultValue: "名称" }) as string} value={newUnifiedField.name} onValueChange={(v)=>setNewUnifiedField(prev=>({ ...prev, name: v }))} />
-                      <Select size="sm" selectedKeys={new Set([newUnifiedField.tag])} onSelectionChange={(keys:any)=>{ const v = String(Array.from(keys)[0] || "string"); setNewUnifiedField(prev=>({ ...prev, tag: v })); }}>
-                        {tagOptions.map((o)=>(<SelectItem key={o}>{o}</SelectItem>))}
-                      </Select>
-                      <Input size="sm" variant="bordered" placeholder={t("contentpage.initial_value", { defaultValue: "初始值" }) as string} value={newUnifiedField.value} onValueChange={(v)=>setNewUnifiedField(prev=>({ ...prev, value: v }))} />
-                      <Button size="sm" color="primary" onPress={()=>{
-                        const nm = String(newUnifiedField.name || "").trim();
-                        const tg = String(newUnifiedField.tag || "string").trim();
-                        if (!nm) return;
-                        if (addTargetKey === "root") {
-                          setTypedFields(prev=>{ if (prev.some(f=>String(f.name||"")===nm)) return prev; const it:any = { name: nm, tag: tg }; if (tg==="string"||tg==="byte"||tg==="short"||tg==="int"||tg==="long"||tg==="float"||tg==="double") it.valueString = String(newUnifiedField.value||""); else it.valueJSON = String(newUnifiedField.value||""); const next = prev.slice(); next.push(it); return next; });
-                        } else {
-                          setCompoundFields(prev=>{ const list2 = prev[addTargetKey] ? prev[addTargetKey].slice() : []; if (list2.some(x=>String(x.name||"")===nm)) return prev; const it:any = { name: nm, tag: tg }; if (tg==="string"||tg==="byte"||tg==="short"||tg==="int"||tg==="long"||tg==="float"||tg==="double") it.valueString = String(newUnifiedField.value||""); else it.valueJSON = String(newUnifiedField.value||""); const next = { ...prev, [addTargetKey]: [...list2, it] }; return next; });
-                          setCompoundOpen(prev=>({ ...prev, [addTargetKey]: true }));
+                      <Input
+                        size="sm"
+                        variant="bordered"
+                        placeholder={
+                          t("contentpage.field_name", {
+                            defaultValue: "名称",
+                          }) as string
                         }
-                        setNewUnifiedField({ name: "", tag: "string", value: "" });
-                      }}>{t("common.add", { defaultValue: "添加" })}</Button>
+                        value={newUnifiedField.name}
+                        onValueChange={(v) =>
+                          setNewUnifiedField((prev) => ({ ...prev, name: v }))
+                        }
+                      />
+                      <Select
+                        size="sm"
+                        selectedKeys={new Set([newUnifiedField.tag])}
+                        onSelectionChange={(keys: any) => {
+                          const v = String(Array.from(keys)[0] || "string");
+                          setNewUnifiedField((prev) => ({ ...prev, tag: v }));
+                        }}
+                      >
+                        {tagOptions.map((o) => (
+                          <SelectItem key={o}>{o}</SelectItem>
+                        ))}
+                      </Select>
+                      <Input
+                        size="sm"
+                        variant="bordered"
+                        placeholder={
+                          t("contentpage.initial_value", {
+                            defaultValue: "初始值",
+                          }) as string
+                        }
+                        value={newUnifiedField.value}
+                        onValueChange={(v) =>
+                          setNewUnifiedField((prev) => ({ ...prev, value: v }))
+                        }
+                      />
+                      <Button
+                        size="sm"
+                        color="primary"
+                        onPress={() => {
+                          const nm = String(newUnifiedField.name || "").trim();
+                          const tg = String(
+                            newUnifiedField.tag || "string"
+                          ).trim();
+                          if (!nm) return;
+                          if (addTargetKey === "root") {
+                            setTypedFields((prev) => {
+                              if (prev.some((f) => String(f.name || "") === nm))
+                                return prev;
+                              const it: any = { name: nm, tag: tg };
+                              if (
+                                tg === "string" ||
+                                tg === "byte" ||
+                                tg === "short" ||
+                                tg === "int" ||
+                                tg === "long" ||
+                                tg === "float" ||
+                                tg === "double"
+                              )
+                                it.valueString = String(
+                                  newUnifiedField.value || ""
+                                );
+                              else
+                                it.valueJSON = String(
+                                  newUnifiedField.value || ""
+                                );
+                              const next = prev.slice();
+                              next.push(it);
+                              return next;
+                            });
+                          } else {
+                            setCompoundFields((prev) => {
+                              const list2 = prev[addTargetKey]
+                                ? prev[addTargetKey].slice()
+                                : [];
+                              if (
+                                list2.some((x) => String(x.name || "") === nm)
+                              )
+                                return prev;
+                              const it: any = { name: nm, tag: tg };
+                              if (
+                                tg === "string" ||
+                                tg === "byte" ||
+                                tg === "short" ||
+                                tg === "int" ||
+                                tg === "long" ||
+                                tg === "float" ||
+                                tg === "double"
+                              )
+                                it.valueString = String(
+                                  newUnifiedField.value || ""
+                                );
+                              else
+                                it.valueJSON = String(
+                                  newUnifiedField.value || ""
+                                );
+                              const next = {
+                                ...prev,
+                                [addTargetKey]: [...list2, it],
+                              };
+                              return next;
+                            });
+                            setCompoundOpen((prev) => ({
+                              ...prev,
+                              [addTargetKey]: true,
+                            }));
+                          }
+                          setNewUnifiedField({
+                            name: "",
+                            tag: "string",
+                            value: "",
+                          });
+                        }}
+                      >
+                        {t("common.add", { defaultValue: "添加" })}
+                      </Button>
                     </div>
                   </FieldBox>
                 ) : null}
@@ -468,57 +824,147 @@ export default function WorldLevelDatEditorPage() {
                       if (!matchesName(k)) return;
                       if (tag === "list") {
                         const dk = `tflist:${k}`;
-                        const display = typedDrafts[dk] ?? String((f as any).valueJSON || "[]");
+                        const display =
+                          typedDrafts[dk] ??
+                          String((f as any).valueJSON || "[]");
                         const items = parseListJSON(display);
                         acc.push(
-                          <FieldBox key={`tf-${k}`} title={k} type={tag} delay={i * 0.015}>
+                          <FieldBox
+                            key={`tf-${k}`}
+                            title={k}
+                            type={tag}
+                            delay={i * 0.015}
+                          >
                             <div className="flex flex-col gap-2">
                               <div className="flex gap-1 overflow-x-auto flex-nowrap pretty-scrollbar gutter-stable">
                                 {items.map((it, idx) => (
-                                  <Input key={`tf-${k}-li-${idx}`} size="sm" variant="bordered" className="w-12 shrink-0" value={String(it ?? "")} onValueChange={(v)=>{
-                                    const next = items.slice(); next[idx] = v; beforeUpdate(); setTypedDrafts(prev=>({ ...prev, [dk]: stringifyList(next) }));
-                                  }} onBlur={()=>{
-                                    const val = String(typedDrafts[dk] ?? stringifyList(items));
-                                    setTypedFieldValueByName(String(k), { valueJSON: val });
-                                    setTypedDrafts(prev=>{ const nn = { ...prev }; delete nn[dk]; return nn; });
-                                  }} />
+                                  <Input
+                                    key={`tf-${k}-li-${idx}`}
+                                    size="sm"
+                                    variant="bordered"
+                                    className="w-12 shrink-0"
+                                    value={String(it ?? "")}
+                                    onValueChange={(v) => {
+                                      const next = items.slice();
+                                      next[idx] = v;
+                                      beforeUpdate();
+                                      setTypedDrafts((prev) => ({
+                                        ...prev,
+                                        [dk]: stringifyList(next),
+                                      }));
+                                    }}
+                                    onBlur={() => {
+                                      const val = String(
+                                        typedDrafts[dk] ?? stringifyList(items)
+                                      );
+                                      setTypedFieldValueByName(String(k), {
+                                        valueJSON: val,
+                                      });
+                                      setTypedDrafts((prev) => {
+                                        const nn = { ...prev };
+                                        delete nn[dk];
+                                        return nn;
+                                      });
+                                    }}
+                                  />
                                 ))}
                               </div>
                             </div>
                           </FieldBox>
                         );
                       } else if (tag === "byte") {
-                        const isOn = String((f as any).valueString || "0") !== "0";
+                        const isOn =
+                          String((f as any).valueString || "0") !== "0";
                         acc.push(
-                          <FieldBox key={`tf-${k}`} title={k} type={tag} delay={i * 0.015}>
-                            <div className="flex justify-end"><Switch size="sm" isSelected={isOn} onValueChange={(c)=>{ setTypedFieldValueByName(String(k), { valueString: c ? "1" : "0" }); }} thumbIcon={<span className="block w-2 h-2 bg-black rounded-full" />} /></div>
+                          <FieldBox
+                            key={`tf-${k}`}
+                            title={k}
+                            type={tag}
+                            delay={i * 0.015}
+                          >
+                            <div className="flex justify-end">
+                              <Switch
+                                size="sm"
+                                isSelected={isOn}
+                                onValueChange={(c) => {
+                                  setTypedFieldValueByName(String(k), {
+                                    valueString: c ? "1" : "0",
+                                  });
+                                }}
+                                thumbIcon={
+                                  <span className="block w-2 h-2 bg-black rounded-full" />
+                                }
+                              />
+                            </div>
                           </FieldBox>
                         );
                       } else {
                         const opts = getEnumOpts(String(k));
                         if (opts) {
                           acc.push(
-                            <FieldBox key={`tf-${k}`} title={k} type={tag} delay={i * 0.015}>
-                              <Select size="sm" selectedKeys={new Set([String((f as any).valueString || "0")])} onSelectionChange={(keys:any)=>{
-                                const v = Array.from(keys)[0] || "0"; setTypedFieldValueByName(String(k), { valueString: String(v) });
-                              }}>
-                                {opts.map((o)=> (<SelectItem key={o.value}>{o.label}</SelectItem>))}
+                            <FieldBox
+                              key={`tf-${k}`}
+                              title={k}
+                              type={tag}
+                              delay={i * 0.015}
+                            >
+                              <Select
+                                size="sm"
+                                selectedKeys={
+                                  new Set([
+                                    String((f as any).valueString || "0"),
+                                  ])
+                                }
+                                onSelectionChange={(keys: any) => {
+                                  const v = Array.from(keys)[0] || "0";
+                                  setTypedFieldValueByName(String(k), {
+                                    valueString: String(v),
+                                  });
+                                }}
+                              >
+                                {opts.map((o) => (
+                                  <SelectItem key={o.value}>
+                                    {o.label}
+                                  </SelectItem>
+                                ))}
                               </Select>
                             </FieldBox>
                           );
                         } else {
                           const dk = `tf:${k}`;
-                          const display = typedDrafts[dk] ?? String((f as any).valueString || "");
+                          const display =
+                            typedDrafts[dk] ??
+                            String((f as any).valueString || "");
                           acc.push(
-                            <FieldBox key={`tf-${k}`} title={k} type={tag} delay={i * 0.015}>
-                              <Input size="sm" variant="bordered" value={display} onValueChange={(v)=>{
-                                beforeUpdate();
-                                setTypedDrafts((prev)=>({ ...prev, [dk]: v }));
-                              }} onBlur={()=>{
-                                const val = String(typedDrafts[dk] ?? "");
-                                setTypedFieldValueByName(String(k), { valueString: val });
-                                setTypedDrafts((prev)=>{ const next = { ...prev }; delete next[dk]; return next; });
-                              }} />
+                            <FieldBox
+                              key={`tf-${k}`}
+                              title={k}
+                              type={tag}
+                              delay={i * 0.015}
+                            >
+                              <Input
+                                size="sm"
+                                variant="bordered"
+                                value={display}
+                                onValueChange={(v) => {
+                                  beforeUpdate();
+                                  setTypedDrafts((prev) => ({
+                                    ...prev,
+                                    [dk]: v,
+                                  }));
+                                }}
+                                onBlur={() => {
+                                  const val = String(typedDrafts[dk] ?? "");
+                                  setTypedFieldValueByName(String(k), {
+                                    valueString: val,
+                                  });
+                                  setTypedDrafts((prev) => {
+                                    const next = { ...prev };
+                                    delete next[dk];
+                                    return next;
+                                  });
+                                }}
+                              />
                             </FieldBox>
                           );
                         }
@@ -529,158 +975,375 @@ export default function WorldLevelDatEditorPage() {
                     const listRaw = compoundFields[pathKey] || [];
                     const ord = compoundOrders[pathKey] || [];
                     const list = (() => {
-                    if (!Array.isArray(ord) || ord.length === 0) {
-                      const tmp = listRaw.slice();
-                      tmp.sort((a,b)=> nameCmp(String(a?.name||""), String(b?.name||"")));
-                      return tmp;
-                    }
-                    const pos: Record<string, number> = {};
-                    ord.forEach((n, i2) => { pos[String(n)] = i2; });
-                    const withPos = listRaw.map((f2, i2) => ({ f2, i2, p: pos[String(f2?.name||"")] ?? (100000 + i2) }));
-                    withPos.sort((a,b)=> a.p - b.p);
-                    return withPos.map(x=>x.f2);
+                      if (!Array.isArray(ord) || ord.length === 0) {
+                        const tmp = listRaw.slice();
+                        tmp.sort((a, b) =>
+                          nameCmp(String(a?.name || ""), String(b?.name || ""))
+                        );
+                        return tmp;
+                      }
+                      const pos: Record<string, number> = {};
+                      ord.forEach((n, i2) => {
+                        pos[String(n)] = i2;
+                      });
+                      const withPos = listRaw.map((f2, i2) => ({
+                        f2,
+                        i2,
+                        p: pos[String(f2?.name || "")] ?? 100000 + i2,
+                      }));
+                      withPos.sort((a, b) => a.p - b.p);
+                      return withPos.map((x) => x.f2);
                     })();
-                    const listShow = filterText ? list.filter((sf)=>matchesName(sf.name)) : list;
-                    if (filterText && !matchesName(k) && listShow.length === 0) return;
+                    const listShow = filterText
+                      ? list.filter((sf) => matchesName(sf.name))
+                      : list;
+                    if (filterText && !matchesName(k) && listShow.length === 0)
+                      return;
                     if (acc.length) {
-                      out.push(<div key={`grid-before-${k}`} className="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-3">{acc.splice(0, acc.length)}</div>);
+                      out.push(
+                        <div
+                          key={`grid-before-${k}`}
+                          className="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-3"
+                        >
+                          {acc.splice(0, acc.length)}
+                        </div>
+                      );
                     }
                     out.push(
                       <div key={`c-${k}`} className="mt-3">
                         <div className="flex items-center justify-between">
-                          <div className="text-xs text-default-500">{String(k)}</div>
+                          <div className="text-xs text-default-500">
+                            {String(k)}
+                          </div>
                           <div className="flex items-center gap-2">
-                            <Button size="sm" variant="light" onPress={() => {
-                              if (!compoundOpen[pathKey]) {
-                                const hasLocal = (compoundFields[pathKey] || []).length > 0;
-                                if (hasLocal) {
-                                  beforeUpdate(); setCompoundOpen((p)=>({ ...p, [pathKey]: true }));
+                            <Button
+                              size="sm"
+                              variant="light"
+                              onPress={() => {
+                                if (!compoundOpen[pathKey]) {
+                                  const hasLocal =
+                                    (compoundFields[pathKey] || []).length > 0;
+                                  if (hasLocal) {
+                                    beforeUpdate();
+                                    setCompoundOpen((p) => ({
+                                      ...p,
+                                      [pathKey]: true,
+                                    }));
+                                  } else {
+                                    loadCompound(pathKey);
+                                  }
                                 } else {
-                                  loadCompound(pathKey);
+                                  beforeUpdate();
+                                  setCompoundOpen((p) => ({
+                                    ...p,
+                                    [pathKey]: !p[pathKey],
+                                  }));
                                 }
-                              } else {
-                                beforeUpdate(); setCompoundOpen((p)=>({ ...p, [pathKey]: !p[pathKey] }));
-                              }
-                            }}>
-                              {compoundOpen[pathKey] ? t("common.collapse", { defaultValue: "收起" }) : t("common.expand", { defaultValue: "展开" })}
+                              }}
+                            >
+                              {compoundOpen[pathKey]
+                                ? t("common.collapse", { defaultValue: "收起" })
+                                : t("common.expand", { defaultValue: "展开" })}
                             </Button>
                           </div>
                         </div>
-                        <div role="separator" className="h-px bg-default-200 my-2" />
+                        <div
+                          role="separator"
+                          className="h-px bg-default-200 my-2"
+                        />
                         {compoundOpen[pathKey] ? (
-                            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+                          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
                             {listShow.map((sf, si) => {
                               const stag = normTag(sf.tag);
                               if (stag === "string") {
                                 const opts = getEnumOpts(String(sf.name));
                                 if (opts) {
                                   return (
-                                    <FieldBox key={`c-${k}-${sf.name}`} title={String(sf.name)} type={stag} delay={si * 0.015}>
-                                      <Select size="sm" selectedKeys={new Set([String(sf.valueString || "0")])} onSelectionChange={(keys:any)=>{
-                                        const v = Array.from(keys)[0] || "0"; setCompoundFieldValue(pathKey, si, { valueString: String(v) });
-                                      }}>
-                                        {opts.map((o)=> (<SelectItem key={o.value}>{o.label}</SelectItem>))}
+                                    <FieldBox
+                                      key={`c-${k}-${sf.name}`}
+                                      title={String(sf.name)}
+                                      type={stag}
+                                      delay={si * 0.015}
+                                    >
+                                      <Select
+                                        size="sm"
+                                        selectedKeys={
+                                          new Set([
+                                            String(sf.valueString || "0"),
+                                          ])
+                                        }
+                                        onSelectionChange={(keys: any) => {
+                                          const v = Array.from(keys)[0] || "0";
+                                          setCompoundFieldValue(pathKey, si, {
+                                            valueString: String(v),
+                                          });
+                                        }}
+                                      >
+                                        {opts.map((o) => (
+                                          <SelectItem key={o.value}>
+                                            {o.label}
+                                          </SelectItem>
+                                        ))}
                                       </Select>
                                     </FieldBox>
                                   );
                                 }
                                 const dk = `cf:${k}:${String(sf.name)}`;
-                                const display = typedDrafts[dk] ?? String(sf.valueString || "");
+                                const display =
+                                  typedDrafts[dk] ??
+                                  String(sf.valueString || "");
                                 return (
-                                  <FieldBox key={`c-${k}-${sf.name}`} title={String(sf.name)} type={stag} delay={si * 0.015}>
-                                    <Input size="sm" variant="bordered" value={display} onValueChange={(v)=>{
-                                      beforeUpdate();
-                                      setTypedDrafts((prev)=>({ ...prev, [dk]: v }));
-                                    }} onBlur={()=>{
-                                      const val = String(typedDrafts[dk] ?? "");
-                                      setCompoundFieldValue(pathKey, si, { valueString: val });
-                                      setTypedDrafts((prev)=>{ const next = { ...prev }; delete next[dk]; return next; });
-                                    }} />
+                                  <FieldBox
+                                    key={`c-${k}-${sf.name}`}
+                                    title={String(sf.name)}
+                                    type={stag}
+                                    delay={si * 0.015}
+                                  >
+                                    <Input
+                                      size="sm"
+                                      variant="bordered"
+                                      value={display}
+                                      onValueChange={(v) => {
+                                        beforeUpdate();
+                                        setTypedDrafts((prev) => ({
+                                          ...prev,
+                                          [dk]: v,
+                                        }));
+                                      }}
+                                      onBlur={() => {
+                                        const val = String(
+                                          typedDrafts[dk] ?? ""
+                                        );
+                                        setCompoundFieldValue(pathKey, si, {
+                                          valueString: val,
+                                        });
+                                        setTypedDrafts((prev) => {
+                                          const next = { ...prev };
+                                          delete next[dk];
+                                          return next;
+                                        });
+                                      }}
+                                    />
                                   </FieldBox>
                                 );
                               }
                               if (stag === "list") {
                                 const dk = `cflist:${k}:${String(sf.name)}`;
-                                const display = typedDrafts[dk] ?? String(sf.valueJSON || "[]");
+                                const display =
+                                  typedDrafts[dk] ??
+                                  String(sf.valueJSON || "[]");
                                 const items = parseListJSON(display);
                                 return (
-                                  <FieldBox key={`c-${k}-${sf.name}`} title={String(sf.name)} type={stag} delay={si * 0.015}>
+                                  <FieldBox
+                                    key={`c-${k}-${sf.name}`}
+                                    title={String(sf.name)}
+                                    type={stag}
+                                    delay={si * 0.015}
+                                  >
                                     <div className="flex flex-col gap-2">
                                       <div className="flex gap-1 overflow-x-auto flex-nowrap pretty-scrollbar gutter-stable">
                                         {items.map((it, idx) => (
-                                          <Input key={`c-${k}-${sf.name}-li-${idx}`} size="sm" variant="bordered" className="w-12 shrink-0" value={String(it ?? "")} onValueChange={(v)=>{
-                                            const next = items.slice(); next[idx] = v; beforeUpdate(); setTypedDrafts(prev=>({ ...prev, [dk]: stringifyList(next) }));
-                                          }} onBlur={()=>{
-                                            const val = String(typedDrafts[dk] ?? stringifyList(items));
-                                            setCompoundFieldValue(pathKey, si, { valueJSON: val });
-                                            setTypedDrafts(prev=>{ const nn = { ...prev }; delete nn[dk]; return nn; });
-                                          }} />
+                                          <Input
+                                            key={`c-${k}-${sf.name}-li-${idx}`}
+                                            size="sm"
+                                            variant="bordered"
+                                            className="w-12 shrink-0"
+                                            value={String(it ?? "")}
+                                            onValueChange={(v) => {
+                                              const next = items.slice();
+                                              next[idx] = v;
+                                              beforeUpdate();
+                                              setTypedDrafts((prev) => ({
+                                                ...prev,
+                                                [dk]: stringifyList(next),
+                                              }));
+                                            }}
+                                            onBlur={() => {
+                                              const val = String(
+                                                typedDrafts[dk] ??
+                                                  stringifyList(items)
+                                              );
+                                              setCompoundFieldValue(
+                                                pathKey,
+                                                si,
+                                                { valueJSON: val }
+                                              );
+                                              setTypedDrafts((prev) => {
+                                                const nn = { ...prev };
+                                                delete nn[dk];
+                                                return nn;
+                                              });
+                                            }}
+                                          />
                                         ))}
                                       </div>
                                     </div>
                                   </FieldBox>
                                 );
                               }
-                              if (stag === "byte" || stag === "short" || stag === "int" || stag === "long" || stag === "float" || stag === "double") {
-                                const isBoolLike = (sf.name?.[0] >= 'a' && sf.name?.[0] <= 'z') && stag === "byte";
+                              if (
+                                stag === "byte" ||
+                                stag === "short" ||
+                                stag === "int" ||
+                                stag === "long" ||
+                                stag === "float" ||
+                                stag === "double"
+                              ) {
+                                const isBoolLike =
+                                  sf.name?.[0] >= "a" &&
+                                  sf.name?.[0] <= "z" &&
+                                  stag === "byte";
                                 if (isBoolLike) {
-                                  const isOn = String(sf.valueString || "0") !== "0";
-                                    return (
-                                      <FieldBox key={`c-${k}-${sf.name}`} title={String(sf.name)} type={stag} delay={si * 0.015}>
-                                        <div className="flex justify-end"><Switch size="sm" isSelected={isOn} onValueChange={(c)=>{ setCompoundFieldValue(pathKey, si, { valueString: c ? "1" : "0" }); }} thumbIcon={<span className="block w-2 h-2 bg-black rounded-full" />} /></div>
-                                      </FieldBox>
-                                    );
+                                  const isOn =
+                                    String(sf.valueString || "0") !== "0";
+                                  return (
+                                    <FieldBox
+                                      key={`c-${k}-${sf.name}`}
+                                      title={String(sf.name)}
+                                      type={stag}
+                                      delay={si * 0.015}
+                                    >
+                                      <div className="flex justify-end">
+                                        <Switch
+                                          size="sm"
+                                          isSelected={isOn}
+                                          onValueChange={(c) => {
+                                            setCompoundFieldValue(pathKey, si, {
+                                              valueString: c ? "1" : "0",
+                                            });
+                                          }}
+                                          thumbIcon={
+                                            <span className="block w-2 h-2 bg-black rounded-full" />
+                                          }
+                                        />
+                                      </div>
+                                    </FieldBox>
+                                  );
                                 }
                                 const dk = `cf:${k}:${String(sf.name)}`;
-                                const display = typedDrafts[dk] ?? String(sf.valueString || "");
+                                const display =
+                                  typedDrafts[dk] ??
+                                  String(sf.valueString || "");
                                 return (
-                                  <FieldBox key={`c-${k}-${sf.name}`} title={String(sf.name)} type={stag} delay={si * 0.015}>
-                                    <Input size="sm" variant="bordered" value={display} onValueChange={(v)=>{
-                                      beforeUpdate();
-                                      setTypedDrafts((prev)=>({ ...prev, [dk]: v }));
-                                    }} onBlur={()=>{
-                                      const val = String(typedDrafts[dk] ?? "");
-                                      setCompoundFieldValue(pathKey, si, { valueString: val });
-                                      setTypedDrafts((prev)=>{ const next = { ...prev }; delete next[dk]; return next; });
-                                    }} />
+                                  <FieldBox
+                                    key={`c-${k}-${sf.name}`}
+                                    title={String(sf.name)}
+                                    type={stag}
+                                    delay={si * 0.015}
+                                  >
+                                    <Input
+                                      size="sm"
+                                      variant="bordered"
+                                      value={display}
+                                      onValueChange={(v) => {
+                                        beforeUpdate();
+                                        setTypedDrafts((prev) => ({
+                                          ...prev,
+                                          [dk]: v,
+                                        }));
+                                      }}
+                                      onBlur={() => {
+                                        const val = String(
+                                          typedDrafts[dk] ?? ""
+                                        );
+                                        setCompoundFieldValue(pathKey, si, {
+                                          valueString: val,
+                                        });
+                                        setTypedDrafts((prev) => {
+                                          const next = { ...prev };
+                                          delete next[dk];
+                                          return next;
+                                        });
+                                      }}
+                                    />
                                   </FieldBox>
                                 );
                               }
                               return (
-                                <FieldBox key={`c-${k}-${sf.name}`} title={String(sf.name)} type={stag} delay={si * 0.015}>
-                                  {(() => { const dk = `cfjson:${k}:${String(sf.name)}`; const display = typedDrafts[dk] ?? String(sf.valueJSON || ""); return (
-                                    <>
-                                      <Input size="sm" variant="bordered" value={display} onValueChange={(v)=>{
-                                        beforeUpdate();
-                                        setTypedDrafts((prev)=>({ ...prev, [dk]: v }));
-                                      }} onBlur={()=>{
-                                        const val = String(typedDrafts[dk] ?? "");
-                                        setCompoundFieldValue(pathKey, si, { valueJSON: val });
-                                        setTypedDrafts((prev)=>{ const next = { ...prev }; delete next[dk]; return next; });
-                                      }} />
-                                      <div className="mt-2">
-                                        <Button size="sm" variant="bordered" onPress={()=>{ const segs = pathKey.split('/'); const nextPath = [...segs, String(sf.name||"")]; loadCompound(nextPath); }}>
-                                          {t("common.expand", { defaultValue: "展开" })}
-                                        </Button>
-                                      </div>
-                                    </>
-                                  ); })()}
+                                <FieldBox
+                                  key={`c-${k}-${sf.name}`}
+                                  title={String(sf.name)}
+                                  type={stag}
+                                  delay={si * 0.015}
+                                >
+                                  {(() => {
+                                    const dk = `cfjson:${k}:${String(sf.name)}`;
+                                    const display =
+                                      typedDrafts[dk] ??
+                                      String(sf.valueJSON || "");
+                                    return (
+                                      <>
+                                        <Input
+                                          size="sm"
+                                          variant="bordered"
+                                          value={display}
+                                          onValueChange={(v) => {
+                                            beforeUpdate();
+                                            setTypedDrafts((prev) => ({
+                                              ...prev,
+                                              [dk]: v,
+                                            }));
+                                          }}
+                                          onBlur={() => {
+                                            const val = String(
+                                              typedDrafts[dk] ?? ""
+                                            );
+                                            setCompoundFieldValue(pathKey, si, {
+                                              valueJSON: val,
+                                            });
+                                            setTypedDrafts((prev) => {
+                                              const next = { ...prev };
+                                              delete next[dk];
+                                              return next;
+                                            });
+                                          }}
+                                        />
+                                        <div className="mt-2">
+                                          <Button
+                                            size="sm"
+                                            variant="bordered"
+                                            onPress={() => {
+                                              const segs = pathKey.split("/");
+                                              const nextPath = [
+                                                ...segs,
+                                                String(sf.name || ""),
+                                              ];
+                                              loadCompound(nextPath);
+                                            }}
+                                          >
+                                            {t("common.expand", {
+                                              defaultValue: "展开",
+                                            })}
+                                          </Button>
+                                        </div>
+                                      </>
+                                    );
+                                  })()}
                                 </FieldBox>
                               );
                             })}
-                            </div>
+                          </div>
                         ) : null}
                       </div>
                     );
                   });
                   if (acc.length) {
-                    out.push(<div key={`grid-last`} className="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-3">{acc}</div>);
+                    out.push(
+                      <div
+                        key={`grid-last`}
+                        className="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-3"
+                      >
+                        {acc}
+                      </div>
+                    );
                   }
                   return out;
                 })()}
               </div>
               <div className="flex items-center gap-2">
-                <Button size="sm" variant="bordered" onPress={load}>{t("common.refresh", { defaultValue: "刷新" }) as string}</Button>
+                <Button size="sm" variant="bordered" onPress={load}>
+                  {t("common.refresh", { defaultValue: "刷新" }) as string}
+                </Button>
               </div>
             </div>
           )}

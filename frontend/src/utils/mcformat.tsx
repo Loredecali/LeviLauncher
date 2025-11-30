@@ -39,12 +39,22 @@ export function renderMcText(text: string): React.ReactNode {
   let style: StyleState = {};
   const pushText = (s: string) => {
     if (!s) return;
-    const key = `${parts.length}-${style.color || ""}-${style.bold ? 1 : 0}-${style.italic ? 1 : 0}`;
-    const children = s.split("\n").flatMap((seg, idx) => (idx > 0 ? [<br key={`${key}-br-${idx}`} />, seg] : [seg]));
+    const key = `${parts.length}-${style.color || ""}-${style.bold ? 1 : 0}-${
+      style.italic ? 1 : 0
+    }`;
+    const children = s
+      .split("\n")
+      .flatMap((seg, idx) =>
+        idx > 0 ? [<br key={`${key}-br-${idx}`} />, seg] : [seg]
+      );
     parts.push(
       <span
         key={key}
-        style={{ color: style.color, fontWeight: style.bold ? 700 : undefined, fontStyle: style.italic ? "italic" : undefined }}
+        style={{
+          color: style.color,
+          fontWeight: style.bold ? 700 : undefined,
+          fontStyle: style.italic ? "italic" : undefined,
+        }}
       >
         {children}
       </span>
@@ -81,4 +91,3 @@ export function renderMcText(text: string): React.ReactNode {
   }
   return <>{parts.length ? parts : text}</>;
 }
-

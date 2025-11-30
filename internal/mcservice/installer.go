@@ -89,7 +89,7 @@ func InstallExtractMsixvc(ctx context.Context, name string, folderName string, i
 		if strings.TrimSpace(msg) == "" {
 			msg = "ERR_APPX_INSTALL_FAILED"
 		}
-        _ = os.RemoveAll(outDir)
+		_ = os.RemoveAll(outDir)
 		return msg
 	}
 	_ = vcruntime.EnsureForVersion(ctx, outDir)

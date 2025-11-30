@@ -473,7 +473,6 @@ export const DownloadPage: React.FC = () => {
     fetchData();
   }, []);
 
- 
   const reloadAll = async () => {
     try {
       let data: any;
@@ -661,7 +660,9 @@ export const DownloadPage: React.FC = () => {
                       })
                     }
                   >
-                    {t("downloadpage.customappx.button", { defaultValue: "自定义" })}
+                    {t("downloadpage.customappx.button", {
+                      defaultValue: "自定义",
+                    })}
                   </Button>
                   <Dropdown>
                     <DropdownTrigger>
@@ -1536,7 +1537,9 @@ export const DownloadPage: React.FC = () => {
                 </h2>
               </ModalHeader>
               <ModalBody>
-                <div className="text-small text-default-600">{trErr(installError)}</div>
+                <div className="text-small text-default-600">
+                  {trErr(installError)}
+                </div>
               </ModalBody>
               <ModalFooter>
                 <Button
@@ -1702,7 +1705,9 @@ export const DownloadPage: React.FC = () => {
                           `${(n / (1024 * 1024)).toFixed(2)} MB`;
                         const fmtSpd = (bps: number) =>
                           `${(bps / (1024 * 1024)).toFixed(2)} MB/s`;
-                        return `${fmt(done)} / ${fmt(total)} (${pct}%) · ${fmtSpd(dlSpeed || 0)}`;
+                        return `${fmt(done)} / ${fmt(
+                          total
+                        )} (${pct}%) · ${fmtSpd(dlSpeed || 0)}`;
                       })()}
                     </div>
                   </div>

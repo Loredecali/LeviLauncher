@@ -137,38 +137,35 @@ export const VersionStatusProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     if (!hasBackend) return;
-    const off = Events.On(
-      "msixvc_download_done",
-      (event) => {
-        const d = String(event?.data || "");
-        const inferShort = () => {
-          if (downloadingShortRef.current)
-            return String(downloadingShortRef.current);
-          const base = d ? d.split(/[/\\]/).pop() || "" : "";
-          return String(base)
-            .replace(/^\s*(preview|release)\s+/i, "")
-            .replace(/\.msixvc$/i, "")
-            .trim();
-        };
-        const short = inferShort();
-        const type = (downloadingTypeRef.current || "release").toLowerCase();
-        if (!short) return;
-        setMap((prev) => {
-          const m = new Map(prev);
-          const existing = m.get(short);
-          m.set(short, {
-            version: short,
-            type: (existing?.type || type) as any,
-            isInstalled: existing?.isInstalled || false,
-            isDownloaded: true,
-          } as any);
-          return m;
-        });
-        refreshOne(short, type);
-        downloadingShortRef.current = null;
-        downloadingTypeRef.current = null;
-      }
-    );
+    const off = Events.On("msixvc_download_done", (event) => {
+      const d = String(event?.data || "");
+      const inferShort = () => {
+        if (downloadingShortRef.current)
+          return String(downloadingShortRef.current);
+        const base = d ? d.split(/[/\\]/).pop() || "" : "";
+        return String(base)
+          .replace(/^\s*(preview|release)\s+/i, "")
+          .replace(/\.msixvc$/i, "")
+          .trim();
+      };
+      const short = inferShort();
+      const type = (downloadingTypeRef.current || "release").toLowerCase();
+      if (!short) return;
+      setMap((prev) => {
+        const m = new Map(prev);
+        const existing = m.get(short);
+        m.set(short, {
+          version: short,
+          type: (existing?.type || type) as any,
+          isInstalled: existing?.isInstalled || false,
+          isDownloaded: true,
+        } as any);
+        return m;
+      });
+      refreshOne(short, type);
+      downloadingShortRef.current = null;
+      downloadingTypeRef.current = null;
+    });
     return () => {
       try {
         off && off();

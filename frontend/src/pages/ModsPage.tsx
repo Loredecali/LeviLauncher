@@ -95,11 +95,12 @@ export const ModsPage: React.FC = () => {
     onOpenChange: infoOnOpenChange,
     onClose: infoOnClose,
   } = useDisclosure();
-  const {
-  } = useDisclosure();
+  const {} = useDisclosure();
   const [activeMod, setActiveMod] = useState<types.ModInfo | null>(null);
   const [deleting, setDeleting] = useState<boolean>(false);
-  const [enabledByName, setEnabledByName] = useState<Map<string, boolean>>(new Map());
+  const [enabledByName, setEnabledByName] = useState<Map<string, boolean>>(
+    new Map()
+  );
   const [onlyEnabled, setOnlyEnabled] = useState<boolean>(false);
   const [dllName, setDllName] = useState("");
   const [dllType, setDllType] = useState("preload-native");
@@ -153,7 +154,11 @@ export const ModsPage: React.FC = () => {
       try {
         const buf = await file.arrayBuffer();
         const bytes = Array.from(new Uint8Array(buf));
-        const err = await (minecraft as any)?.ImportModZip?.(name, bytes, overwrite);
+        const err = await (minecraft as any)?.ImportModZip?.(
+          name,
+          bytes,
+          overwrite
+        );
         return String(err || "");
       } catch (e2: any) {
         return String(e2?.message || "IMPORT_ERROR");
@@ -600,8 +605,6 @@ export const ModsPage: React.FC = () => {
     );
   }, [modsInfo, query, onlyEnabled, enabledByName]);
 
-  
-
   const openDetails = (m: types.ModInfo) => {
     setActiveMod(m);
     infoOnOpen();
@@ -651,7 +654,8 @@ export const ModsPage: React.FC = () => {
     if (!restorePendingRef.current) return;
     requestAnimationFrame(() => {
       try {
-        if (scrollRef.current) scrollRef.current.scrollTop = lastScrollTopRef.current;
+        if (scrollRef.current)
+          scrollRef.current.scrollTop = lastScrollTopRef.current;
       } catch {}
     });
     restorePendingRef.current = false;
@@ -830,7 +834,6 @@ export const ModsPage: React.FC = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
     >
-      
       <Modal
         size="sm"
         isOpen={importing && !dllOpen}
@@ -1257,7 +1260,11 @@ export const ModsPage: React.FC = () => {
                   isSelected={onlyEnabled}
                   onValueChange={setOnlyEnabled}
                 >
-                  {t("mods.only_enabled", { defaultValue: "仅显示已启用的模组" }) as string}
+                  {
+                    t("mods.only_enabled", {
+                      defaultValue: "仅显示已启用的模组",
+                    }) as string
+                  }
                 </Checkbox>
               </div>
               {!currentVersionName ? (
@@ -1291,47 +1298,86 @@ export const ModsPage: React.FC = () => {
                             <div className="flex items-center justify-between gap-4">
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-2">
-                                  <div className="font-semibold text-base truncate" title={m.name}>
+                                  <div
+                                    className="font-semibold text-base truncate"
+                                    title={m.name}
+                                  >
                                     {m.name}
                                   </div>
-                                  <Chip size="sm" variant="flat" className="shrink-0">
-                                    {m.type || (t("mods.type_mod", { defaultValue: "模组" }) as string)}
+                                  <Chip
+                                    size="sm"
+                                    variant="flat"
+                                    className="shrink-0"
+                                  >
+                                    {m.type ||
+                                      (t("mods.type_mod", {
+                                        defaultValue: "模组",
+                                      }) as string)}
                                   </Chip>
                                 </div>
-                                <div className="text-tiny text-default-500 truncate" title={m.author ? `${m.version} · ${m.author}` : m.version}>
-                                  {m.author ? `${m.version} · ${m.author}` : m.version}
+                                <div
+                                  className="text-tiny text-default-500 truncate"
+                                  title={
+                                    m.author
+                                      ? `${m.version} · ${m.author}`
+                                      : m.version
+                                  }
+                                >
+                                  {m.author
+                                    ? `${m.version} · ${m.author}`
+                                    : m.version}
                                 </div>
                               </div>
                               <div className="flex items-center gap-2 shrink-0">
                                 <Chip
                                   size="sm"
                                   variant="flat"
-                                  color={enabledByName.get(m.name) ? "success" : "warning"}
+                                  color={
+                                    enabledByName.get(m.name)
+                                      ? "success"
+                                      : "warning"
+                                  }
                                 >
                                   {enabledByName.get(m.name)
-                                    ? (t("mods.toggle_on", { defaultValue: "已启用" }) as string)
-                                    : (t("mods.toggle_off", { defaultValue: "已关闭" }) as string)}
+                                    ? (t("mods.toggle_on", {
+                                        defaultValue: "已启用",
+                                      }) as string)
+                                    : (t("mods.toggle_off", {
+                                        defaultValue: "已关闭",
+                                      }) as string)}
                                 </Chip>
                                 <Tooltip
                                   showArrow
                                   placement="top"
-                                  content={t("mods.toggle_tip", { defaultValue: "切换此模组的启用/关闭状态" }) as string}
+                                  content={
+                                    t("mods.toggle_tip", {
+                                      defaultValue: "切换此模组的启用/关闭状态",
+                                    }) as string
+                                  }
                                 >
                                   <Switch
                                     size="sm"
                                     isSelected={!!enabledByName.get(m.name)}
                                     onValueChange={async (val) => {
-                                      const name = currentVersionName || readCurrentVersionName();
+                                      const name =
+                                        currentVersionName ||
+                                        readCurrentVersionName();
                                       if (!name) return;
                                       try {
                                         if (val) {
-                                          const err = await (EnableMod as any)?.(name, m.name);
+                                          const err = await (
+                                            EnableMod as any
+                                          )?.(name, m.name);
                                           if (err) return;
                                         } else {
-                                          const err = await (DisableMod as any)?.(name, m.name);
+                                          const err = await (
+                                            DisableMod as any
+                                          )?.(name, m.name);
                                           if (err) return;
                                         }
-                                        const ok = await (IsModEnabled as any)?.(name, m.name);
+                                        const ok = await (
+                                          IsModEnabled as any
+                                        )?.(name, m.name);
                                         setEnabledByName((prev) => {
                                           const nm = new Map(prev);
                                           nm.set(m.name, !!ok);
@@ -1339,7 +1385,11 @@ export const ModsPage: React.FC = () => {
                                         });
                                       } catch {}
                                     }}
-                                    aria-label={t("mods.toggle_label", { defaultValue: "启用模组" }) as string}
+                                    aria-label={
+                                      t("mods.toggle_label", {
+                                        defaultValue: "启用模组",
+                                      }) as string
+                                    }
                                   />
                                 </Tooltip>
                               </div>
@@ -1410,28 +1460,52 @@ export const ModsPage: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="text-default-500">
-                            {t("mods.toggle_label", { defaultValue: "启用模组" })}
+                            {t("mods.toggle_label", {
+                              defaultValue: "启用模组",
+                            })}
                           </span>
-                          <Chip size="sm" variant="flat" color={enabledByName.get(activeMod.name) ? "success" : "warning"}>
+                          <Chip
+                            size="sm"
+                            variant="flat"
+                            color={
+                              enabledByName.get(activeMod.name)
+                                ? "success"
+                                : "warning"
+                            }
+                          >
                             {enabledByName.get(activeMod.name)
-                              ? (t("mods.toggle_on", { defaultValue: "已启用" }) as string)
-                              : (t("mods.toggle_off", { defaultValue: "已关闭" }) as string)}
+                              ? (t("mods.toggle_on", {
+                                  defaultValue: "已启用",
+                                }) as string)
+                              : (t("mods.toggle_off", {
+                                  defaultValue: "已关闭",
+                                }) as string)}
                           </Chip>
                         </div>
                         <Switch
                           isSelected={!!enabledByName.get(activeMod.name)}
                           onValueChange={async (val) => {
-                            const name = currentVersionName || readCurrentVersionName();
+                            const name =
+                              currentVersionName || readCurrentVersionName();
                             if (!name) return;
                             try {
                               if (val) {
-                                const err = await (EnableMod as any)?.(name, activeMod.name);
+                                const err = await (EnableMod as any)?.(
+                                  name,
+                                  activeMod.name
+                                );
                                 if (err) return;
                               } else {
-                                const err = await (DisableMod as any)?.(name, activeMod.name);
+                                const err = await (DisableMod as any)?.(
+                                  name,
+                                  activeMod.name
+                                );
                                 if (err) return;
                               }
-                              const ok = await (IsModEnabled as any)?.(name, activeMod.name);
+                              const ok = await (IsModEnabled as any)?.(
+                                name,
+                                activeMod.name
+                              );
                               setEnabledByName((prev) => {
                                 const nm = new Map(prev);
                                 nm.set(activeMod.name, !!ok);
@@ -1439,13 +1513,21 @@ export const ModsPage: React.FC = () => {
                               });
                             } catch {}
                           }}
-                          aria-label={t("mods.toggle_label", { defaultValue: "启用模组" }) as string}
+                          aria-label={
+                            t("mods.toggle_label", {
+                              defaultValue: "启用模组",
+                            }) as string
+                          }
                         />
                       </div>
                       <div className="text-default-500 text-xs mt-1">
                         {enabledByName.get(activeMod.name)
-                          ? (t("mods.toggle_desc_on", { defaultValue: "模组已启用，启动游戏时会加载。" }) as string)
-                          : (t("mods.toggle_desc_off", { defaultValue: "模组已关闭，启动游戏时不会加载。" }) as string)}
+                          ? (t("mods.toggle_desc_on", {
+                              defaultValue: "模组已启用，启动游戏时会加载。",
+                            }) as string)
+                          : (t("mods.toggle_desc_off", {
+                              defaultValue: "模组已关闭，启动游戏时不会加载。",
+                            }) as string)}
                       </div>
                     </div>
                   </div>

@@ -11,6 +11,5 @@ export function readCurrentVersionName(): string {
 export function saveCurrentVersionName(name: string): void {
   try {
     localStorage.setItem(KEY, name);
-  } catch {
-  }
+  } catch {}
 }

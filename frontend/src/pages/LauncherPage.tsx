@@ -44,7 +44,7 @@ import {
   ReleaseChip,
   PreviewChip,
 } from "../components/LauncherChip";
-import { Events, Window, Browser, Call as RuntimeCall } from "@wailsio/runtime";
+import { Events, Window, Browser } from "@wailsio/runtime";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { compareVersions } from "../utils/version";
@@ -61,9 +61,6 @@ export const LauncherPage = (args: any) => {
   const [displayName, setDisplayName] = React.useState<string>("");
   const [localVersionMap, setLocalVersionMap] = React.useState<
     Map<string, any>
-  >(new Map());
-  const [localVersionsMap, setLocalVersionsMap] = React.useState<
-    Map<string, string[]>
   >(new Map());
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [modalState, setModalState] = React.useState(0);
@@ -84,7 +81,9 @@ export const LauncherPage = (args: any) => {
   >(null);
   const [logoDataUrl, setLogoDataUrl] = React.useState<string>("");
   const [versionQuery, setVersionQuery] = React.useState<string>("");
-  const [logoByName, setLogoByName] = React.useState<Map<string, string>>(new Map());
+  const [logoByName, setLogoByName] = React.useState<Map<string, string>>(
+    new Map()
+  );
   const ensureOpsRef = React.useRef<number>(0);
   const launchTips = React.useMemo(
     () => [
@@ -107,7 +106,8 @@ export const LauncherPage = (args: any) => {
         defaultValue: "主页“内容管理”显示世界、资源包、行为包数量。",
       }) as unknown as string,
       t("launcherpage.tip.settings_base_root", {
-        defaultValue: "设置页可修改内容存储路径，默认使用 %APPDATA% 下以当前可执行文件名命名的文件夹。",
+        defaultValue:
+          "设置页可修改内容存储路径，默认使用 %APPDATA% 下以当前可执行文件名命名的文件夹。",
       }) as unknown as string,
       t("launcherpage.tip.directory_write_check", {
         defaultValue: "仅可保存到可写目录；不可写目录将被禁用。",
@@ -163,11 +163,19 @@ export const LauncherPage = (args: any) => {
             });
             const getter = (minecraft as any)?.GetVersionLogoDataUrl;
             if (typeof getter === "function") {
-              getter(saved).then((u: string) => setLogoDataUrl(String(u || "")));
+              getter(saved).then((u: string) =>
+                setLogoDataUrl(String(u || ""))
+              );
             }
           })
           .catch(() => {});
       }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      minecraft.ReconcileRegisteredFlags();
     } catch {}
   }, []);
 
@@ -225,21 +233,24 @@ export const LauncherPage = (args: any) => {
     });
   }, [versionQuery, sortedVersionNames, localVersionMap]);
 
-  const ensureLogo = React.useCallback((name: string) => {
-    if (!name || logoByName.has(name)) return;
-    try {
-      const getter = minecraft?.GetVersionLogoDataUrl;
-      if (typeof getter === "function") {
-        getter(name).then((u: string) => {
-          setLogoByName((prev) => {
-            const m = new Map(prev);
-            m.set(name, String(u || ""));
-            return m;
+  const ensureLogo = React.useCallback(
+    (name: string) => {
+      if (!name || logoByName.has(name)) return;
+      try {
+        const getter = minecraft?.GetVersionLogoDataUrl;
+        if (typeof getter === "function") {
+          getter(name).then((u: string) => {
+            setLogoByName((prev) => {
+              const m = new Map(prev);
+              m.set(name, String(u || ""));
+              return m;
+            });
           });
-        });
-      }
-    } catch {}
-  }, [logoByName]);
+        }
+      } catch {}
+    },
+    [logoByName]
+  );
 
   const doLaunch = React.useCallback(() => {
     const name = currentVersion;
@@ -298,7 +309,8 @@ export const LauncherPage = (args: any) => {
   const doCreateShortcut = React.useCallback(() => {
     const name = currentVersion;
     if (name) {
-      RuntimeCall.ByName("main.Minecraft.CreateDesktopShortcut", name)
+      minecraft
+        ?.CreateDesktopShortcut(name)
         .then((err: string) => {
           const s = String(err || "");
           if (s) {
@@ -320,7 +332,6 @@ export const LauncherPage = (args: any) => {
         });
     }
   }, [currentVersion]);
-
 
   useEffect(() => {
     if (!hasBackend) return;
@@ -574,7 +585,9 @@ export const LauncherPage = (args: any) => {
 
   useEffect(() => {
     if (hasBackend) {
-      const listFn = (minecraft as any)?.ListVersionMetasWithRegistered ?? (minecraft as any)?.ListVersionMetas;
+      const listFn =
+        (minecraft as any)?.ListVersionMetasWithRegistered ??
+        (minecraft as any)?.ListVersionMetas;
       if (typeof listFn === "function") {
         listFn().then((metas: any[]) => {
           const newLocalVersionMap = new Map();
@@ -601,7 +614,6 @@ export const LauncherPage = (args: any) => {
             }
           });
           setLocalVersionMap(newLocalVersionMap);
-          setLocalVersionsMap(newLocalVersionsMap);
 
           const saved = (() => {
             try {
@@ -615,7 +627,9 @@ export const LauncherPage = (args: any) => {
               ? saved
               : Array.from(newLocalVersionMap.keys())[0] || "";
           setCurrentVersion(useName);
-          try { saveCurrentVersionName(useName); } catch {}
+          try {
+            saveCurrentVersionName(useName);
+          } catch {}
           const ver = useName
             ? newLocalVersionMap.get(useName)?.version || ""
             : "";
@@ -638,7 +652,6 @@ export const LauncherPage = (args: any) => {
     } else {
       setCurrentVersion("");
       setLocalVersionMap(new Map());
-      setLocalVersionsMap(new Map());
     }
   }, [args.count]);
 
@@ -1027,7 +1040,9 @@ export const LauncherPage = (args: any) => {
           </h2>
         </ModalHeader>
         <ModalBody className="text-center">
-          <p className="text-foreground">{t("launcherpage.admindeny.content")}</p>
+          <p className="text-foreground">
+            {t("launcherpage.admindeny.content")}
+          </p>
         </ModalBody>
         <ModalFooter>
           <Button color="default" variant="light" onPress={onClose}>
@@ -1048,16 +1063,20 @@ export const LauncherPage = (args: any) => {
       <>
         <ModalHeader className="flex flex-col gap-1 text-success-600">
           <h2 className="text-xl font-bold">
-            {t("launcherpage.shortcut.success.title", {
-              defaultValue: "快捷方式已创建",
-            }) as unknown as string}
+            {
+              t("launcherpage.shortcut.success.title", {
+                defaultValue: "快捷方式已创建",
+              }) as unknown as string
+            }
           </h2>
         </ModalHeader>
         <ModalBody className="text-center">
           <p className="text-foreground">
-            {t("launcherpage.shortcut.success.body", {
-              defaultValue: "已在桌面创建该版本的快捷方式。",
-            }) as unknown as string}
+            {
+              t("launcherpage.shortcut.success.body", {
+                defaultValue: "已在桌面创建该版本的快捷方式。",
+              }) as unknown as string
+            }
           </p>
         </ModalBody>
         <ModalFooter>
@@ -1078,12 +1097,16 @@ export const LauncherPage = (args: any) => {
       <>
         <ModalHeader className="flex flex-col gap-1 text-primary-600">
           <h2 className="text-xl font-bold">
-            {t("launcherpage.register.installing.title", { defaultValue: "正在注册到系统" })}
+            {t("launcherpage.register.installing.title", {
+              defaultValue: "正在注册到系统",
+            })}
           </h2>
         </ModalHeader>
         <ModalBody className="text-center">
           <p className="text-foreground">
-            {t("launcherpage.register.installing.body", { defaultValue: "正在调用 wdapp.exe 执行注册，请稍候…" })}
+            {t("launcherpage.register.installing.body", {
+              defaultValue: "正在调用 wdapp.exe 执行注册，请稍候…",
+            })}
           </p>
           <div className="w-full max-w-md mt-2">
             <div className="relative h-2 rounded-full bg-default-100/70 dark:bg-default-50/10 overflow-hidden border border-white/30">
@@ -1098,12 +1121,16 @@ export const LauncherPage = (args: any) => {
       <>
         <ModalHeader className="flex flex-col gap-1 text-success-600">
           <h2 className="text-xl font-bold">
-            {t("launcherpage.register.success.title", { defaultValue: "注册完成" })}
+            {t("launcherpage.register.success.title", {
+              defaultValue: "注册完成",
+            })}
           </h2>
         </ModalHeader>
         <ModalBody className="text-center">
           <p className="text-foreground">
-            {t("launcherpage.register.success.body", { defaultValue: "已成功注册到系统，您可以通过系统应用列表启动。" })}
+            {t("launcherpage.register.success.body", {
+              defaultValue: "已成功注册到系统，您可以通过系统应用列表启动。",
+            })}
           </p>
         </ModalBody>
         <ModalFooter>
@@ -1124,7 +1151,9 @@ export const LauncherPage = (args: any) => {
       <>
         <ModalHeader className="flex flex-col gap-1 text-danger-600">
           <h2 className="text-xl font-bold">
-            {t("launcherpage.register.failed.title", { defaultValue: "注册失败" })}
+            {t("launcherpage.register.failed.title", {
+              defaultValue: "注册失败",
+            })}
           </h2>
         </ModalHeader>
         <ModalBody className="text-center">
@@ -1132,8 +1161,11 @@ export const LauncherPage = (args: any) => {
             {(() => {
               const key = `errors.${launchErrorCode}`;
               const translated = t(key) as unknown as string;
-              if (launchErrorCode && translated && translated !== key) return translated;
-              return t("launcherpage.register.failed.body", { defaultValue: "注册过程中发生错误，请重试或检查环境。" }) as unknown as string;
+              if (launchErrorCode && translated && translated !== key)
+                return translated;
+              return t("launcherpage.register.failed.body", {
+                defaultValue: "注册过程中发生错误，请重试或检查环境。",
+              }) as unknown as string;
             })()}
           </p>
         </ModalBody>
@@ -1155,12 +1187,17 @@ export const LauncherPage = (args: any) => {
       <>
         <ModalHeader className="flex flex-col gap-1 text-warning-600">
           <h2 className="text-xl font-bold">
-            {t("launcherpage.gdk_missing.title", { defaultValue: "缺少 Microsoft GDK" })}
+            {t("launcherpage.gdk_missing.title", {
+              defaultValue: "缺少 Microsoft GDK",
+            })}
           </h2>
         </ModalHeader>
         <ModalBody className="text-center">
           <p className="text-foreground">
-            {t("launcherpage.gdk_missing.body", { defaultValue: "未检测到 GDK 工具包，注册功能需先安装。是否跳转到设置页进行安装？" })}
+            {t("launcherpage.gdk_missing.body", {
+              defaultValue:
+                "未检测到 GDK 工具包，注册功能需先安装。是否跳转到设置页进行安装？",
+            })}
           </p>
         </ModalBody>
         <ModalFooter>
@@ -1183,7 +1220,11 @@ export const LauncherPage = (args: any) => {
               navigate("/settings");
             }}
           >
-            {t("launcherpage.gdk_missing.go_settings", { defaultValue: "前往设置" }) as unknown as string}
+            {
+              t("launcherpage.gdk_missing.go_settings", {
+                defaultValue: "前往设置",
+              }) as unknown as string
+            }
           </Button>
         </ModalFooter>
       </>
@@ -1237,7 +1278,9 @@ export const LauncherPage = (args: any) => {
                   ) : (
                     <ReleaseChip />
                   )}
-                  {Boolean(localVersionMap.get(currentVersion)?.isRegistered) ? (
+                  {Boolean(
+                    localVersionMap.get(currentVersion)?.isRegistered
+                  ) ? (
                     <Chip
                       color="success"
                       variant="flat"
@@ -1245,7 +1288,11 @@ export const LauncherPage = (args: any) => {
                       startContent={<FaCheckCircle size={12} />}
                       className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 text-emerald-700 border border-emerald-400/40 shadow-sm"
                     >
-                      {t("launcherpage.registered_tip", { defaultValue: "已注册" }) as unknown as string}
+                      {
+                        t("launcherpage.registered_tip", {
+                          defaultValue: "已注册",
+                        }) as unknown as string
+                      }
                     </Chip>
                   ) : null}
                 </div>
@@ -1276,9 +1323,11 @@ export const LauncherPage = (args: any) => {
                             }) as unknown as string
                           }
                         >
-                          {t("launcherpage.go_version_settings", {
-                            defaultValue: "版本设置",
-                          }) as unknown as string}
+                          {
+                            t("launcherpage.go_version_settings", {
+                              defaultValue: "版本设置",
+                            }) as unknown as string
+                          }
                         </Button>
                         <Button
                           size="sm"
@@ -1287,9 +1336,11 @@ export const LauncherPage = (args: any) => {
                           startContent={<FaWindows />}
                           onPress={doCreateShortcut}
                         >
-                          {t("launcherpage.shortcut.create_button", {
-                            defaultValue: "创建桌面快捷方式",
-                          }) as unknown as string}
+                          {
+                            t("launcherpage.shortcut.create_button", {
+                              defaultValue: "创建桌面快捷方式",
+                            }) as unknown as string
+                          }
                         </Button>
                         <Button
                           size="sm"
@@ -1302,7 +1353,9 @@ export const LauncherPage = (args: any) => {
                                 navigate("/versions");
                                 return;
                               }
-                              const vdir = await (minecraft as any)?.GetVersionsDir?.();
+                              const vdir = await (
+                                minecraft as any
+                              )?.GetVersionsDir?.();
                               const base = String(vdir || "");
                               if (!base) return;
                               const dir = `${base}\\${currentVersion}`;
@@ -1315,9 +1368,11 @@ export const LauncherPage = (args: any) => {
                             }) as unknown as string
                           }
                         >
-                          {t("launcherpage.open_exe_dir", {
-                            defaultValue: "打开游戏安装目录",
-                          }) as unknown as string}
+                          {
+                            t("launcherpage.open_exe_dir", {
+                              defaultValue: "打开游戏安装目录",
+                            }) as unknown as string
+                          }
                         </Button>
                         <Button
                           size="sm"
@@ -1327,9 +1382,13 @@ export const LauncherPage = (args: any) => {
                           onPress={async () => {
                             try {
                               if (!currentVersion) return;
-                              const isPrev = Boolean(localVersionMap.get(currentVersion)?.isPreview);
+                              const isPrev = Boolean(
+                                localVersionMap.get(currentVersion)?.isPreview
+                              );
                               try {
-                                const ok = await (minecraft as any)?.IsGDKInstalled?.();
+                                const ok = await (
+                                  minecraft as any
+                                )?.IsGDKInstalled?.();
                                 if (!ok) {
                                   setModalState(17);
                                   setOverlayActive(true);
@@ -1340,7 +1399,8 @@ export const LauncherPage = (args: any) => {
                               setModalState(13);
                               setOverlayActive(true);
                               onOpen();
-                              const fn = (minecraft as any)?.RegisterVersionWithWdapp;
+                              const fn = (minecraft as any)
+                                ?.RegisterVersionWithWdapp;
                               if (typeof fn === "function") {
                                 const err = await fn(currentVersion, isPrev);
                                 if (err) {
@@ -1350,7 +1410,10 @@ export const LauncherPage = (args: any) => {
                                   onOpen();
                                 } else {
                                   try {
-                                    const listFn = (minecraft as any)?.ListVersionMetasWithRegistered ?? (minecraft as any)?.ListVersionMetas;
+                                    const listFn =
+                                      (minecraft as any)
+                                        ?.ListVersionMetasWithRegistered ??
+                                      (minecraft as any)?.ListVersionMetas;
                                     if (typeof listFn === "function") {
                                       const metas = await listFn();
                                       setLocalVersionMap((prev) => {
@@ -1360,9 +1423,21 @@ export const LauncherPage = (args: any) => {
                                           const cur = map.get(name) || {};
                                           map.set(name, {
                                             ...cur,
-                                            isRegistered: Boolean(m?.registered),
-                                            isPreview: String(m?.type || (cur?.isPreview ? "preview" : "release")).toLowerCase() === "preview",
-                                            version: String(m?.gameVersion || cur?.version || ""),
+                                            isRegistered: Boolean(
+                                              m?.registered
+                                            ),
+                                            isPreview:
+                                              String(
+                                                m?.type ||
+                                                  (cur?.isPreview
+                                                    ? "preview"
+                                                    : "release")
+                                              ).toLowerCase() === "preview",
+                                            version: String(
+                                              m?.gameVersion ||
+                                                cur?.version ||
+                                                ""
+                                            ),
                                           });
                                         });
                                         return map;
@@ -1377,16 +1452,18 @@ export const LauncherPage = (args: any) => {
                             } catch {}
                           }}
                         >
-                          {t("launcherpage.register_system_button", { defaultValue: "注册到系统" }) as unknown as string}
+                          {
+                            t("launcherpage.register_system_button", {
+                              defaultValue: "注册到系统",
+                            }) as unknown as string
+                          }
                         </Button>
                       </div>
                     }
                     placement="left"
                     offset={8}
                   >
-                    <div
-                      className="inline-flex items-center px-3 py-1 rounded-full bg-default-100/70 dark:bg-default-50/10 border border-white/30 backdrop-blur-sm"
-                    >
+                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-default-100/70 dark:bg-default-50/10 border border-white/30 backdrop-blur-sm">
                       {logoDataUrl ? (
                         <img
                           src={logoDataUrl}
@@ -1408,7 +1485,6 @@ export const LauncherPage = (args: any) => {
                       </div>
                     </div>
                   </Tooltip>
-                  
                 </div>
               </div>
               <div className="flex w-full flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -1441,7 +1517,7 @@ export const LauncherPage = (args: any) => {
                         {t("launcherpage.launch_button")}
                       </Button>
                     </motion.div>
-                    
+
                     <Dropdown>
                       <DropdownTrigger>
                         <Button
@@ -1473,7 +1549,9 @@ export const LauncherPage = (args: any) => {
                               className="flex-1"
                               size="sm"
                               placeholder={
-                                t("launcherpage.search_versions", { defaultValue: "搜索版本或名称" }) as unknown as string
+                                t("launcherpage.search_versions", {
+                                  defaultValue: "搜索版本或名称",
+                                }) as unknown as string
                               }
                               value={versionQuery}
                               onValueChange={setVersionQuery}
@@ -1485,53 +1563,71 @@ export const LauncherPage = (args: any) => {
                               startContent={<FaList size={14} />}
                               onPress={() => navigate("/versions")}
                             >
-                              {t("launcherpage.manage_versions", { defaultValue: "版本列表" })}
+                              {t("launcherpage.manage_versions", {
+                                defaultValue: "版本列表",
+                              })}
                             </Button>
                           </div>
                         }
                         onSelectionChange={(keys) => {
-                          const arr = Array.from(keys as unknown as Set<string>);
+                          const arr = Array.from(
+                            keys as unknown as Set<string>
+                          );
                           const id = String(arr[0] || "");
                           if (!id) return;
-                           const name = id;
+                          const name = id;
                           setCurrentVersion(name);
                           setDisplayName(name);
                           const ver = localVersionMap.get(name)?.version || "";
                           setDisplayVersion(
                             ver ||
-                              (t("launcherpage.currentVersion_none", { defaultValue: "None" }) as unknown as string)
+                              (t("launcherpage.currentVersion_none", {
+                                defaultValue: "None",
+                              }) as unknown as string)
                           );
-                          try { localStorage.setItem("ll.currentVersionName", name); } catch {}
+                          try {
+                            localStorage.setItem("ll.currentVersionName", name);
+                          } catch {}
                           try {
                             const getter = minecraft?.GetVersionLogoDataUrl;
                             if (typeof getter === "function") {
-                              getter(name).then((u: string) => setLogoDataUrl(String(u || "")));
+                              getter(name).then((u: string) =>
+                                setLogoDataUrl(String(u || ""))
+                              );
                             } else {
                               setLogoDataUrl("");
                             }
-                          } catch { setLogoDataUrl(""); }
+                          } catch {
+                            setLogoDataUrl("");
+                          }
                         }}
                       >
                         {filteredVersionNames.length === 0 ? (
                           <DropdownItem key="__empty" isDisabled>
-                            {t("common.empty", { defaultValue: "暂无数据" }) as unknown as string}
+                            {
+                              t("common.empty", {
+                                defaultValue: "暂无数据",
+                              }) as unknown as string
+                            }
                           </DropdownItem>
                         ) : null}
                         {filteredVersionNames.map((name) => (
                           <DropdownItem
                             key={name}
                             textValue={name}
-                            startContent={
-                              (() => {
-                                const u = logoByName.get(name);
-                                if (!u) ensureLogo(name);
-                                return u ? (
-                                  <img src={u} alt="logo" className="h-5 w-5 rounded" />
-                                ) : (
-                                  <div className="h-5 w-5 rounded bg-default-200" />
-                                );
-                              })()
-                            }
+                            startContent={(() => {
+                              const u = logoByName.get(name);
+                              if (!u) ensureLogo(name);
+                              return u ? (
+                                <img
+                                  src={u}
+                                  alt="logo"
+                                  className="h-5 w-5 rounded"
+                                />
+                              ) : (
+                                <div className="h-5 w-5 rounded bg-default-200" />
+                              );
+                            })()}
                           >
                             <div className="flex items-center justify-between">
                               <span
@@ -1541,7 +1637,9 @@ export const LauncherPage = (args: any) => {
                                 {name}
                               </span>
                               <div className="flex items-center gap-2 ml-2">
-                                {Boolean(localVersionMap.get(name)?.isRegistered) ? (
+                                {Boolean(
+                                  localVersionMap.get(name)?.isRegistered
+                                ) ? (
                                   <Chip
                                     size="sm"
                                     color="success"
@@ -1549,7 +1647,11 @@ export const LauncherPage = (args: any) => {
                                     startContent={<FaCheckCircle size={12} />}
                                     className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 text-emerald-700 border border-emerald-400/40 shadow-sm transition-transform duration-200 hover:scale-[1.03]"
                                   >
-                                    {t("launcherpage.registered_tip", { defaultValue: "已注册" }) as unknown as string}
+                                    {
+                                      t("launcherpage.registered_tip", {
+                                        defaultValue: "已注册",
+                                      }) as unknown as string
+                                    }
                                   </Chip>
                                 ) : null}
                                 <span className="text-xs text-default-500">
@@ -1698,7 +1800,7 @@ export const LauncherPage = (args: any) => {
                 </motion.div>
               </AnimatePresence>
             )}
-  </ModalContent>
+          </ModalContent>
         </Modal>
       </div>
     </>

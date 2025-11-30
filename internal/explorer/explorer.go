@@ -57,7 +57,6 @@ func OpenMods(name string) bool {
 	return OpenPath(dir)
 }
 
-
 func OpenWorlds(isPreview bool) bool {
 	dir := filepath.Join(utils.GetMinecraftGDKDataPath(isPreview), "worlds")
 	return OpenPath(dir)

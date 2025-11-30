@@ -425,7 +425,7 @@ const FileManagerPage: React.FC = () => {
   const virt = useMemo(() => {
     if (!path) return null;
     const count = filtered.length;
-    const shouldVirtualize = count > 800; 
+    const shouldVirtualize = count > 800;
     if (!shouldVirtualize) return null;
     const viewport = contentRef.current?.clientHeight || 0;
     const start = Math.max(0, Math.floor(scrollTop / rowHeight) - 8);
@@ -966,7 +966,9 @@ const FileManagerPage: React.FC = () => {
             <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
               {fmState?.directoryPickMode && path && !dirWritable ? (
                 <Chip size="sm" color="danger" variant="flat">
-                  {t("filemanager.dir_not_writable", { defaultValue: "不可写入" })}
+                  {t("filemanager.dir_not_writable", {
+                    defaultValue: "不可写入",
+                  })}
                 </Chip>
               ) : null}
               <Button
@@ -986,14 +988,20 @@ const FileManagerPage: React.FC = () => {
               <Button
                 size="sm"
                 color="primary"
-                isDisabled={fmState?.directoryPickMode ? (!path || !dirWritable) : Object.values(selected).filter(Boolean).length === 0}
+                isDisabled={
+                  fmState?.directoryPickMode
+                    ? !path || !dirWritable
+                    : Object.values(selected).filter(Boolean).length === 0
+                }
                 onPress={confirm}
                 className={screenSize === "mobile" ? "min-w-0 px-2" : ""}
               >
                 {screenSize === "mobile"
                   ? "✓"
                   : fmState?.directoryPickMode
-                  ? t("filemanager.choose_this_dir", { defaultValue: "选择此目录" })
+                  ? t("filemanager.choose_this_dir", {
+                      defaultValue: "选择此目录",
+                    })
                   : t("common.ok")}
               </Button>
             </div>
@@ -1326,7 +1334,12 @@ const FileManagerPage: React.FC = () => {
           </div>
         </section>
       </motion.div>
-      <Modal size="sm" isOpen={mkdirOpen} onOpenChange={setMkdirOpen} hideCloseButton>
+      <Modal
+        size="sm"
+        isOpen={mkdirOpen}
+        onOpenChange={setMkdirOpen}
+        hideCloseButton
+      >
         <ModalContent>
           {(onClose) => (
             <>
@@ -1339,44 +1352,62 @@ const FileManagerPage: React.FC = () => {
                   variant="bordered"
                   value={mkdirName}
                   onValueChange={setMkdirName}
-                  placeholder={t("filemanager.new_folder_placeholder", { defaultValue: "输入文件夹名称" }) as string}
+                  placeholder={
+                    t("filemanager.new_folder_placeholder", {
+                      defaultValue: "输入文件夹名称",
+                    }) as string
+                  }
                   autoFocus
                   onKeyDown={async (e) => {
                     if (e.key === "Enter") {
-                  if (!path) return;
-                  setCreatingFolder(true);
-                  try {
-                    const err = await (minecraft as any)?.CreateFolder?.(path, mkdirName.trim());
-                    if (!err) {
-                      await loadDir(path);
-                      onClose();
-                      setMkdirName("");
+                      if (!path) return;
+                      setCreatingFolder(true);
+                      try {
+                        const err = await (minecraft as any)?.CreateFolder?.(
+                          path,
+                          mkdirName.trim()
+                        );
+                        if (!err) {
+                          await loadDir(path);
+                          onClose();
+                          setMkdirName("");
+                        }
+                      } finally {
+                        setCreatingFolder(false);
+                      }
                     }
-                  } finally {
-                    setCreatingFolder(false);
-                  }
-                  }
-                }}
+                  }}
                 />
               </ModalBody>
               <ModalFooter>
-                <Button variant="light" onPress={onClose} isDisabled={creatingFolder}>
+                <Button
+                  variant="light"
+                  onPress={onClose}
+                  isDisabled={creatingFolder}
+                >
                   {t("common.cancel", { defaultValue: "取消" })}
                 </Button>
-                <Button color="primary" isDisabled={!mkdirName.trim() || creatingFolder} onPress={async () => {
-                  if (!path) return;
-                  setCreatingFolder(true);
-                  try {
-                    const err = await (minecraft as any)?.CreateFolder?.(path, mkdirName.trim());
-                    if (!err) {
-                      await loadDir(path);
-                      onClose();
-                      setMkdirName("");
+                <Button
+                  color="primary"
+                  isDisabled={!mkdirName.trim() || creatingFolder}
+                  onPress={async () => {
+                    if (!path) return;
+                    setCreatingFolder(true);
+                    try {
+                      const err = await (minecraft as any)?.CreateFolder?.(
+                        path,
+                        mkdirName.trim()
+                      );
+                      if (!err) {
+                        await loadDir(path);
+                        onClose();
+                        setMkdirName("");
+                      }
+                    } finally {
+                      setCreatingFolder(false);
                     }
-                  } finally {
-                    setCreatingFolder(false);
-                  }
-                }}>
+                  }}
+                >
                   {t("common.confirm", { defaultValue: "确定" })}
                 </Button>
               </ModalFooter>

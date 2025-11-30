@@ -15,7 +15,6 @@ import {
 } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { Call as RuntimeCall } from "@wailsio/runtime";
 import { FaWindows } from "react-icons/fa";
 import * as minecraft from "../../bindings/github.com/liteldev/LeviLauncher/minecraft";
 
@@ -44,7 +43,8 @@ export default function VersionSettingsPage() {
   const [deleteOpen, setDeleteOpen] = React.useState<boolean>(false);
   const [deleteSuccessOpen, setDeleteSuccessOpen] =
     React.useState<boolean>(false);
-  const [shortcutSuccessOpen, setShortcutSuccessOpen] = React.useState<boolean>(false);
+  const [shortcutSuccessOpen, setShortcutSuccessOpen] =
+    React.useState<boolean>(false);
   const [deleting, setDeleting] = React.useState<boolean>(false);
   const [deleteSuccessMsg, setDeleteSuccessMsg] = React.useState<string>("");
 
@@ -74,7 +74,9 @@ export default function VersionSettingsPage() {
           const u = await getter(targetName);
           setLogoDataUrl(String(u || ""));
         }
-      } catch { setLogoDataUrl(""); }
+      } catch {
+        setLogoDataUrl("");
+      }
       setLoading(false);
     })();
   }, [hasBackend, targetName]);
@@ -296,9 +298,9 @@ export default function VersionSettingsPage() {
                         {t("common.preview", { defaultValue: "预览版" })}
                       </Chip>
                     ) : (
-                    <span className="text-default-700 dark:text-default-200">
-                      {t("common.release", { defaultValue: "正式版" })}
-                    </span>
+                      <span className="text-default-700 dark:text-default-200">
+                        {t("common.release", { defaultValue: "正式版" })}
+                      </span>
                     )}
                   </div>
                 </div>
@@ -412,7 +414,8 @@ export default function VersionSettingsPage() {
                       className="rounded-full justify-start shadow-none"
                       onPress={async () => {
                         try {
-                          const err: string = await RuntimeCall.ByName("main.Minecraft.CreateDesktopShortcut", targetName);
+                          const err: string =
+                            await minecraft?.CreateDesktopShortcut(targetName);
                           if (err) {
                             setError(String(err));
                           } else {
@@ -424,7 +427,11 @@ export default function VersionSettingsPage() {
                       }}
                       startContent={<FaWindows />}
                     >
-                      {t("launcherpage.shortcut.create_button", { defaultValue: "创建桌面快捷方式" }) as unknown as string}
+                      {
+                        t("launcherpage.shortcut.create_button", {
+                          defaultValue: "创建桌面快捷方式",
+                        }) as unknown as string
+                      }
                     </Button>
                   </div>
                   <p className="text-tiny text-default-400">
@@ -490,8 +497,13 @@ export default function VersionSettingsPage() {
                   <div className="flex items-center justify-between">
                     <div className="text-tiny text-default-400">
                       {isRegistered
-                        ? (t("versions.edit.unregister_hint", { defaultValue: "该版本已注册到系统，仅可取消注册；取消后可重命名或删除。" }) as unknown as string)
-                        : (t("versions.edit.delete_hint", { defaultValue: "点击以打开删除确认，避免误触。" }) as unknown as string)}
+                        ? (t("versions.edit.unregister_hint", {
+                            defaultValue:
+                              "该版本已注册到系统，仅可取消注册；取消后可重命名或删除。",
+                          }) as unknown as string)
+                        : (t("versions.edit.delete_hint", {
+                            defaultValue: "点击以打开删除确认，避免误触。",
+                          }) as unknown as string)}
                     </div>
                     {isRegistered ? (
                       <Button
@@ -501,13 +513,16 @@ export default function VersionSettingsPage() {
                         isDisabled={loading}
                         onPress={async () => {
                           try {
-                            const has = await (minecraft as any)?.IsGDKInstalled?.();
+                            const has = await (
+                              minecraft as any
+                            )?.IsGDKInstalled?.();
                             if (!has) {
                               setUnregisterOpen(false);
                               setGdkMissingOpen(true);
                               return;
                             }
-                            const fn = (minecraft as any)?.UnregisterVersionByName;
+                            const fn = (minecraft as any)
+                              ?.UnregisterVersionByName;
                             if (typeof fn === "function") {
                               setUnregisterOpen(true);
                               const err: string = await fn(targetName);
@@ -524,7 +539,11 @@ export default function VersionSettingsPage() {
                           }
                         }}
                       >
-                        {t("versions.edit.unregister_button", { defaultValue: "取消注册" }) as unknown as string}
+                        {
+                          t("versions.edit.unregister_button", {
+                            defaultValue: "取消注册",
+                          }) as unknown as string
+                        }
                       </Button>
                     ) : (
                       <Button
@@ -534,7 +553,11 @@ export default function VersionSettingsPage() {
                         isDisabled={loading}
                         onPress={() => setDeleteOpen(true)}
                       >
-                        {t("launcherpage.delete.confirm.delete_button", { defaultValue: "删除" }) as unknown as string}
+                        {
+                          t("launcherpage.delete.confirm.delete_button", {
+                            defaultValue: "删除",
+                          }) as unknown as string
+                        }
                       </Button>
                     )}
                   </div>
@@ -567,24 +590,34 @@ export default function VersionSettingsPage() {
         isDismissable={false}
       >
         <ModalContent>
-          {(/* onClose */) => (
-            <>
-              <ModalHeader className="text-warning-600">
-                {t("versions.edit.unregister_progress.title", { defaultValue: "正在取消注册" }) as unknown as string}
-              </ModalHeader>
-              <ModalBody>
-                <div className="text-small text-foreground mb-2">
-                  {t("versions.edit.unregister_progress.body", { defaultValue: "正在执行系统取消注册，请稍候…" }) as unknown as string}
-                </div>
-                <div className="w-full max-w-md">
-                  <div className="relative h-2 rounded-full bg-default-100/70 dark:bg-default-50/10 overflow-hidden border border-white/30">
-                    <div className="absolute top-0 bottom-0 rounded-full bg-default-400/60 indeterminate-bar1" />
-                    <div className="absolute top-0 bottom-0 rounded-full bg-default-400/40 indeterminate-bar2" />
+          {
+            (/* onClose */) => (
+              <>
+                <ModalHeader className="text-warning-600">
+                  {
+                    t("versions.edit.unregister_progress.title", {
+                      defaultValue: "正在取消注册",
+                    }) as unknown as string
+                  }
+                </ModalHeader>
+                <ModalBody>
+                  <div className="text-small text-foreground mb-2">
+                    {
+                      t("versions.edit.unregister_progress.body", {
+                        defaultValue: "正在执行系统取消注册，请稍候…",
+                      }) as unknown as string
+                    }
                   </div>
-                </div>
-              </ModalBody>
-            </>
-          )}
+                  <div className="w-full max-w-md">
+                    <div className="relative h-2 rounded-full bg-default-100/70 dark:bg-default-50/10 overflow-hidden border border-white/30">
+                      <div className="absolute top-0 bottom-0 rounded-full bg-default-400/60 indeterminate-bar1" />
+                      <div className="absolute top-0 bottom-0 rounded-full bg-default-400/40 indeterminate-bar2" />
+                    </div>
+                  </div>
+                </ModalBody>
+              </>
+            )
+          }
         </ModalContent>
       </Modal>
 
@@ -598,11 +631,20 @@ export default function VersionSettingsPage() {
           {(onClose) => (
             <>
               <ModalHeader className="text-warning-600">
-                {t("launcherpage.gdk_missing.title", { defaultValue: "缺少 Microsoft GDK" }) as unknown as string}
+                {
+                  t("launcherpage.gdk_missing.title", {
+                    defaultValue: "缺少 Microsoft GDK",
+                  }) as unknown as string
+                }
               </ModalHeader>
               <ModalBody>
                 <div className="text-small text-foreground">
-                  {t("launcherpage.gdk_missing.body", { defaultValue: "未检测到 GDK 工具包，注册功能需先安装。是否跳转到设置页进行安装？" }) as unknown as string}
+                  {
+                    t("launcherpage.gdk_missing.body", {
+                      defaultValue:
+                        "未检测到 GDK 工具包，注册功能需先安装。是否跳转到设置页进行安装？",
+                    }) as unknown as string
+                  }
                 </div>
               </ModalBody>
               <ModalFooter>
@@ -613,7 +655,11 @@ export default function VersionSettingsPage() {
                     setGdkMissingOpen(false);
                   }}
                 >
-                  {t("common.cancel", { defaultValue: "取消" }) as unknown as string}
+                  {
+                    t("common.cancel", {
+                      defaultValue: "取消",
+                    }) as unknown as string
+                  }
                 </Button>
                 <Button
                   color="primary"
@@ -623,7 +669,11 @@ export default function VersionSettingsPage() {
                     navigate("/settings");
                   }}
                 >
-                  {t("launcherpage.gdk_missing.go_settings", { defaultValue: "前往设置" }) as unknown as string}
+                  {
+                    t("launcherpage.gdk_missing.go_settings", {
+                      defaultValue: "前往设置",
+                    }) as unknown as string
+                  }
                 </Button>
               </ModalFooter>
             </>
@@ -676,12 +726,20 @@ export default function VersionSettingsPage() {
             <>
               <ModalHeader className="flex items-center gap-2 text-success-600">
                 <h2 className="text-lg font-semibold">
-                  {t("launcherpage.shortcut.success.title", { defaultValue: "快捷方式已创建" }) as unknown as string}
+                  {
+                    t("launcherpage.shortcut.success.title", {
+                      defaultValue: "快捷方式已创建",
+                    }) as unknown as string
+                  }
                 </h2>
               </ModalHeader>
               <ModalBody>
                 <div className="text-small text-foreground">
-                  {t("launcherpage.shortcut.success.body", { defaultValue: "已在桌面创建该版本的快捷方式。" }) as unknown as string}
+                  {
+                    t("launcherpage.shortcut.success.body", {
+                      defaultValue: "已在桌面创建该版本的快捷方式。",
+                    }) as unknown as string
+                  }
                 </div>
               </ModalBody>
               <ModalFooter>
@@ -692,7 +750,11 @@ export default function VersionSettingsPage() {
                     setShortcutSuccessOpen(false);
                   }}
                 >
-                  {t("launcherpage.delete.complete.close_button", { defaultValue: "关闭" }) as unknown as string}
+                  {
+                    t("launcherpage.delete.complete.close_button", {
+                      defaultValue: "关闭",
+                    }) as unknown as string
+                  }
                 </Button>
               </ModalFooter>
             </>

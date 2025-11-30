@@ -64,7 +64,9 @@ export default function WorldsListPage() {
   const [query, setQuery] = React.useState<string>("");
   const [sortKey, setSortKey] = React.useState<"name" | "time">(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem("content.worlds.sort") || "{}");
+      const saved = JSON.parse(
+        localStorage.getItem("content.worlds.sort") || "{}"
+      );
       const k = saved?.sortKey;
       if (k === "name" || k === "time") return k;
     } catch {}
@@ -72,7 +74,9 @@ export default function WorldsListPage() {
   });
   const [sortAsc, setSortAsc] = React.useState<boolean>(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem("content.worlds.sort") || "{}");
+      const saved = JSON.parse(
+        localStorage.getItem("content.worlds.sort") || "{}"
+      );
       const a = saved?.sortAsc;
       if (typeof a === "boolean") return a;
     } catch {}
@@ -81,11 +85,25 @@ export default function WorldsListPage() {
   const [selected, setSelected] = React.useState<Record<string, boolean>>({});
   const [selectMode, setSelectMode] = React.useState<boolean>(false);
   const [activeWorld, setActiveWorld] = React.useState<WorldItem | null>(null);
-  const { isOpen: delCfmOpen, onOpen: delCfmOnOpen, onOpenChange: delCfmOnOpenChange } = useDisclosure();
-  const { isOpen: delOpen, onOpen: delOnOpen, onOpenChange: delOnOpenChange } = useDisclosure();
-  const { isOpen: delManyCfmOpen, onOpen: delManyCfmOnOpen, onOpenChange: delManyCfmOnOpenChange } = useDisclosure();
+  const {
+    isOpen: delCfmOpen,
+    onOpen: delCfmOnOpen,
+    onOpenChange: delCfmOnOpenChange,
+  } = useDisclosure();
+  const {
+    isOpen: delOpen,
+    onOpen: delOnOpen,
+    onOpenChange: delOnOpenChange,
+  } = useDisclosure();
+  const {
+    isOpen: delManyCfmOpen,
+    onOpen: delManyCfmOnOpen,
+    onOpenChange: delManyCfmOnOpenChange,
+  } = useDisclosure();
   const [resultSuccess, setResultSuccess] = React.useState<string[]>([]);
-  const [resultFailed, setResultFailed] = React.useState<Array<{ name: string; err: string }>>([]);
+  const [resultFailed, setResultFailed] = React.useState<
+    Array<{ name: string; err: string }>
+  >([]);
   const [deletingOne, setDeletingOne] = React.useState<boolean>(false);
   const [deletingMany, setDeletingMany] = React.useState<boolean>(false);
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
@@ -137,7 +155,9 @@ export default function WorldsListPage() {
         .then(async () => {
           const readCache = () => {
             try {
-              return JSON.parse(localStorage.getItem("content.size.cache") || "{}");
+              return JSON.parse(
+                localStorage.getItem("content.size.cache") || "{}"
+              );
             } catch {
               return {};
             }
@@ -156,8 +176,16 @@ export default function WorldsListPage() {
               chunk.map(async (w) => {
                 const key = w.path;
                 const c = cache[key];
-                if (c && typeof c.size === "number" && Number(c.modTime || 0) === Number(w.modTime || 0)) {
-                  setWorldEntries((prev) => prev.map((it) => (it.path === key ? { ...it, size: c.size } : it)));
+                if (
+                  c &&
+                  typeof c.size === "number" &&
+                  Number(c.modTime || 0) === Number(w.modTime || 0)
+                ) {
+                  setWorldEntries((prev) =>
+                    prev.map((it) =>
+                      it.path === key ? { ...it, size: c.size } : it
+                    )
+                  );
                 } else {
                   let size = 0;
                   try {
@@ -166,7 +194,9 @@ export default function WorldsListPage() {
                     }
                   } catch {}
                   cache[key] = { modTime: w.modTime || 0, size };
-                  setWorldEntries((prev) => prev.map((it) => (it.path === key ? { ...it, size } : it)));
+                  setWorldEntries((prev) =>
+                    prev.map((it) => (it.path === key ? { ...it, size } : it))
+                  );
                 }
               })
             );
@@ -179,51 +209,54 @@ export default function WorldsListPage() {
     }
   };
 
-  const refreshAll = React.useCallback(async (silent?: boolean) => {
-    if (!silent) setLoading(true);
-    setError("");
-    const name = readCurrentVersionName();
-    setCurrentVersionName(name);
-    try {
-      if (!hasBackend || !name) {
-        setRoots({
-          base: "",
-          usersRoot: "",
-          resourcePacks: "",
-          behaviorPacks: "",
-          isIsolation: false,
-          isPreview: false,
-        });
-        setPlayers([]);
-        setSelectedPlayer("");
-        setWorldEntries([]);
-      } else {
-        const r = await GetContentRoots(name);
-        const safe = r || {
-          base: "",
-          usersRoot: "",
-          resourcePacks: "",
-          behaviorPacks: "",
-          isIsolation: false,
-          isPreview: false,
-        };
-        setRoots(safe);
-        const names = await listPlayers(safe.usersRoot);
-        setPlayers(names);
-        const nextPlayer = names[0] || "";
-        setSelectedPlayer(nextPlayer);
-        await loadWorlds(nextPlayer, safe);
+  const refreshAll = React.useCallback(
+    async (silent?: boolean) => {
+      if (!silent) setLoading(true);
+      setError("");
+      const name = readCurrentVersionName();
+      setCurrentVersionName(name);
+      try {
+        if (!hasBackend || !name) {
+          setRoots({
+            base: "",
+            usersRoot: "",
+            resourcePacks: "",
+            behaviorPacks: "",
+            isIsolation: false,
+            isPreview: false,
+          });
+          setPlayers([]);
+          setSelectedPlayer("");
+          setWorldEntries([]);
+        } else {
+          const r = await GetContentRoots(name);
+          const safe = r || {
+            base: "",
+            usersRoot: "",
+            resourcePacks: "",
+            behaviorPacks: "",
+            isIsolation: false,
+            isPreview: false,
+          };
+          setRoots(safe);
+          const names = await listPlayers(safe.usersRoot);
+          setPlayers(names);
+          const nextPlayer = names[0] || "";
+          setSelectedPlayer(nextPlayer);
+          await loadWorlds(nextPlayer, safe);
+        }
+      } catch (e) {
+        setError(
+          t("contentpage.error_resolve_paths", {
+            defaultValue: "无法解析内容路径。",
+          }) as string
+        );
+      } finally {
+        if (!silent) setLoading(false);
       }
-    } catch (e) {
-      setError(
-        t("contentpage.error_resolve_paths", {
-          defaultValue: "无法解析内容路径。",
-        }) as string
-      );
-    } finally {
-      if (!silent) setLoading(false);
-    }
-  }, [hasBackend, t]);
+    },
+    [hasBackend, t]
+  );
 
   React.useEffect(() => {
     refreshAll();
@@ -231,7 +264,10 @@ export default function WorldsListPage() {
 
   React.useEffect(() => {
     try {
-      localStorage.setItem("content.worlds.sort", JSON.stringify({ sortKey, sortAsc }));
+      localStorage.setItem(
+        "content.worlds.sort",
+        JSON.stringify({ sortKey, sortAsc })
+      );
     } catch {}
   }, [sortKey, sortAsc]);
 
@@ -239,7 +275,9 @@ export default function WorldsListPage() {
     if (!restorePendingRef.current) return;
     requestAnimationFrame(() => {
       try {
-        if (scrollRef.current) scrollRef.current.scrollTop = lastScrollTopRef.current; else window.scrollTo({ top: lastScrollTopRef.current });
+        if (scrollRef.current)
+          scrollRef.current.scrollTop = lastScrollTopRef.current;
+        else window.scrollTo({ top: lastScrollTopRef.current });
       } catch {}
     });
     restorePendingRef.current = false;
@@ -272,7 +310,10 @@ export default function WorldsListPage() {
   };
 
   return (
-    <div ref={scrollRef} className="w-full h-full p-3 sm:p-4 lg:p-6 overflow-auto">
+    <div
+      ref={scrollRef}
+      className="w-full h-full p-3 sm:p-4 lg:p-6 overflow-auto"
+    >
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -375,7 +416,9 @@ export default function WorldsListPage() {
               <Input
                 size="sm"
                 variant="bordered"
-                placeholder={t("common.search", { defaultValue: "搜索" }) as string}
+                placeholder={
+                  t("common.search", { defaultValue: "搜索" }) as string
+                }
                 value={query}
                 onValueChange={setQuery}
                 className="w-40 sm:w-56"
@@ -384,30 +427,63 @@ export default function WorldsListPage() {
                 <DropdownTrigger>
                   <Button size="sm" variant="flat" className="rounded-full">
                     {sortKey === "name"
-                      ? (t("filemanager.sort.name", { defaultValue: "名称" }) as string)
-                      : (t("contentpage.sort_time", { defaultValue: "时间" }) as string)}
+                      ? (t("filemanager.sort.name", {
+                          defaultValue: "名称",
+                        }) as string)
+                      : (t("contentpage.sort_time", {
+                          defaultValue: "时间",
+                        }) as string)}
                     {" / "}
                     {sortAsc
-                      ? (t("contentpage.sort_asc", { defaultValue: "从上到下" }) as string)
-                      : (t("contentpage.sort_desc", { defaultValue: "从下到上" }) as string)}
+                      ? (t("contentpage.sort_asc", {
+                          defaultValue: "从上到下",
+                        }) as string)
+                      : (t("contentpage.sort_desc", {
+                          defaultValue: "从下到上",
+                        }) as string)}
                   </Button>
                 </DropdownTrigger>
                 <DropdownMenu
-                  aria-label={t("contentpage.sort_aria", { defaultValue: "排序" }) as string}
+                  aria-label={
+                    t("contentpage.sort_aria", {
+                      defaultValue: "排序",
+                    }) as string
+                  }
                   selectionMode="single"
                   onSelectionChange={(keys) => {
-                    const k = Array.from(keys as unknown as Set<string>)[0] || "";
+                    const k =
+                      Array.from(keys as unknown as Set<string>)[0] || "";
                     if (k === "name" || k === "time") setSortKey(k as any);
                   }}
                 >
-                  <DropdownItem key="name">{t("filemanager.sort.name", { defaultValue: "名称" }) as string}</DropdownItem>
-                  <DropdownItem key="time">{t("contentpage.sort_time", { defaultValue: "时间" }) as string}</DropdownItem>
+                  <DropdownItem key="name">
+                    {
+                      t("filemanager.sort.name", {
+                        defaultValue: "名称",
+                      }) as string
+                    }
+                  </DropdownItem>
+                  <DropdownItem key="time">
+                    {
+                      t("contentpage.sort_time", {
+                        defaultValue: "时间",
+                      }) as string
+                    }
+                  </DropdownItem>
                 </DropdownMenu>
               </Dropdown>
-              <Button size="sm" variant="bordered" onPress={() => setSortAsc((v) => !v)}>
+              <Button
+                size="sm"
+                variant="bordered"
+                onPress={() => setSortAsc((v) => !v)}
+              >
                 {sortAsc
-                  ? (t("contentpage.sort_asc", { defaultValue: "从上到下" }) as string)
-                  : (t("contentpage.sort_desc", { defaultValue: "从下到上" }) as string)}
+                  ? (t("contentpage.sort_asc", {
+                      defaultValue: "从上到下",
+                    }) as string)
+                  : (t("contentpage.sort_desc", {
+                      defaultValue: "从下到上",
+                    }) as string)}
               </Button>
               <Button
                 size="sm"
@@ -422,8 +498,14 @@ export default function WorldsListPage() {
               >
                 {t("common.open", { defaultValue: "打开" })}
               </Button>
-              <Button size="sm" variant="bordered" onPress={() => setSelectMode((v) => !v)}>
-                {selectMode ? (t("common.cancel", { defaultValue: "取消选择" }) as string) : (t("common.select", { defaultValue: "选择" }) as string)}
+              <Button
+                size="sm"
+                variant="bordered"
+                onPress={() => setSelectMode((v) => !v)}
+              >
+                {selectMode
+                  ? (t("common.cancel", { defaultValue: "取消选择" }) as string)
+                  : (t("common.select", { defaultValue: "选择" }) as string)}
               </Button>
               {selectMode ? (
                 <Button
@@ -431,7 +513,9 @@ export default function WorldsListPage() {
                   color="danger"
                   variant="bordered"
                   onPress={() => {
-                    const paths = Object.keys(selected).filter((k) => selected[k]);
+                    const paths = Object.keys(selected).filter(
+                      (k) => selected[k]
+                    );
                     if (!paths.length) return;
                     delManyCfmOnOpen();
                   }}
@@ -483,24 +567,36 @@ export default function WorldsListPage() {
                     return sorted.map((w) => (
                       <div
                         key={w.path}
-                        className={`flex items-center justify-between rounded-xl px-3 py-2 border border-transparent transition-colors ${selectMode ? 'cursor-pointer' : 'cursor-default'} ${selected[w.path] && selectMode ? 'bg-primary/10 border-primary-300 dark:border-primary-400 shadow-sm' : 'bg-default-100/50 hover:bg-default-200/60'}`}
+                        className={`flex items-center justify-between rounded-xl px-3 py-2 border border-transparent transition-colors ${
+                          selectMode ? "cursor-pointer" : "cursor-default"
+                        } ${
+                          selected[w.path] && selectMode
+                            ? "bg-primary/10 border-primary-300 dark:border-primary-400 shadow-sm"
+                            : "bg-default-100/50 hover:bg-default-200/60"
+                        }`}
                         onClick={() => {
                           if (!selectMode) return;
-                          setSelected((prev) => ({ ...prev, [w.path]: !prev[w.path] }));
+                          setSelected((prev) => ({
+                            ...prev,
+                            [w.path]: !prev[w.path],
+                          }));
                         }}
                       >
                         <div className="flex items-center gap-3 overflow-hidden">
                           {selectMode ? (
-                          <div onClick={(e) => e.stopPropagation()}>
-                            <Checkbox
-                              size="sm"
-                              isSelected={!!selected[w.path]}
-                              onValueChange={() =>
-                                setSelected((prev) => ({ ...prev, [w.path]: !prev[w.path] }))
-                              }
-                              className="shrink-0"
-                            />
-                          </div>
+                            <div onClick={(e) => e.stopPropagation()}>
+                              <Checkbox
+                                size="sm"
+                                isSelected={!!selected[w.path]}
+                                onValueChange={() =>
+                                  setSelected((prev) => ({
+                                    ...prev,
+                                    [w.path]: !prev[w.path],
+                                  }))
+                                }
+                                className="shrink-0"
+                              />
+                            </div>
                           ) : null}
                           {w.iconDataUrl ? (
                             <img
@@ -516,14 +612,22 @@ export default function WorldsListPage() {
                               {w.levelName || w.name}
                             </div>
                             <div className="text-xs text-default-500 truncate">
-                            {w.name}
+                              {w.name}
                             </div>
                             <div className="text-xs text-default-500 truncate mt-0.5">
-                              {`${t("filemanager.sort.size", { defaultValue: "大小" })}: ${formatBytes(w.size)} · ${t("contentpage.sort_time", { defaultValue: "时间" })}: ${formatDate(w.modTime)}`}
+                              {`${t("filemanager.sort.size", {
+                                defaultValue: "大小",
+                              })}: ${formatBytes(w.size)} · ${t(
+                                "contentpage.sort_time",
+                                { defaultValue: "时间" }
+                              )}: ${formatDate(w.modTime)}`}
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                        <div
+                          className="flex items-center gap-2"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <Button
                             size="sm"
                             variant="flat"
@@ -536,7 +640,10 @@ export default function WorldsListPage() {
                             size="sm"
                             color="danger"
                             variant="flat"
-                            onPress={() => { setActiveWorld(w); delCfmOnOpen(); }}
+                            onPress={() => {
+                              setActiveWorld(w);
+                              delCfmOnOpen();
+                            }}
                             isDisabled={!hasBackend}
                           >
                             {t("common.delete", { defaultValue: "删除" })}
@@ -598,105 +705,230 @@ export default function WorldsListPage() {
           </CardBody>
         </Card>
 
-        <Modal size="sm" isOpen={delCfmOpen} onOpenChange={delCfmOnOpenChange} hideCloseButton>
+        <Modal
+          size="sm"
+          isOpen={delCfmOpen}
+          onOpenChange={delCfmOnOpenChange}
+          hideCloseButton
+        >
           <ModalContent>
             {(onClose) => (
               <>
-                <ModalHeader className="text-danger">{t("mods.confirm_delete_title", { defaultValue: "确认删除" })}</ModalHeader>
+                <ModalHeader className="text-danger">
+                  {t("mods.confirm_delete_title", { defaultValue: "确认删除" })}
+                </ModalHeader>
                 <ModalBody>
-                  <div className="text-sm text-default-700 break-words whitespace-pre-wrap">{t("mods.confirm_delete_body", { defaultValue: "确定要删除此包吗？此操作不可撤销。" })}</div>
-                  {activeWorld ? (<div className="mt-1 rounded-md bg-default-100/60 border border-default-200 px-3 py-2 text-default-800 text-sm break-words whitespace-pre-wrap">{activeWorld.levelName || activeWorld.name}</div>) : null}
+                  <div className="text-sm text-default-700 break-words whitespace-pre-wrap">
+                    {t("mods.confirm_delete_body", {
+                      defaultValue: "确定要删除此包吗？此操作不可撤销。",
+                    })}
+                  </div>
+                  {activeWorld ? (
+                    <div className="mt-1 rounded-md bg-default-100/60 border border-default-200 px-3 py-2 text-default-800 text-sm break-words whitespace-pre-wrap">
+                      {activeWorld.levelName || activeWorld.name}
+                    </div>
+                  ) : null}
                 </ModalBody>
                 <ModalFooter>
-                  <Button variant="light" onPress={() => { onClose(); }}>{t("common.cancel", { defaultValue: "取消" })}</Button>
-                  <Button color="danger" isLoading={deletingOne} onPress={async () => {
-                    if (!activeWorld) { onClose(); return; }
-                    const pos = scrollRef.current?.scrollTop ?? (document.scrollingElement as any)?.scrollTop ?? 0;
-                    setDeletingOne(true);
-                    lastScrollTopRef.current = pos;
-                    restorePendingRef.current = true;
-                    const err = await (minecraft as any)?.DeleteWorld?.(currentVersionName, activeWorld.path);
-                    if (err) {
-                      setResultSuccess([]);
-                      setResultFailed([{ name: activeWorld.levelName || activeWorld.name || activeWorld.path, err }]);
+                  <Button
+                    variant="light"
+                    onPress={() => {
+                      onClose();
+                    }}
+                  >
+                    {t("common.cancel", { defaultValue: "取消" })}
+                  </Button>
+                  <Button
+                    color="danger"
+                    isLoading={deletingOne}
+                    onPress={async () => {
+                      if (!activeWorld) {
+                        onClose();
+                        return;
+                      }
+                      const pos =
+                        scrollRef.current?.scrollTop ??
+                        (document.scrollingElement as any)?.scrollTop ??
+                        0;
+                      setDeletingOne(true);
+                      lastScrollTopRef.current = pos;
+                      restorePendingRef.current = true;
+                      const err = await (minecraft as any)?.DeleteWorld?.(
+                        currentVersionName,
+                        activeWorld.path
+                      );
+                      if (err) {
+                        setResultSuccess([]);
+                        setResultFailed([
+                          {
+                            name:
+                              activeWorld.levelName ||
+                              activeWorld.name ||
+                              activeWorld.path,
+                            err,
+                          },
+                        ]);
+                        delOnOpen();
+                      } else {
+                        await refreshAll(true);
+                        setResultSuccess([
+                          activeWorld.levelName ||
+                            activeWorld.name ||
+                            activeWorld.path,
+                        ]);
+                        setResultFailed([]);
+                        delOnOpen();
+                      }
+                      setDeletingOne(false);
+                      onClose();
+                    }}
+                  >
+                    {t("common.confirm", { defaultValue: "确定" })}
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
+        <Modal
+          size="sm"
+          isOpen={delManyCfmOpen}
+          onOpenChange={delManyCfmOnOpenChange}
+          hideCloseButton
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="text-danger">
+                  {t("mods.confirm_delete_title", { defaultValue: "确认删除" })}
+                </ModalHeader>
+                <ModalBody>
+                  <div className="text-sm text-default-700 break-words whitespace-pre-wrap">
+                    {t("mods.confirm_delete_body", {
+                      defaultValue: "确定要删除此包吗？此操作不可撤销。",
+                    })}
+                  </div>
+                  <div className="mt-1 rounded-md bg-default-100/60 border border-default-200 px-3 py-2 text-default-800 text-sm break-words whitespace-pre-wrap">
+                    {Object.keys(selected)
+                      .filter((k) => selected[k])
+                      .map((p) => {
+                        const it = worldEntries.find((w) => w.path === p);
+                        return it?.levelName || it?.name || p;
+                      })
+                      .join("\n")}
+                  </div>
+                </ModalBody>
+                <ModalFooter>
+                  <Button
+                    variant="light"
+                    onPress={() => {
+                      onClose();
+                    }}
+                  >
+                    {t("common.cancel", { defaultValue: "取消" })}
+                  </Button>
+                  <Button
+                    color="danger"
+                    isLoading={deletingMany}
+                    onPress={async () => {
+                      setDeletingMany(true);
+                      const pos =
+                        scrollRef.current?.scrollTop ??
+                        (document.scrollingElement as any)?.scrollTop ??
+                        0;
+                      lastScrollTopRef.current = pos;
+                      restorePendingRef.current = true;
+                      const paths = Object.keys(selected).filter(
+                        (k) => selected[k]
+                      );
+                      const ok: string[] = [];
+                      const failed: Array<{ name: string; err: string }> = [];
+                      for (const p of paths) {
+                        const err = await (minecraft as any)?.DeleteWorld?.(
+                          currentVersionName,
+                          p
+                        );
+                        const it = worldEntries.find((w) => w.path === p);
+                        const nm = it?.levelName || it?.name || p;
+                        if (err) failed.push({ name: nm, err });
+                        else ok.push(nm);
+                      }
+                      setResultSuccess(ok);
+                      setResultFailed(failed);
                       delOnOpen();
-                    } else {
                       await refreshAll(true);
-                      setResultSuccess([activeWorld.levelName || activeWorld.name || activeWorld.path]);
-                      setResultFailed([]);
-                      delOnOpen();
-                    }
-                    setDeletingOne(false);
-                    onClose();
-                  }}>{t("common.confirm", { defaultValue: "确定" })}</Button>
+                      setDeletingMany(false);
+                      onClose();
+                    }}
+                  >
+                    {t("common.confirm", { defaultValue: "确定" })}
+                  </Button>
                 </ModalFooter>
               </>
             )}
           </ModalContent>
         </Modal>
-        <Modal size="sm" isOpen={delManyCfmOpen} onOpenChange={delManyCfmOnOpenChange} hideCloseButton>
+        <Modal
+          size="md"
+          isOpen={delOpen}
+          onOpenChange={delOnOpenChange}
+          hideCloseButton
+        >
           <ModalContent>
             {(onClose) => (
               <>
-                <ModalHeader className="text-danger">{t("mods.confirm_delete_title", { defaultValue: "确认删除" })}</ModalHeader>
-                <ModalBody>
-                  <div className="text-sm text-default-700 break-words whitespace-pre-wrap">{t("mods.confirm_delete_body", { defaultValue: "确定要删除此包吗？此操作不可撤销。" })}</div>
-                  <div className="mt-1 rounded-md bg-default-100/60 border border-default-200 px-3 py-2 text-default-800 text-sm break-words whitespace-pre-wrap">{Object.keys(selected).filter((k) => selected[k]).map((p) => {
-                    const it = worldEntries.find((w) => w.path === p);
-                    return (it?.levelName || it?.name || p);
-                  }).join("\n")}</div>
-                </ModalBody>
-                <ModalFooter>
-                  <Button variant="light" onPress={() => { onClose(); }}>{t("common.cancel", { defaultValue: "取消" })}</Button>
-                  <Button color="danger" isLoading={deletingMany} onPress={async () => {
-                    setDeletingMany(true);
-                    const pos = scrollRef.current?.scrollTop ?? (document.scrollingElement as any)?.scrollTop ?? 0;
-                    lastScrollTopRef.current = pos;
-                    restorePendingRef.current = true;
-                    const paths = Object.keys(selected).filter((k) => selected[k]);
-                    const ok: string[] = [];
-                    const failed: Array<{ name: string; err: string }> = [];
-                    for (const p of paths) {
-                      const err = await (minecraft as any)?.DeleteWorld?.(currentVersionName, p);
-                      const it = worldEntries.find((w) => w.path === p);
-                      const nm = it?.levelName || it?.name || p;
-                      if (err) failed.push({ name: nm, err }); else ok.push(nm);
-                    }
-                    setResultSuccess(ok);
-                    setResultFailed(failed);
-                    delOnOpen();
-                    await refreshAll(true);
-                    setDeletingMany(false);
-                    onClose();
-                  }}>{t("common.confirm", { defaultValue: "确定" })}</Button>
-                </ModalFooter>
-              </>
-            )}
-          </ModalContent>
-        </Modal>
-        <Modal size="md" isOpen={delOpen} onOpenChange={delOnOpenChange} hideCloseButton>
-          <ModalContent>
-            {(onClose) => (
-              <>
-                <ModalHeader className={`flex items-center gap-2 ${resultFailed.length ? "text-red-600" : "text-primary-600"}`}>
-                  <span>{resultFailed.length ? t("mods.delete_summary_title_failed", { defaultValue: "删除失败" }) : t("mods.delete_summary_title_done", { defaultValue: "删除完成" })}</span>
+                <ModalHeader
+                  className={`flex items-center gap-2 ${
+                    resultFailed.length ? "text-red-600" : "text-primary-600"
+                  }`}
+                >
+                  <span>
+                    {resultFailed.length
+                      ? t("mods.delete_summary_title_failed", {
+                          defaultValue: "删除失败",
+                        })
+                      : t("mods.delete_summary_title_done", {
+                          defaultValue: "删除完成",
+                        })}
+                  </span>
                 </ModalHeader>
                 <ModalBody>
                   {resultSuccess.length ? (
                     <div className="mb-2">
-                      <div className="text-sm font-semibold text-success">{t("mods.summary_deleted", { defaultValue: "已删除" })} ({resultSuccess.length})</div>
-                      <div className="mt-1 rounded-md bg-success/5 border border-success/30 px-3 py-2 text-success-700 text-sm break-words whitespace-pre-wrap">{resultSuccess.join("\n")}</div>
+                      <div className="text-sm font-semibold text-success">
+                        {t("mods.summary_deleted", { defaultValue: "已删除" })}{" "}
+                        ({resultSuccess.length})
+                      </div>
+                      <div className="mt-1 rounded-md bg-success/5 border border-success/30 px-3 py-2 text-success-700 text-sm break-words whitespace-pre-wrap">
+                        {resultSuccess.join("\n")}
+                      </div>
                     </div>
                   ) : null}
                   {resultFailed.length ? (
                     <div>
-                      <div className="text-sm font-semibold text-danger">{t("mods.summary_failed", { defaultValue: "失败" })} ({resultFailed.length})</div>
-                      <div className="mt-1 rounded-md bg-danger/5 border border-danger/30 px-3 py-2 text-danger-700 text-sm break-words whitespace-pre-wrap">{resultFailed.map((it) => `${it.name} - ${it.err}`).join("\n")}</div>
+                      <div className="text-sm font-semibold text-danger">
+                        {t("mods.summary_failed", { defaultValue: "失败" })} (
+                        {resultFailed.length})
+                      </div>
+                      <div className="mt-1 rounded-md bg-danger/5 border border-danger/30 px-3 py-2 text-danger-700 text-sm break-words whitespace-pre-wrap">
+                        {resultFailed
+                          .map((it) => `${it.name} - ${it.err}`)
+                          .join("\n")}
+                      </div>
                     </div>
                   ) : null}
                 </ModalBody>
                 <ModalFooter>
-                  <Button color="primary" onPress={() => { setResultSuccess([]); setResultFailed([]); onClose(); }}>{t("common.confirm", { defaultValue: "确定" })}</Button>
+                  <Button
+                    color="primary"
+                    onPress={() => {
+                      setResultSuccess([]);
+                      setResultFailed([]);
+                      onClose();
+                    }}
+                  >
+                    {t("common.confirm", { defaultValue: "确定" })}
+                  </Button>
                 </ModalFooter>
               </>
             )}

@@ -26,7 +26,9 @@ export default function UpdatingPage() {
   useEffect(() => {
     try {
       (window as any).llNavLock = true;
-      window.dispatchEvent(new CustomEvent("ll-nav-lock-changed", { detail: { lock: true } }));
+      window.dispatchEvent(
+        new CustomEvent("ll-nav-lock-changed", { detail: { lock: true } })
+      );
     } catch {}
     const off1 = Events.On("app_update_status", (event) => {
       setStatus(String(event.data || ""));
@@ -64,7 +66,9 @@ export default function UpdatingPage() {
       off3();
       try {
         (window as any).llNavLock = false;
-        window.dispatchEvent(new CustomEvent("ll-nav-lock-changed", { detail: { lock: false } }));
+        window.dispatchEvent(
+          new CustomEvent("ll-nav-lock-changed", { detail: { lock: false } })
+        );
       } catch {}
     };
   }, []);
@@ -176,7 +180,12 @@ export default function UpdatingPage() {
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button color="primary" onPress={() => { Window.Close(); }}>
+                <Button
+                  color="primary"
+                  onPress={() => {
+                    Window.Close();
+                  }}
+                >
                   {t("common.confirm", { defaultValue: "确定" }) as string}
                 </Button>
               </ModalFooter>

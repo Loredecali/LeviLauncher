@@ -162,7 +162,7 @@
     "type": {
       "install": "Install",
       "not_install": "Not Install"
-    },    
+    },
     "changelog": {
       "title": "Latest Changelog",
       "loading": "Loading..."
@@ -401,7 +401,7 @@
       }
     }
   },
-  
+
   "downloadmodal": {
     "download_button": "Download",
     "information": {
@@ -489,7 +489,7 @@
     "star_fork": "Star / Fork",
     "rhymc_name": "RhyMC"
   },
-  
+
   "common": {
     "ok": "OK",
     "cancel": "Cancel",
@@ -516,14 +516,14 @@
     "processing": "Processing...",
     "done": "Done",
     "wait": "Please wait...",
-        "updating": "Updating",
-        "expand": "Expand",
-        "collapse": "Collapse",
-        "save": "Save",
-        "add": "Add",
-        "save_failed": "Save failed",
-        "load_failed": "Load failed"
-      },
+    "updating": "Updating",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "save": "Save",
+    "add": "Add",
+    "save_failed": "Save failed",
+    "load_failed": "Load failed"
+  },
   "content": {
     "count": {
       "worlds": "Worlds",
@@ -533,13 +533,13 @@
     }
   },
   "contentpage": {
-        "not_ready_title": "Page Not Ready",
-        "not_ready_body": "This page is under development and not accessible yet. Please return to the home page.",
-        "current_version": "Current Version",
-        "none": "None",
-        "isolation": "Isolation",
-        "isolation_on": "Isolation: On",
-        "isolation_off": "Isolation: Off",
+    "not_ready_title": "Page Not Ready",
+    "not_ready_body": "This page is under development and not accessible yet. Please return to the home page.",
+    "current_version": "Current Version",
+    "none": "None",
+    "isolation": "Isolation",
+    "isolation_on": "Isolation: On",
+    "isolation_off": "Isolation: Off",
     "worlds": "Worlds",
     "worlds_desc": "Stored per-player under Users/<player>/games/com.mojang/minecraftWorlds",
     "select_player": "Select Player",
@@ -582,9 +582,8 @@
     "add_child_field": "Add Child Field",
     "new_child_item": "New Child Item",
     "field_type": "Type"
-    
   },
-  
+
   "versions": {
     "rename": {
       "title": "Rename Version",
@@ -748,20 +747,20 @@
     "err_duplicate_folder": "Module folder with same name exists",
     "err_read_zip_entry": "Failed to read ZIP entry",
     "err_write_file": "Failed to write file",
-        "err_unknown": "Unknown error",
-        "overwrite_modal_title": "Duplicate Detected",
-        "overwrite_modal_body": "A module folder with the same name exists. Overwrite (update)?",
-        "drag_import_unsupported_title": "Drag Import Unsupported",
-        "drag_import_unsupported_body": "Currently unsupported; waiting for Wails support.",
-        "toggle_label": "Enable Mod",
-        "toggle_on": "Enabled",
-        "toggle_off": "Disabled",
-        "toggle_tip": "Toggle mod enable/disable state",
-        "toggle_desc_on": "Mod is enabled and will load when the game starts.",
-        "toggle_desc_off": "Mod is disabled and will not load when the game starts.",
-        "only_enabled": "Only show enabled mods",
-        "type_mod": "Mod"
-    },
+    "err_unknown": "Unknown error",
+    "overwrite_modal_title": "Duplicate Detected",
+    "overwrite_modal_body": "A module folder with the same name exists. Overwrite (update)?",
+    "drag_import_unsupported_title": "Drag Import Unsupported",
+    "drag_import_unsupported_body": "Currently unsupported; waiting for Wails support.",
+    "toggle_label": "Enable Mod",
+    "toggle_on": "Enabled",
+    "toggle_off": "Disabled",
+    "toggle_tip": "Toggle mod enable/disable state",
+    "toggle_desc_on": "Mod is enabled and will load when the game starts.",
+    "toggle_desc_off": "Mod is disabled and will not load when the game starts.",
+    "only_enabled": "Only show enabled mods",
+    "type_mod": "Mod"
+  },
   "versionselect": {
     "unsaved": {
       "title": "Unsaved Changes",

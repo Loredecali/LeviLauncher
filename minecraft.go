@@ -739,6 +739,8 @@ func (a *Minecraft) ResetBaseRoot() string { return mcservice.ResetBaseRoot() }
 
 func (a *Minecraft) CanWriteToDir(path string) bool { return mcservice.CanWriteToDir(path) }
 
+func (a *Minecraft) ReconcileRegisteredFlags() { mcservice.ReconcileRegisteredFlags() }
+
 func isProcessRunningAtPath(exePath string) bool {
 	p := strings.ToLower(filepath.Clean(strings.TrimSpace(exePath)))
 	if p == "" {

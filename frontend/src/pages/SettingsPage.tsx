@@ -69,7 +69,11 @@ export const SettingsPage: React.FC = () => {
   const [savingBaseRoot, setSavingBaseRoot] = useState<boolean>(false);
   const [baseRootWritable, setBaseRootWritable] = useState<boolean>(true);
   const [gdkInstalled, setGdkInstalled] = useState<boolean>(false);
-  const [gdkDlProgress, setGdkDlProgress] = useState<{ downloaded: number; total: number; dest?: string } | null>(null);
+  const [gdkDlProgress, setGdkDlProgress] = useState<{
+    downloaded: number;
+    total: number;
+    dest?: string;
+  } | null>(null);
   const [gdkDlSpeed, setGdkDlSpeed] = useState<number>(0);
   const [gdkDlStatus, setGdkDlStatus] = useState<string>("");
   const [gdkDlError, setGdkDlError] = useState<string>("");
@@ -79,9 +83,17 @@ export const SettingsPage: React.FC = () => {
   const [gdkLicenseAccepted, setGdkLicenseAccepted] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { isOpen: unsavedOpen, onOpen: unsavedOnOpen, onOpenChange: unsavedOnOpenChange } = useDisclosure();
+  const {
+    isOpen: unsavedOpen,
+    onOpen: unsavedOnOpen,
+    onOpenChange: unsavedOnOpenChange,
+  } = useDisclosure();
   const [pendingNavPath, setPendingNavPath] = useState<string>("");
-  const { isOpen: resetOpen, onOpen: resetOnOpen, onOpenChange: resetOnOpenChange } = useDisclosure();
+  const {
+    isOpen: resetOpen,
+    onOpen: resetOnOpen,
+    onOpenChange: resetOnOpenChange,
+  } = useDisclosure();
 
   useEffect(() => {
     const handler = (ev: any) => {
@@ -99,7 +111,14 @@ export const SettingsPage: React.FC = () => {
     };
     window.addEventListener("ll-try-nav", handler as any);
     return () => window.removeEventListener("ll-try-nav", handler as any);
-  }, [newBaseRoot, baseRoot, baseRootWritable, navigate, location.pathname, unsavedOnOpen]);
+  }, [
+    newBaseRoot,
+    baseRoot,
+    baseRootWritable,
+    navigate,
+    location.pathname,
+    unsavedOnOpen,
+  ]);
 
   useEffect(() => {
     GetAppVersion().then((version) => {
@@ -156,7 +175,10 @@ export const SettingsPage: React.FC = () => {
     if (v && typeof v === "string" && v.length > 0) {
       setNewBaseRoot(v);
       setTimeout(() => {
-        navigate(location.pathname, { replace: true, state: { ...(location.state as any), baseRootPickResult: undefined } });
+        navigate(location.pathname, {
+          replace: true,
+          state: { ...(location.state as any), baseRootPickResult: undefined },
+        });
       }, 0);
     }
   }, [location?.state]);
@@ -206,7 +228,11 @@ export const SettingsPage: React.FC = () => {
     const offs: (() => void)[] = [];
     const lastRef: { ts: number; bytes: number } | null = null as any;
     try {
-      const speedRef: { ts: number; bytes: number; ema: number } = { ts: 0, bytes: 0, ema: 0 } as any;
+      const speedRef: { ts: number; bytes: number; ema: number } = {
+        ts: 0,
+        bytes: 0,
+        ema: 0,
+      } as any;
       offs.push(
         Events.On("gdk_download_progress", (event) => {
           const downloaded = Number(event?.data?.Downloaded || 0);
@@ -220,7 +246,8 @@ export const SettingsPage: React.FC = () => {
               const db = downloaded - speedRef.bytes;
               const inst = dt > 0 && db >= 0 ? db / dt : 0;
               const alpha = 0.25;
-              speedRef.ema = alpha * inst + (1 - alpha) * (speedRef.ema || inst);
+              speedRef.ema =
+                alpha * inst + (1 - alpha) * (speedRef.ema || inst);
               setGdkDlSpeed(speedRef.ema);
             }
             speedRef.ts = now;
@@ -234,7 +261,9 @@ export const SettingsPage: React.FC = () => {
           setGdkDlStatus(s);
           if (s === "started" || s === "resumed" || s === "cancelled") {
             setGdkDlError("");
-            try { (window as any).__gdkDlLast = null; } catch {}
+            try {
+              (window as any).__gdkDlLast = null;
+            } catch {}
             setGdkDlSpeed(0);
           }
         })
@@ -274,7 +303,9 @@ export const SettingsPage: React.FC = () => {
     } catch {}
     return () => {
       for (const off of offs) {
-        try { off(); } catch {}
+        try {
+          off();
+        } catch {}
       }
     };
   }, [hasBackend]);
@@ -301,12 +332,19 @@ export const SettingsPage: React.FC = () => {
           <Divider className="my-2 bg-default-200/60 h-px" />
           <CardBody className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
-              <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, delay: 0.04 }} className="rounded-2xl p-4 bg-default-100/40 dark:bg-default-50/20 border border-default-200/50">
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, delay: 0.04 }}
+                className="rounded-2xl p-4 bg-default-100/40 dark:bg-default-50/20 border border-default-200/50"
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <LuFolderOpen size={18} />
                     <p className="font-medium">
-                      {t("settingscard.body.paths.title", { defaultValue: "内容路径" })}
+                      {t("settingscard.body.paths.title", {
+                        defaultValue: "内容路径",
+                      })}
                     </p>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -336,7 +374,9 @@ export const SettingsPage: React.FC = () => {
                         setSavingBaseRoot(false);
                       }}
                     >
-                      {t("settingscard.body.paths.apply", { defaultValue: "应用" })}
+                      {t("settingscard.body.paths.apply", {
+                        defaultValue: "应用",
+                      })}
                     </Button>
                     <Button
                       variant="light"
@@ -345,56 +385,108 @@ export const SettingsPage: React.FC = () => {
                         resetOnOpen();
                       }}
                     >
-                      {t("settingscard.body.paths.reset", { defaultValue: "恢复默认" })}
+                      {t("settingscard.body.paths.reset", {
+                        defaultValue: "恢复默认",
+                      })}
                     </Button>
                   </div>
                 </div>
                 <Divider className="my-3 bg-default-200/60 h-px" />
                 <div className="space-y-2">
                   <Input
-                    label={t("settingscard.body.paths.base_root", { defaultValue: "根目录" }) as string}
+                    label={
+                      t("settingscard.body.paths.base_root", {
+                        defaultValue: "根目录",
+                      }) as string
+                    }
                     value={newBaseRoot}
                     onValueChange={setNewBaseRoot}
                     endContent={
-                      <Button size="sm" variant="flat" onPress={() => {
-                        navigate("/filemanager", { state: { directoryPickMode: true, returnTo: "/settings", returnState: {}, title: t("settingscard.body.paths.title", { defaultValue: "内容路径" }), initialPath: (newBaseRoot || baseRoot) || "" } });
-                      }}>
+                      <Button
+                        size="sm"
+                        variant="flat"
+                        onPress={() => {
+                          navigate("/filemanager", {
+                            state: {
+                              directoryPickMode: true,
+                              returnTo: "/settings",
+                              returnState: {},
+                              title: t("settingscard.body.paths.title", {
+                                defaultValue: "内容路径",
+                              }),
+                              initialPath: newBaseRoot || baseRoot || "",
+                            },
+                          });
+                        }}
+                      >
                         {t("common.browse", { defaultValue: "选择..." })}
                       </Button>
                     }
                   />
-                  {newBaseRoot && newBaseRoot !== baseRoot && baseRootWritable ? (
-                    <div className="text-tiny text-warning-500" title={newBaseRoot}>
-                      {t("settingscard.body.paths.base_root", { defaultValue: "根目录" }) + ": " + newBaseRoot}
+                  {newBaseRoot &&
+                  newBaseRoot !== baseRoot &&
+                  baseRootWritable ? (
+                    <div
+                      className="text-tiny text-warning-500"
+                      title={newBaseRoot}
+                    >
+                      {t("settingscard.body.paths.base_root", {
+                        defaultValue: "根目录",
+                      }) +
+                        ": " +
+                        newBaseRoot}
                     </div>
                   ) : null}
                   {!baseRootWritable ? (
                     <div className="text-tiny text-danger-500">
-                      {t("settingscard.body.paths.not_writable", { defaultValue: "目录不可写入" })}
+                      {t("settingscard.body.paths.not_writable", {
+                        defaultValue: "目录不可写入",
+                      })}
                     </div>
                   ) : null}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                    <div className="text-tiny text-default-500 flex items-center gap-1 truncate" title={installerDir || "-"}>
+                    <div
+                      className="text-tiny text-default-500 flex items-center gap-1 truncate"
+                      title={installerDir || "-"}
+                    >
                       <LuHardDrive size={14} />
-                      {t("settingscard.body.paths.installer", { defaultValue: "安装器目录" })}: {installerDir || "-"}
+                      {t("settingscard.body.paths.installer", {
+                        defaultValue: "安装器目录",
+                      })}
+                      : {installerDir || "-"}
                     </div>
-                    <div className="text-tiny text-default-500 flex items-center gap-1 truncate" title={versionsDir || "-"}>
+                    <div
+                      className="text-tiny text-default-500 flex items-center gap-1 truncate"
+                      title={versionsDir || "-"}
+                    >
                       <LuHardDrive size={14} />
-                      {t("settingscard.body.paths.versions", { defaultValue: "版本目录" })}: {versionsDir || "-"}
+                      {t("settingscard.body.paths.versions", {
+                        defaultValue: "版本目录",
+                      })}
+                      : {versionsDir || "-"}
                     </div>
                   </div>
                 </div>
               </motion.div>
 
-              <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, delay: 0.06 }} className="rounded-2xl p-4 bg-default-100/40 dark:bg-default-50/20 border border-default-200/50">
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, delay: 0.06 }}
+                className="rounded-2xl p-4 bg-default-100/40 dark:bg-default-50/20 border border-default-200/50"
+              >
                 <div className="flex items-center justify-between">
                   <p className="font-medium">
-                    {t("settingscard.body.language.name", { defaultValue: t("app.lang") })}
+                    {t("settingscard.body.language.name", {
+                      defaultValue: t("app.lang"),
+                    })}
                   </p>
                   <Dropdown>
                     <DropdownTrigger>
                       <Button radius="full" variant="bordered">
-                        {t("settingscard.body.language.button", { defaultValue: "更改" })}
+                        {t("settingscard.body.language.button", {
+                          defaultValue: "更改",
+                        })}
                       </Button>
                     </DropdownTrigger>
                     <DropdownMenu
@@ -409,12 +501,14 @@ export const SettingsPage: React.FC = () => {
                         const next = arr[0];
                         if (typeof next === "string" && next.length > 0) {
                           setSelectedLang(next);
-                          Promise.resolve(i18n.changeLanguage(next)).then(() => {
-                            try {
-                              localStorage.setItem("i18nextLng", next);
-                            } catch {}
-                            setLanguageChanged(true);
-                          });
+                          Promise.resolve(i18n.changeLanguage(next)).then(
+                            () => {
+                              try {
+                                localStorage.setItem("i18nextLng", next);
+                              } catch {}
+                              setLanguageChanged(true);
+                            }
+                          );
                         }
                       }}
                     >
@@ -428,7 +522,8 @@ export const SettingsPage: React.FC = () => {
                 </div>
                 <Divider className="my-3 bg-default-200/60 h-px" />
                 <div className="text-small text-default-500">
-                  {langNames.find((l) => l.code === selectedLang)?.language || selectedLang}
+                  {langNames.find((l) => l.code === selectedLang)?.language ||
+                    selectedLang}
                 </div>
                 {languageChanged ? (
                   <div className="text-tiny text-warning-500 mt-1">
@@ -437,12 +532,19 @@ export const SettingsPage: React.FC = () => {
                 ) : null}
               </motion.div>
 
-              <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, delay: 0.07 }} className="rounded-2xl p-4 bg-default-100/40 dark:bg-default-50/20 border border-default-200/50">
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, delay: 0.07 }}
+                className="rounded-2xl p-4 bg-default-100/40 dark:bg-default-50/20 border border-default-200/50"
+              >
                 <div className="flex items-center justify-between">
                   <p className="font-medium">{t("settings.gdk.title")}</p>
                   <div className="flex items-center gap-2">
                     {gdkInstalled ? (
-                      <Chip color="success" variant="flat">{t("settings.gdk.installed")}</Chip>
+                      <Chip color="success" variant="flat">
+                        {t("settings.gdk.installed")}
+                      </Chip>
                     ) : (
                       <Button
                         radius="full"
@@ -459,19 +561,35 @@ export const SettingsPage: React.FC = () => {
                 </div>
                 <Divider className="my-3 bg-default-200/60 h-px" />
                 <div className="text-small text-default-500">
-                  {t("settings.gdk.path_label", { path: "C:\\Program Files (x86)\\Microsoft GDK" })}
+                  {t("settings.gdk.path_label", {
+                    path: "C:\\Program Files (x86)\\Microsoft GDK",
+                  })}
                 </div>
               </motion.div>
 
-              <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, delay: 0.08 }} className="lg:col-span-2 rounded-2xl p-4 bg-default-100/40 dark:bg-default-50/20 border border-default-200/50">
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, delay: 0.08 }}
+                className="lg:col-span-2 rounded-2xl p-4 bg-default-100/40 dark:bg-default-50/20 border border-default-200/50"
+              >
                 <div className="flex items-center justify-between">
-                  <p className="font-medium">{t("settingscard.body.version.name")}</p>
+                  <p className="font-medium">
+                    {t("settingscard.body.version.name")}
+                  </p>
                   <div className="flex items-center gap-2">
                     {checkingUpdate ? (
                       <Spinner size="sm" />
                     ) : (
-                      <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                        <Button radius="full" variant="bordered" onPress={onCheckUpdate}>
+                      <motion.div
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                      >
+                        <Button
+                          radius="full"
+                          variant="bordered"
+                          onPress={onCheckUpdate}
+                        >
                           {t("settingscard.body.version.button")}
                         </Button>
                       </motion.div>
@@ -480,7 +598,9 @@ export const SettingsPage: React.FC = () => {
                 </div>
                 <Divider className="my-3 bg-default-200/60 h-px" />
                 <div className="space-y-2">
-                  <div className="text-small text-default-500">{appVersion}</div>
+                  <div className="text-small text-default-500">
+                    {appVersion}
+                  </div>
                   <AnimatePresence>
                     {hasUpdate ? (
                       <motion.div
@@ -494,9 +614,22 @@ export const SettingsPage: React.FC = () => {
                         <p className="text-small text-danger-500">
                           {t("settingscard.body.version.hasnew")} {newVersion}
                         </p>
-                        <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                          <Button color="primary" radius="full" onPress={onUpdate} isDisabled={updating} startContent={<RxUpdate />}>
-                            {updating ? t("common.updating", { defaultValue: "更新中" }) : t("settingscard.modal.2.footer.download_button")}
+                        <motion.div
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
+                        >
+                          <Button
+                            color="primary"
+                            radius="full"
+                            onPress={onUpdate}
+                            isDisabled={updating}
+                            startContent={<RxUpdate />}
+                          >
+                            {updating
+                              ? t("common.updating", { defaultValue: "更新中" })
+                              : t(
+                                  "settingscard.modal.2.footer.download_button"
+                                )}
                           </Button>
                         </motion.div>
                       </motion.div>
@@ -505,37 +638,58 @@ export const SettingsPage: React.FC = () => {
                   {hasUpdate && changelog ? (
                     <div className="mt-1 rounded-md bg-default-100/60 border border-default-200 px-3 py-2">
                       <div className="text-small font-semibold mb-1">
-                        {t("downloadpage.changelog.title", { defaultValue: "最新更新日志" })}
+                        {t("downloadpage.changelog.title", {
+                          defaultValue: "最新更新日志",
+                        })}
                       </div>
                       <div className="text-small break-words leading-6 max-h-[24vh] sm:max-h-[32vh] overflow-y-auto pr-1">
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
                           components={{
                             h1: ({ children }) => (
-                              <h1 className="text-xl font-semibold mt-2 mb-2">{children}</h1>
+                              <h1 className="text-xl font-semibold mt-2 mb-2">
+                                {children}
+                              </h1>
                             ),
                             h2: ({ children }) => (
-                              <h2 className="text-lg font-semibold mt-2 mb-2">{children}</h2>
+                              <h2 className="text-lg font-semibold mt-2 mb-2">
+                                {children}
+                              </h2>
                             ),
                             h3: ({ children }) => (
-                              <h3 className="text-base font-semibold mt-2 mb-2">{children}</h3>
+                              <h3 className="text-base font-semibold mt-2 mb-2">
+                                {children}
+                              </h3>
                             ),
                             p: ({ children }) => (
                               <p className="my-1">{children}</p>
                             ),
                             ul: ({ children }) => (
-                              <ul className="list-disc pl-6 my-2">{children}</ul>
+                              <ul className="list-disc pl-6 my-2">
+                                {children}
+                              </ul>
                             ),
                             ol: ({ children }) => (
-                              <ol className="list-decimal pl-6 my-2">{children}</ol>
+                              <ol className="list-decimal pl-6 my-2">
+                                {children}
+                              </ol>
                             ),
-                            li: ({ children }) => <li className="my-1">{children}</li>,
+                            li: ({ children }) => (
+                              <li className="my-1">{children}</li>
+                            ),
                             a: ({ href, children }) => (
-                              <a href={href} target="_blank" rel="noreferrer" className="text-primary underline">
+                              <a
+                                href={href}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-primary underline"
+                              >
                                 {children}
                               </a>
                             ),
-                            hr: () => <hr className="my-3 border-default-200" />,
+                            hr: () => (
+                              <hr className="my-3 border-default-200" />
+                            ),
                           }}
                         >
                           {changelog}
@@ -545,53 +699,109 @@ export const SettingsPage: React.FC = () => {
                   ) : null}
                   {updating ? (
                     <div className="py-2">
-                      <Progress size="md" radius="sm" aria-label="Installation Progress" color="warning" isIndeterminate={true} />
+                      <Progress
+                        size="md"
+                        radius="sm"
+                        aria-label="Installation Progress"
+                        color="warning"
+                        isIndeterminate={true}
+                      />
                     </div>
                   ) : null}
                 </div>
               </motion.div>
 
-              <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, delay: 0.1 }} className="lg:col-span-2 rounded-2xl p-4 bg-default-100/40 dark:bg-default-50/20 border border-default-200/50">
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, delay: 0.1 }}
+                className="lg:col-span-2 rounded-2xl p-4 bg-default-100/40 dark:bg-default-50/20 border border-default-200/50"
+              >
                 <div className="flex items-center justify-between">
                   <p className="font-medium">{t("aboutcard.title")}</p>
                   <div className="flex items-center gap-2">
-                    <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }}>
-                      <Button isIconOnly variant="light" onPress={() => { Browser.OpenURL("https://github.com/liteldev"); }}>
+                    <motion.div
+                      whileHover={{ scale: 1.08 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Button
+                        isIconOnly
+                        variant="light"
+                        onPress={() => {
+                          Browser.OpenURL("https://github.com/liteldev");
+                        }}
+                      >
                         <FaGithub size={24} />
                       </Button>
                     </motion.div>
-                    <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }}>
-                      <Button isIconOnly variant="light" onPress={() => { Browser.OpenURL("https://discord.gg/v5R5P4vRZk"); }}>
+                    <motion.div
+                      whileHover={{ scale: 1.08 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Button
+                        isIconOnly
+                        variant="light"
+                        onPress={() => {
+                          Browser.OpenURL("https://discord.gg/v5R5P4vRZk");
+                        }}
+                      >
                         <FaDiscord size={24} />
                       </Button>
                     </motion.div>
                   </div>
                 </div>
                 <Divider className="my-3 bg-default-200/60 h-px" />
-                <p className="text-small text-default-500">{t("aboutcard.description", { name: "LeviMC" })}</p>
-                <p className="text-small text-default-500">{t("aboutcard.font", { name: "MiSans" })}</p>
+                <p className="text-small text-default-500">
+                  {t("aboutcard.description", { name: "LeviMC" })}
+                </p>
+                <p className="text-small text-default-500">
+                  {t("aboutcard.font", { name: "MiSans" })}
+                </p>
               </motion.div>
             </div>
           </CardBody>
         </Card>
       </motion.div>
       {/* GDK License */}
-      <Modal size="md" isOpen={gdkLicenseDisclosure.isOpen} onOpenChange={gdkLicenseDisclosure.onOpenChange}>
+      <Modal
+        size="md"
+        isOpen={gdkLicenseDisclosure.isOpen}
+        onOpenChange={gdkLicenseDisclosure.onOpenChange}
+      >
         <ModalContent>
           {(onClose) => (
             <>
               <ModalHeader>{t("settings.gdk.license.title")}</ModalHeader>
               <ModalBody>
                 <div className="text-default-700 text-sm">
-                  {t("settings.gdk.license.body")} <a className="text-primary underline" href="https://aka.ms/GDK_EULA" target="_blank" rel="noreferrer">Microsoft Public Game Development Kit License Agreement</a>
+                  {t("settings.gdk.license.body")}{" "}
+                  <a
+                    className="text-primary underline"
+                    href="https://aka.ms/GDK_EULA"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Microsoft Public Game Development Kit License Agreement
+                  </a>
                 </div>
                 <div className="flex items-center gap-2 mt-3">
-                  <input type="checkbox" id="gdk-license" checked={gdkLicenseAccepted} onChange={(e) => setGdkLicenseAccepted(Boolean(e.target.checked))} />
-                  <label htmlFor="gdk-license" className="text-small">{t("settings.gdk.license.accept")}</label>
+                  <input
+                    type="checkbox"
+                    id="gdk-license"
+                    checked={gdkLicenseAccepted}
+                    onChange={(e) =>
+                      setGdkLicenseAccepted(Boolean(e.target.checked))
+                    }
+                  />
+                  <label htmlFor="gdk-license" className="text-small">
+                    {t("settings.gdk.license.accept")}
+                  </label>
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button variant="light" onPress={onClose}>{t("common.cancel")}</Button>
+                <Button variant="light" onPress={onClose}>
+                  {t("common.cancel")}
+                </Button>
                 <Button
                   color="primary"
                   isDisabled={!gdkLicenseAccepted}
@@ -601,7 +811,9 @@ export const SettingsPage: React.FC = () => {
                       setGdkDlError("");
                       setGdkDlProgress(null);
                       gdkProgressDisclosure.onOpen();
-                      StartGDKDownload("https://github.bibk.top/microsoft/GDK/releases/download/October-2025-v2510.0.6194/GDK_2510.0.6194.zip");
+                      StartGDKDownload(
+                        "https://github.bibk.top/microsoft/GDK/releases/download/October-2025-v2510.0.6194/GDK_2510.0.6194.zip"
+                      );
                     } catch {}
                   }}
                 >
@@ -614,11 +826,19 @@ export const SettingsPage: React.FC = () => {
       </Modal>
 
       {/* GDK Download Progress */}
-      <Modal size="md" isOpen={gdkProgressDisclosure.isOpen} onOpenChange={gdkProgressDisclosure.onOpenChange} hideCloseButton isDismissable={false}>
+      <Modal
+        size="md"
+        isOpen={gdkProgressDisclosure.isOpen}
+        onOpenChange={gdkProgressDisclosure.onOpenChange}
+        hideCloseButton
+        isDismissable={false}
+      >
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="text-medium">{t("settings.gdk.download.title")}</ModalHeader>
+              <ModalHeader className="text-medium">
+                {t("settings.gdk.download.title")}
+              </ModalHeader>
               <ModalBody>
                 {gdkDlError ? (
                   <div className="text-danger">{gdkDlError}</div>
@@ -628,19 +848,34 @@ export const SettingsPage: React.FC = () => {
                       {(() => {
                         const total = gdkDlProgress?.total || 0;
                         const done = gdkDlProgress?.downloaded || 0;
-                        const pct = total > 0 ? Math.min(100, Math.round((done / total) * 100)) : 0;
-                        return <div className="h-full bg-primary" style={{ width: `${pct}%` }} />;
+                        const pct =
+                          total > 0
+                            ? Math.min(100, Math.round((done / total) * 100))
+                            : 0;
+                        return (
+                          <div
+                            className="h-full bg-primary"
+                            style={{ width: `${pct}%` }}
+                          />
+                        );
                       })()}
                     </div>
                     <div className="text-small text-default-500">
                       {(() => {
                         const total = gdkDlProgress?.total || 0;
                         const done = gdkDlProgress?.downloaded || 0;
-                        const fmt = (n: number) => `${(n / (1024 * 1024)).toFixed(2)} MB`;
-                        const fmtSpd = (bps: number) => `${(bps / (1024 * 1024)).toFixed(2)} MB/s`;
+                        const fmt = (n: number) =>
+                          `${(n / (1024 * 1024)).toFixed(2)} MB`;
+                        const fmtSpd = (bps: number) =>
+                          `${(bps / (1024 * 1024)).toFixed(2)} MB/s`;
                         if (total > 0) {
-                          const pct = Math.min(100, Math.round((done / total) * 100));
-                          return `${fmt(done)} / ${fmt(total)} (${pct}%) · ${fmtSpd(gdkDlSpeed || 0)}`;
+                          const pct = Math.min(
+                            100,
+                            Math.round((done / total) * 100)
+                          );
+                          return `${fmt(done)} / ${fmt(
+                            total
+                          )} (${pct}%) · ${fmtSpd(gdkDlSpeed || 0)}`;
                         }
                         return `${fmt(done)} · ${fmtSpd(gdkDlSpeed || 0)}`;
                       })()}
@@ -649,8 +884,26 @@ export const SettingsPage: React.FC = () => {
                 )}
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" isDisabled={gdkDlStatus === "done"} onPress={() => { try { CancelGDKDownload(); } catch {} onClose?.(); }}>{t("common.cancel")}</Button>
-                <Button color="primary" isDisabled={gdkDlStatus !== "done"} onPress={() => onClose?.()}>{t("common.ok")}</Button>
+                <Button
+                  color="danger"
+                  variant="light"
+                  isDisabled={gdkDlStatus === "done"}
+                  onPress={() => {
+                    try {
+                      CancelGDKDownload();
+                    } catch {}
+                    onClose?.();
+                  }}
+                >
+                  {t("common.cancel")}
+                </Button>
+                <Button
+                  color="primary"
+                  isDisabled={gdkDlStatus !== "done"}
+                  onPress={() => onClose?.()}
+                >
+                  {t("common.ok")}
+                </Button>
               </ModalFooter>
             </>
           )}
@@ -658,35 +911,57 @@ export const SettingsPage: React.FC = () => {
       </Modal>
 
       {/* GDK Install */}
-      <Modal size="md" isOpen={gdkInstallDisclosure.isOpen} onOpenChange={gdkInstallDisclosure.onOpenChange} hideCloseButton isDismissable={false}>
+      <Modal
+        size="md"
+        isOpen={gdkInstallDisclosure.isOpen}
+        onOpenChange={gdkInstallDisclosure.onOpenChange}
+        hideCloseButton
+        isDismissable={false}
+      >
         <ModalContent>
           {() => (
             <>
               <ModalHeader>{t("settings.gdk.install.title")}</ModalHeader>
               <ModalBody>
-                <div className="text-small text-default-500">{t("settings.gdk.install.body")}</div>
+                <div className="text-small text-default-500">
+                  {t("settings.gdk.install.body")}
+                </div>
               </ModalBody>
             </>
           )}
         </ModalContent>
       </Modal>
-      <Modal size="md" isOpen={unsavedOpen} onOpenChange={unsavedOnOpenChange} hideCloseButton>
+      <Modal
+        size="md"
+        isOpen={unsavedOpen}
+        onOpenChange={unsavedOnOpenChange}
+        hideCloseButton
+      >
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="text-warning-600">{t("settings.unsaved.title", { defaultValue: "未保存修改" })}</ModalHeader>
+              <ModalHeader className="text-warning-600">
+                {t("settings.unsaved.title", { defaultValue: "未保存修改" })}
+              </ModalHeader>
               <ModalBody>
                 <div className="text-default-700 text-sm">
-                  {t("settings.unsaved.body", { defaultValue: "您更改了内容路径但尚未保存。是否保存后离开？" })}
+                  {t("settings.unsaved.body", {
+                    defaultValue:
+                      "您更改了内容路径但尚未保存。是否保存后离开？",
+                  })}
                 </div>
                 {!baseRootWritable && (
                   <div className="text-tiny text-danger-500 mt-1">
-                    {t("settingscard.body.paths.not_writable", { defaultValue: "目录不可写入" })}
+                    {t("settingscard.body.paths.not_writable", {
+                      defaultValue: "目录不可写入",
+                    })}
                   </div>
                 )}
               </ModalBody>
               <ModalFooter>
-                <Button variant="light" onPress={onClose}>{t("settings.unsaved.cancel", { defaultValue: "取消" })}</Button>
+                <Button variant="light" onPress={onClose}>
+                  {t("settings.unsaved.cancel", { defaultValue: "取消" })}
+                </Button>
                 <Button
                   color="primary"
                   isLoading={savingBaseRoot}
@@ -721,16 +996,26 @@ export const SettingsPage: React.FC = () => {
           )}
         </ModalContent>
       </Modal>
-      <Modal size="sm" isOpen={resetOpen} onOpenChange={resetOnOpenChange} hideCloseButton>
+      <Modal
+        size="sm"
+        isOpen={resetOpen}
+        onOpenChange={resetOnOpenChange}
+        hideCloseButton
+      >
         <ModalContent>
           {(onClose) => (
             <>
               <ModalHeader className="text-danger-600">
-                {t("settings.reset.confirm.title", { defaultValue: "恢复默认路径？" })}
+                {t("settings.reset.confirm.title", {
+                  defaultValue: "恢复默认路径？",
+                })}
               </ModalHeader>
               <ModalBody>
                 <div className="text-default-700 text-sm">
-                  {t("settings.reset.confirm.body", { defaultValue: "这将把内容路径重置为默认位置。确定要继续吗？" })}
+                  {t("settings.reset.confirm.body", {
+                    defaultValue:
+                      "这将把内容路径重置为默认位置。确定要继续吗？",
+                  })}
                 </div>
               </ModalBody>
               <ModalFooter>
