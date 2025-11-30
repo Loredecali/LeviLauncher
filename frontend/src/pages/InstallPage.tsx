@@ -186,6 +186,21 @@ export default function InstallPage() {
     return inheritOptions.find((o) => o.key === src)?.label || src;
   }, [inheritSource, inheritOptions]);
 
+  const inheritMenuItems = useMemo(
+    () => [
+      {
+        key: "none",
+        label: t("downloadpage.install_folder.inherit_none") as unknown as string,
+      },
+      {
+        key: "gdk",
+        label: t("downloadpage.install_folder.inherit_gdk") as unknown as string,
+      },
+      ...inheritOptions,
+    ],
+    [inheritOptions, t]
+  );
+
   useEffect(() => {
     try {
       const r = (location?.state as any)?.fileManagerResult;
@@ -362,7 +377,29 @@ export default function InstallPage() {
       }
 
       try {
-        await refreshAll();
+        let cachedItems: { version: string; short: string; type: ItemType }[] = [];
+        try {
+          const raw = localStorage.getItem("ll.version_items");
+          const parsed = raw ? JSON.parse(raw) : [];
+          if (Array.isArray(parsed)) {
+            cachedItems = parsed.map((it: any) => ({
+              version: String(it?.version || it?.short || ""),
+              short: String(it?.short || it?.version || ""),
+              type: String(it?.type || "Release") as ItemType,
+            }));
+          }
+        } catch {}
+        const itemsToRefresh =
+          cachedItems && cachedItems.length > 0
+            ? cachedItems
+            : [
+                {
+                  version: String(mirrorVersion || installName || ""),
+                  short: String(mirrorVersion || installName || ""),
+                  type: (mirrorType || "Release") as ItemType,
+                },
+              ];
+        await refreshAll(itemsToRefresh as any);
       } catch {}
       setResultMsg(
         t("downloadpage.install.success", {
@@ -579,6 +616,7 @@ export default function InstallPage() {
                             disallowEmptySelection
                             selectedKeys={new Set([inheritSource || "none"])}
                             className="max-h-64 overflow-y-auto min-w-[240px] no-scrollbar"
+                            items={inheritMenuItems}
                             onSelectionChange={(keys) => {
                               const arr = Array.from(
                                 keys as unknown as Set<string>
@@ -588,17 +626,9 @@ export default function InstallPage() {
                               setInheritSource(k === "none" ? "" : k);
                             }}
                           >
-                            <DropdownItem key="none">
-                              {t("downloadpage.install_folder.inherit_none")}
-                            </DropdownItem>
-                            <DropdownItem key="gdk">
-                              {t("downloadpage.install_folder.inherit_gdk")}
-                            </DropdownItem>
-                            {inheritOptions.map((opt) => (
-                              <DropdownItem key={opt.key}>
-                                {opt.label}
-                              </DropdownItem>
-                            ))}
+                            {(item: { key: string; label: string }) => (
+                              <DropdownItem key={item.key}>{item.label}</DropdownItem>
+                            )}
                           </DropdownMenu>
                         </Dropdown>
                       </div>

@@ -378,9 +378,9 @@ export const DownloadPage: React.FC = () => {
     });
     const off5 = Events.On("extract.progress", (event) => {
       const payload = event?.data || {};
-      const files = Number(payload?.Files || 0);
-      const bytes = Number(payload?.Bytes || 0);
-      const dir = String(payload?.Dir || "");
+      const files = Number(payload?.files || 0);
+      const bytes = Number(payload?.bytes || 0);
+      const dir = String(payload?.dir || "");
       setExtractInfo({ files, bytes, dir });
       if (extractActiveRef.current && !installLoadingDisclosure.isOpen)
         installLoadingDisclosure.onOpen();

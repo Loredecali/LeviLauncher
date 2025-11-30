@@ -28,6 +28,7 @@ export default function VersionSettingsPage() {
   const [targetName, setTargetName] = React.useState<string>(initialName);
   const [newName, setNewName] = React.useState<string>(initialName);
   const [gameVersion, setGameVersion] = React.useState<string>("");
+  const [versionType, setVersionType] = React.useState<string>("");
   const [isPreview, setIsPreview] = React.useState<boolean>(false);
   const [enableIsolation, setEnableIsolation] = React.useState<boolean>(false);
   const [enableConsole, setEnableConsole] = React.useState<boolean>(false);
@@ -60,6 +61,7 @@ export default function VersionSettingsPage() {
           if (meta) {
             setGameVersion(String(meta?.gameVersion || ""));
             const type = String(meta?.type || "release").toLowerCase();
+            setVersionType(type);
             setIsPreview(type === "preview");
             setEnableIsolation(!!meta?.enableIsolation);
             setEnableConsole(!!meta?.enableConsole);
@@ -153,7 +155,7 @@ export default function VersionSettingsPage() {
       setError("ERR_INVALID_NAME");
       return;
     }
-    const type = isPreview ? "preview" : "release";
+    const type = versionType || (isPreview ? "preview" : "release");
 
     if (nn !== targetName) {
       if (typeof validate === "function") {
@@ -293,14 +295,18 @@ export default function VersionSettingsPage() {
                       {targetName || "-"}
                     </span>
                     <span className="mx-2 text-default-400">·</span>
-                    {isPreview ? (
+                    {versionType === "preview" ? (
                       <Chip size="sm" variant="flat" color="warning">
                         {t("common.preview", { defaultValue: "预览版" })}
                       </Chip>
-                    ) : (
+                    ) : versionType === "release" ? (
                       <span className="text-default-700 dark:text-default-200">
                         {t("common.release", { defaultValue: "正式版" })}
                       </span>
+                    ) : (
+                      <Chip size="sm" variant="flat" color="secondary">
+                        {versionType || "-"}
+                      </Chip>
                     )}
                   </div>
                 </div>

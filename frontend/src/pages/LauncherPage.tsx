@@ -233,6 +233,28 @@ export const LauncherPage = (args: any) => {
     });
   }, [versionQuery, sortedVersionNames, localVersionMap]);
 
+  const versionMenuItems = React.useMemo(
+    () =>
+      (filteredVersionNames.length === 0
+        ? [
+            {
+              key: "__empty",
+              name: (t("common.empty", { defaultValue: "暂无数据" }) as string),
+              version: "",
+              isRegistered: false,
+              isDisabled: true,
+            },
+          ]
+        : filteredVersionNames.map((name) => ({
+            key: name,
+            name,
+            version: String(localVersionMap.get(name)?.version || ""),
+            isRegistered: Boolean(localVersionMap.get(name)?.isRegistered),
+            isDisabled: false,
+          }))),
+    [filteredVersionNames, localVersionMap]
+  );
+
   const ensureLogo = React.useCallback(
     (name: string) => {
       if (!name || logoByName.has(name)) return;
@@ -251,6 +273,14 @@ export const LauncherPage = (args: any) => {
     },
     [logoByName]
   );
+
+  useEffect(() => {
+    try {
+      versionMenuItems.forEach((it: any) => {
+        if (!it?.isDisabled) ensureLogo(it.name);
+      });
+    } catch {}
+  }, [versionMenuItems, ensureLogo]);
 
   const doLaunch = React.useCallback(() => {
     const name = currentVersion;
@@ -565,7 +595,10 @@ export const LauncherPage = (args: any) => {
     });
     const unlistenMcFailed = Events.On("mc.launch.failed", (data) => {
       setOverlayActive(false);
-      setLaunchErrorCode(String(data.data[0] || "ERR_LAUNCH_GAME"));
+      const payload: any = (data as any)?.data ?? data;
+      const first = Array.isArray(payload) ? payload[0] : payload;
+      const code = String(first || "");
+      setLaunchErrorCode(code || "ERR_LAUNCH_GAME");
       setModalState(1);
       onOpen();
     });
@@ -995,7 +1028,7 @@ export const LauncherPage = (args: any) => {
           <Button
             color="primary"
             onPress={(e) => {
-              onClose?.(e);
+              onClose?.();
               setOverlayActive(false);
               setModalState(0);
             }}
@@ -1569,6 +1602,7 @@ export const LauncherPage = (args: any) => {
                             </Button>
                           </div>
                         }
+                        items={versionMenuItems}
                         onSelectionChange={(keys) => {
                           const arr = Array.from(
                             keys as unknown as Set<string>
@@ -1602,44 +1636,44 @@ export const LauncherPage = (args: any) => {
                           }
                         }}
                       >
-                        {filteredVersionNames.length === 0 ? (
-                          <DropdownItem key="__empty" isDisabled>
-                            {
-                              t("common.empty", {
-                                defaultValue: "暂无数据",
-                              }) as unknown as string
-                            }
-                          </DropdownItem>
-                        ) : null}
-                        {filteredVersionNames.map((name) => (
+                        {(item: {
+                          key: string;
+                          name: string;
+                          version: string;
+                          isRegistered: boolean;
+                          isDisabled?: boolean;
+                        }) => (
                           <DropdownItem
-                            key={name}
-                            textValue={name}
-                            startContent={(() => {
-                              const u = logoByName.get(name);
-                              if (!u) ensureLogo(name);
-                              return u ? (
-                                <img
-                                  src={u}
-                                  alt="logo"
-                                  className="h-5 w-5 rounded"
-                                />
-                              ) : (
-                                <div className="h-5 w-5 rounded bg-default-200" />
-                              );
-                            })()}
+                            key={item.key}
+                            isDisabled={item.isDisabled}
+                            textValue={item.name}
+                            startContent={
+                              item.isDisabled
+                                ? null
+                                : (() => {
+                                    const u = logoByName.get(item.name);
+                                    if (!u) ensureLogo(item.name);
+                                    return u ? (
+                                      <img
+                                        src={u}
+                                        alt="logo"
+                                        className="h-5 w-5 rounded"
+                                      />
+                                    ) : (
+                                      <div className="h-5 w-5 rounded bg-default-200" />
+                                    );
+                                  })()
+                            }
                           >
                             <div className="flex items-center justify-between">
                               <span
                                 className="font-medium truncate max-w-[160px]"
-                                title={name}
+                                title={item.name}
                               >
-                                {name}
+                                {item.name}
                               </span>
                               <div className="flex items-center gap-2 ml-2">
-                                {Boolean(
-                                  localVersionMap.get(name)?.isRegistered
-                                ) ? (
+                                {item.isRegistered ? (
                                   <Chip
                                     size="sm"
                                     color="success"
@@ -1655,12 +1689,12 @@ export const LauncherPage = (args: any) => {
                                   </Chip>
                                 ) : null}
                                 <span className="text-xs text-default-500">
-                                  {localVersionMap.get(name)?.version || ""}
+                                  {item.version}
                                 </span>
                               </div>
                             </div>
                           </DropdownItem>
-                        ))}
+                        )}
                       </DropdownMenu>
                     </Dropdown>
                   </div>

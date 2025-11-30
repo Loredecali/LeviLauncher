@@ -1,3 +1,4 @@
+import "./polyfills/wails";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import {
@@ -477,7 +478,7 @@ function App() {
                 variant="light"
                 aria-label="Minimize"
                 isDisabled={navLocked}
-                onClick={() => {
+                onPress={() => {
                   if (navLocked) return;
                   Window.Minimise();
                 }}
@@ -489,7 +490,7 @@ function App() {
                 variant="light"
                 aria-label="Close"
                 isDisabled={navLocked}
-                onClick={() => {
+                onPress={() => {
                   if (navLocked) return;
                   Window.Close();
                 }}

@@ -26,6 +26,7 @@ export type FileManagerState = {
   initialPath?: string;
   returnTo?: string;
   returnState?: any;
+  directoryPickMode?: boolean;
 };
 
 type Entry = { name: string; path: string; isDir: boolean; size: number };
@@ -455,7 +456,7 @@ const FileManagerPage: React.FC = () => {
           setDirWritable(true);
         }
         if (path) {
-          const ok2 = await minecraft?.CanCreateDir?.(path);
+          const ok2 = await minecraft?.CanWriteToDir?.(path);
           setCanCreateHere(Boolean(ok2));
         } else {
           setCanCreateHere(false);
@@ -551,8 +552,7 @@ const FileManagerPage: React.FC = () => {
               size="sm"
               variant="light"
               title={isPinned ? "Unpin" : "Pin"}
-              onClick={(ev) => {
-                ev.stopPropagation();
+              onPress={() => {
                 togglePin(e.path);
               }}
             >
@@ -656,7 +656,7 @@ const FileManagerPage: React.FC = () => {
                       size="sm"
                       variant="light"
                       isIconOnly
-                      onClick={() => setQaOpen((v) => !v)}
+                      onPress={() => setQaOpen((v) => !v)}
                     >
                       {qaOpen ? "▾" : "▸"}
                     </Button>
@@ -696,7 +696,7 @@ const FileManagerPage: React.FC = () => {
                       size="sm"
                       variant="light"
                       isIconOnly
-                      onClick={() => setPinnedOpen((v) => !v)}
+                      onPress={() => setPinnedOpen((v) => !v)}
                     >
                       {pinnedOpen ? "▾" : "▸"}
                     </Button>

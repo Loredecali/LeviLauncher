@@ -479,15 +479,13 @@ export const VersionSelectPage: React.FC<{ refresh?: () => void }> = (
                   className="w-full min-w-0"
                 >
                   <Card
-                    isPressable
-                    onPress={() => selectVersionByUser(it.name)}
                     className={`w-full rounded-2xl shadow-md bg-white/70 dark:bg-black/30 backdrop-blur-md border border-white/30 transition ${
                       selectedVersionName === it.name
                         ? "ring-2 ring-primary-500"
                         : ""
                     }`}
                   >
-                    <CardBody className="p-3 sm:p-4">
+                    <CardBody className="p-3 sm:p-4" onClick={() => selectVersionByUser(it.name)}>
                       <div className="flex items-center justify-between gap-2">
                         <div className="font-semibold text-base truncate">
                           {it.name}

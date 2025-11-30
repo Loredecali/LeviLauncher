@@ -342,7 +342,7 @@ export default function WorldsListPage() {
               <Button
                 size="sm"
                 variant="bordered"
-                onPress={refreshAll}
+                onPress={() => refreshAll()}
                 isDisabled={loading}
               >
                 {t("common.refresh", { defaultValue: "刷新" })}

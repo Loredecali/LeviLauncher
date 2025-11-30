@@ -308,7 +308,7 @@ export default function BehaviorPacksPage() {
               <Button
                 size="sm"
                 variant="bordered"
-                onPress={refreshAll}
+                onPress={() => refreshAll()}
                 isDisabled={loading}
               >
                 {t("common.refresh", { defaultValue: "刷新" })}

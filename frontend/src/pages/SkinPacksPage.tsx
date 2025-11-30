@@ -329,7 +329,7 @@ export default function SkinPacksPage() {
               <Button
                 size="sm"
                 variant="bordered"
-                onPress={refreshAll}
+                onPress={() => refreshAll()}
                 isDisabled={loading}
               >
                 {t("common.refresh", { defaultValue: "刷新" })}
