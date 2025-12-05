@@ -486,6 +486,7 @@ func ImportMcpackToDirs2(data []byte, archiveName string, resDir string, bpDir s
 	}
 	targets := make([]string, 0, 3)
 	hasAny := false
+	hadSkin := false
 	for _, m := range manifest.Modules {
 		tp := strings.ToLower(strings.TrimSpace(m.Type))
 		if tp == "resources" && strings.TrimSpace(resDir) != "" {
@@ -494,12 +495,18 @@ func ImportMcpackToDirs2(data []byte, archiveName string, resDir string, bpDir s
 		} else if tp == "data" && strings.TrimSpace(bpDir) != "" {
 			targets = append(targets, filepath.Join(bpDir, baseName))
 			hasAny = true
-		} else if tp == "skin_pack" && strings.TrimSpace(skinDir) != "" {
-			targets = append(targets, filepath.Join(skinDir, baseName))
-			hasAny = true
+		} else if tp == "skin_pack" {
+			hadSkin = true
+			if strings.TrimSpace(skinDir) != "" {
+				targets = append(targets, filepath.Join(skinDir, baseName))
+				hasAny = true
+			}
 		}
 	}
 	if !hasAny {
+		if hadSkin && strings.TrimSpace(skinDir) == "" {
+			return "ERR_NO_PLAYER"
+		}
 		return "ERR_INVALID_PACKAGE"
 	}
 	for _, targetRoot := range targets {
@@ -571,6 +578,7 @@ func ImportMcaddonToDirs2(data []byte, resDir string, bpDir string, skinDir stri
 		return "ERR_OPEN_ZIP"
 	}
 	imported := false
+	hadSkin := false
 	for _, f := range zr.File {
 		name := strings.TrimSpace(f.Name)
 		lower := strings.ToLower(name)
@@ -623,6 +631,7 @@ func ImportMcaddonToDirs2(data []byte, resDir string, bpDir string, skinDir stri
 		}
 		targets := make([]string, 0, 3)
 		hasAny := false
+		packHadSkin := false
 		for _, m := range p.manifest.Modules {
 			tp := strings.ToLower(strings.TrimSpace(m.Type))
 			if tp == "resources" && strings.TrimSpace(resDir) != "" {
@@ -631,12 +640,18 @@ func ImportMcaddonToDirs2(data []byte, resDir string, bpDir string, skinDir stri
 			} else if tp == "data" && strings.TrimSpace(bpDir) != "" {
 				targets = append(targets, filepath.Join(bpDir, baseName))
 				hasAny = true
-			} else if tp == "skin_pack" && strings.TrimSpace(skinDir) != "" {
-				targets = append(targets, filepath.Join(skinDir, baseName))
-				hasAny = true
+			} else if tp == "skin_pack" {
+				packHadSkin = true
+				if strings.TrimSpace(skinDir) != "" {
+					targets = append(targets, filepath.Join(skinDir, baseName))
+					hasAny = true
+				}
 			}
 		}
 		if !hasAny {
+			if packHadSkin {
+				hadSkin = true
+			}
 			continue
 		}
 		for _, targetRoot := range targets {
@@ -695,6 +710,9 @@ func ImportMcaddonToDirs2(data []byte, resDir string, bpDir string, skinDir stri
 		imported = true
 	}
 	if !imported {
+		if hadSkin && strings.TrimSpace(skinDir) == "" {
+			return "ERR_NO_PLAYER"
+		}
 		return "ERR_INVALID_PACKAGE"
 	}
 	return ""

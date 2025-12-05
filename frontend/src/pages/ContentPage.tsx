@@ -386,13 +386,28 @@ export default function ContentPage() {
           const base = p.replace(/\\/g, "/").split("/").pop() || p;
           setCurrentFile(base);
           let err = "";
+          let usePlayer = selectedPlayer;
+          if (!usePlayer) {
+            try {
+              const ver = currentVersionName || readCurrentVersionName();
+              if (ver) {
+                const r = await GetContentRoots(ver);
+                const ur = r?.usersRoot || "";
+                if (ur) {
+                  const names = await listPlayers(ur);
+                  usePlayer = names[0] || "";
+                  if (usePlayer) setSelectedPlayer(usePlayer);
+                }
+              }
+            } catch {}
+          }
           if (
-            selectedPlayer &&
+            usePlayer &&
             typeof (minecraft as any)?.ImportMcpackPathWithPlayer === "function"
           ) {
             err = await (minecraft as any)?.ImportMcpackPathWithPlayer?.(
               name,
-              selectedPlayer,
+              usePlayer,
               p,
               false
             );
@@ -409,13 +424,13 @@ export default function ContentPage() {
               });
               if (ok) {
                 if (
-                  selectedPlayer &&
+                  usePlayer &&
                   typeof (minecraft as any)?.ImportMcpackPathWithPlayer ===
                     "function"
                 ) {
                   err = await (minecraft as any)?.ImportMcpackPathWithPlayer?.(
                     name,
-                    selectedPlayer,
+                    usePlayer,
                     p,
                     true
                   );
@@ -444,14 +459,29 @@ export default function ContentPage() {
           const base = p.replace(/\\/g, "/").split("/").pop() || p;
           setCurrentFile(base);
           let err = "";
+          let usePlayer2 = selectedPlayer;
+          if (!usePlayer2) {
+            try {
+              const ver = currentVersionName || readCurrentVersionName();
+              if (ver) {
+                const r = await GetContentRoots(ver);
+                const ur = r?.usersRoot || "";
+                if (ur) {
+                  const names = await listPlayers(ur);
+                  usePlayer2 = names[0] || "";
+                  if (usePlayer2) setSelectedPlayer(usePlayer2);
+                }
+              }
+            } catch {}
+          }
           if (
-            selectedPlayer &&
+            usePlayer2 &&
             typeof (minecraft as any)?.ImportMcaddonPathWithPlayer ===
               "function"
           ) {
             err = await (minecraft as any)?.ImportMcaddonPathWithPlayer?.(
               name,
-              selectedPlayer,
+              usePlayer2,
               p,
               false
             );
@@ -468,13 +498,13 @@ export default function ContentPage() {
               });
               if (ok) {
                 if (
-                  selectedPlayer &&
+                  usePlayer2 &&
                   typeof (minecraft as any)?.ImportMcaddonPathWithPlayer ===
                     "function"
                 ) {
                   err = await (minecraft as any)?.ImportMcaddonPathWithPlayer?.(
                     name,
-                    selectedPlayer,
+                    usePlayer2,
                     p,
                     true
                   );
